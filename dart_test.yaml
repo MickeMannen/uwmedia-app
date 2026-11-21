@@ -10,6 +10,6 @@ tags:
     description: Pre-release validation on the full-size media in test_data/.
     timeout: 10x
   golden:
-    description: Compares rendered overlays with test/fixtures/overlay_golden (macOS only in CI).
+    description: Compares rendered overlays with test/fixtures/overlay_golden.
   requires_media:
     description: Reads test_data/ (or UWMEDIA_TEST_DATA); skips itself when missing.

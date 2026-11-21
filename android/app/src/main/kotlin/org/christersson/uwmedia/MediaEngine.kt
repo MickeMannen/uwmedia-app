@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.ImageFormat
+import android.media.Image
+import android.media.MediaCodec
+import android.media.MediaCodecInfo
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
@@ -159,10 +163,262 @@ class MediaEngine(private val context: Context) {
         }
     }
 
-    // A frame as RGBA bytes, upright, no bigger than the size asked for.
-    // [exact] takes the frame at that time (slow on a 4K clip); otherwise
+    // A frame as RGBA bytes, upright, fitted inside the size asked for.
+    // An SDR clip's frame is always the one at that time, its colours
+    // those the Python app's OpenCV and the desktop's ffmpeg read: YUV
+    // turned into RGB by the BT.601 matrix whatever the clip is tagged
+    // with, made smaller by averaging (spec §10.30), as on the iPhone. An
+    // HDR clip's frame comes from the retriever (turned to SDR by it):
+    // [exact] takes the frame at that time (slow on a 4K clip), otherwise
     // the key frame nearest to it.
     private fun frameAt(
+        path: String,
+        seconds: Double,
+        maxWidth: Int,
+        maxHeight: Int,
+        exact: Boolean,
+    ): Map<String, Any>? {
+        // A decoder that will not give its picture as YUV leaves it to the
+        // retriever too.
+        val frame = try {
+            yuvFrame(path, seconds)
+        } catch (e: Exception) {
+            null
+        } ?: return retrieverFrame(path, seconds, maxWidth, maxHeight, exact)
+        val (width, height, rgba) = frame
+        val scale = minOf(maxWidth.toDouble() / width, maxHeight.toDouble() / height)
+        if (scale < 1) {
+            val outWidth = maxOf(1, Math.round(width * scale).toInt())
+            val outHeight = maxOf(1, Math.round(height * scale).toInt())
+            return mapOf(
+                "width" to outWidth,
+                "height" to outHeight,
+                "rgba" to areaScaled(rgba, width, height, outWidth, outHeight),
+            )
+        }
+        return mapOf("width" to width, "height" to height, "rgba" to rgba)
+    }
+
+    // The decoded frame shown at [seconds] (the first whose time is not
+    // before it, half a frame allowed), read as BT.601 YUV and turned
+    // upright, as (width, height, RGBA); `null` for an HDR clip, past the
+    // end, or when the decoder gives no YUV picture.
+    private fun yuvFrame(path: String, seconds: Double): Triple<Int, Int, ByteArray>? {
+        val extractor = MediaExtractor()
+        var codec: MediaCodec? = null
+        try {
+            extractor.setDataSource(path)
+            var track = -1
+            for (i in 0 until extractor.trackCount) {
+                if (extractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME)
+                        ?.startsWith("video/") == true
+                ) {
+                    track = i
+                    break
+                }
+            }
+            if (track < 0) return null
+            val format = extractor.getTrackFormat(track)
+            if (format.containsKey(MediaFormat.KEY_COLOR_TRANSFER)) {
+                val transfer = format.getInteger(MediaFormat.KEY_COLOR_TRANSFER)
+                if (transfer == MediaFormat.COLOR_TRANSFER_ST2084 ||
+                    transfer == MediaFormat.COLOR_TRANSFER_HLG
+                ) {
+                    return null
+                }
+            }
+            val rotation = if (format.containsKey(MediaFormat.KEY_ROTATION)) {
+                format.getInteger(MediaFormat.KEY_ROTATION)
+            } else {
+                0
+            }
+            val fps = if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                format.getNumber(MediaFormat.KEY_FRAME_RATE)?.toDouble() ?: 0.0
+            } else {
+                0.0
+            }
+            val frameUs = if (fps > 0) 1_000_000 / fps else 1_000_000 / 30.0
+            val targetUs = seconds * 1_000_000
+            extractor.selectTrack(track)
+            extractor.seekTo(
+                maxOf(0.0, targetUs - frameUs).toLong(),
+                MediaExtractor.SEEK_TO_PREVIOUS_SYNC,
+            )
+            format.setInteger(
+                MediaFormat.KEY_COLOR_FORMAT,
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible,
+            )
+            val decoder = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME)!!)
+            codec = decoder
+            decoder.configure(format, null, null, 0)
+            decoder.start()
+            val info = MediaCodec.BufferInfo()
+            var inputDone = false
+            // A guard against a decoder that never answers.
+            val deadline = System.nanoTime() + 20_000_000_000L
+            while (System.nanoTime() < deadline) {
+                if (!inputDone) {
+                    val input = decoder.dequeueInputBuffer(10_000)
+                    if (input >= 0) {
+                        val size = extractor.readSampleData(decoder.getInputBuffer(input)!!, 0)
+                        if (size < 0) {
+                            decoder.queueInputBuffer(
+                                input, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+                            )
+                            inputDone = true
+                        } else {
+                            decoder.queueInputBuffer(input, 0, size, extractor.sampleTime, 0)
+                            extractor.advance()
+                        }
+                    }
+                }
+                val output = decoder.dequeueOutputBuffer(info, 10_000)
+                if (output < 0) continue
+                val last = info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
+                if (info.size > 0 && info.presentationTimeUs >= targetUs - frameUs / 2) {
+                    val image = decoder.getOutputImage(output)
+                    val frame = image?.let { rgbaOf(it, rotation) }
+                    image?.close()
+                    decoder.releaseOutputBuffer(output, false)
+                    return frame
+                }
+                decoder.releaseOutputBuffer(output, false)
+                if (last) return null
+            }
+            return null
+        } finally {
+            try {
+                codec?.stop()
+            } catch (_: Exception) {
+            }
+            codec?.release()
+            extractor.release()
+        }
+    }
+
+    // [image] (YUV 4:2:0, 8 or 10 bits, video range) as RGBA by the BT.601
+    // matrix, each chroma sample used for its 2 x 2 pixels, turned by
+    // [rotation] degrees clockwise; `null` for another layout.
+    private fun rgbaOf(image: Image, rotation: Int): Triple<Int, Int, ByteArray>? {
+        val wide = when (image.format) {
+            ImageFormat.YUV_420_888 -> false
+            ImageFormat.YCBCR_P010 -> true
+            else -> return null
+        }
+        val crop = image.cropRect
+        val width = crop.width()
+        val height = crop.height()
+        val (yPlane, uPlane, vPlane) = image.planes
+        // A sample's value on the 8-bit scale (P010 holds 10 bits at the
+        // top of 16, little-endian).
+        fun sample(plane: Image.Plane, x: Int, y: Int): Float {
+            val buffer = plane.buffer
+            val at = y * plane.rowStride + x * plane.pixelStride
+            if (!wide) return (buffer.get(at).toInt() and 0xff).toFloat()
+            val low = buffer.get(at).toInt() and 0xff
+            val high = buffer.get(at + 1).toInt() and 0xff
+            return ((high shl 8) or low).toFloat() / 256f
+        }
+        val turned = rotation == 90 || rotation == 270
+        val outWidth = if (turned) height else width
+        val outHeight = if (turned) width else height
+        val rgba = ByteArray(outWidth * outHeight * 4)
+        fun channel(value: Float): Byte =
+            Math.round(value.coerceIn(0f, 255f)).toByte()
+        for (row in 0 until height) {
+            val sy = crop.top + row
+            for (column in 0 until width) {
+                val sx = crop.left + column
+                val luma = (sample(yPlane, sx, sy) - 16f) * (255f / 219f)
+                val cb = (sample(uPlane, sx / 2, sy / 2) - 128f) * (255f / 224f)
+                val cr = (sample(vPlane, sx / 2, sy / 2) - 128f) * (255f / 224f)
+                val (ox, oy) = when (rotation) {
+                    90 -> Pair(height - 1 - row, column)
+                    180 -> Pair(width - 1 - column, height - 1 - row)
+                    270 -> Pair(row, width - 1 - column)
+                    else -> Pair(column, row)
+                }
+                val at = (oy * outWidth + ox) * 4
+                rgba[at] = channel(luma + 1.402f * cr)
+                rgba[at + 1] = channel(luma - 0.344136f * cb - 0.714136f * cr)
+                rgba[at + 2] = channel(luma + 1.772f * cb)
+                rgba[at + 3] = 255.toByte()
+            }
+        }
+        return Triple(outWidth, outHeight, rgba)
+    }
+
+    // [rgba] (width x height) made [outWidth] x [outHeight] by averaging
+    // the source pixels each output pixel covers, parts of a pixel by the
+    // part covered (ffmpeg's `flags=area`, OpenCV's INTER_AREA).
+    private fun areaScaled(
+        rgba: ByteArray,
+        width: Int,
+        height: Int,
+        outWidth: Int,
+        outHeight: Int,
+    ): ByteArray {
+        // The source pixels and their weights for each output column or row.
+        fun spans(from: Int, to: Int): List<List<Pair<Int, Float>>> {
+            val step = from.toDouble() / to
+            return (0 until to).map { o ->
+                val start = o * step
+                val end = minOf(from.toDouble(), start + step)
+                val parts = mutableListOf<Pair<Int, Float>>()
+                var i = start.toInt()
+                while (i < end) {
+                    val covered = minOf(end, i + 1.0) - maxOf(start, i.toDouble())
+                    if (covered > 0) parts.add(Pair(i, (covered / step).toFloat()))
+                    i++
+                }
+                parts
+            }
+        }
+        val columns = spans(width, outWidth)
+        val rows = spans(height, outHeight)
+        // Across first (every source row), then down.
+        val across = FloatArray(height * outWidth * 3)
+        for (y in 0 until height) {
+            for ((o, parts) in columns.withIndex()) {
+                var r = 0f
+                var g = 0f
+                var b = 0f
+                for ((i, weight) in parts) {
+                    val at = (y * width + i) * 4
+                    r += (rgba[at].toInt() and 0xff) * weight
+                    g += (rgba[at + 1].toInt() and 0xff) * weight
+                    b += (rgba[at + 2].toInt() and 0xff) * weight
+                }
+                val to = (y * outWidth + o) * 3
+                across[to] = r
+                across[to + 1] = g
+                across[to + 2] = b
+            }
+        }
+        val out = ByteArray(outWidth * outHeight * 4)
+        for ((o, parts) in rows.withIndex()) {
+            for (x in 0 until outWidth) {
+                var r = 0f
+                var g = 0f
+                var b = 0f
+                for ((i, weight) in parts) {
+                    val at = (i * outWidth + x) * 3
+                    r += across[at] * weight
+                    g += across[at + 1] * weight
+                    b += across[at + 2] * weight
+                }
+                val to = (o * outWidth + x) * 4
+                out[to] = Math.round(r.coerceIn(0f, 255f)).toByte()
+                out[to + 1] = Math.round(g.coerceIn(0f, 255f)).toByte()
+                out[to + 2] = Math.round(b.coerceIn(0f, 255f)).toByte()
+                out[to + 3] = 255.toByte()
+            }
+        }
+        return out
+    }
+
+    // A frame from the platform's retriever, scaled by it.
+    private fun retrieverFrame(
         path: String,
         seconds: Double,
         maxWidth: Int,

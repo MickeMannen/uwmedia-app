@@ -4,6 +4,16 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [0.1.1] - 2026-11-21
+
+### Changed
+
+- macOS: the download is signed with a Developer ID and notarised by
+  Apple, so it opens without a Gatekeeper warning.
+- Android: Color analyses a video at the exact frames and reads their
+  colours as the computers and the iPhone do, so a phone's correction
+  of a clip comes much closer to the desktop's.
+
 ## [0.1.0] - 2026-11-21
 
 ### Added

@@ -178,10 +178,11 @@ abstract interface class MobileMediaEngine {
   Future<ClipInfo> probe(String path);
 
   /// The frame at [seconds], upright and no bigger than [maxWidth] by
-  /// [maxHeight]; `null` when there is none. Without [exact] it may be the
-  /// key frame nearest to that time (much faster on a 4K clip; Android,
-  /// and an HDR clip on iOS). On iOS its colours are read as the
-  /// desktop's frame grab reads them (BT.601, spec §10.30).
+  /// [maxHeight]; `null` when there is none. An SDR clip's frame is the
+  /// one at that time, its colours read as the desktop's frame grab reads
+  /// them (BT.601, averaged down; spec §10.30). An HDR clip's may without
+  /// [exact] be the key frame nearest to that time (much faster on a 4K
+  /// clip).
   Future<RgbImage?> frameAt(
     String path,
     double seconds, {

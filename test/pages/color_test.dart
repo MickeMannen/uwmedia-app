@@ -127,6 +127,20 @@ Future<void> _settled(bool Function() done) async {
   }
 }
 
+// The page's work on real files takes real time, which the test's clock
+// does not pass: while a frame is still asked for (a spinner turning),
+// wait in real time, then settle. With the whole suite running, a fixed
+// 300 ms was not always enough and pumpAndSettle timed out on the spinner.
+Future<void> _settleReal(WidgetTester tester) async {
+  for (var i = 0; i < 100 && tester.binding.hasScheduledFrame; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   final fixture = jsonDecode(
     utf8.decode(
@@ -957,17 +971,7 @@ void main() {
       );
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    // The page's setup reads real files, which take real time: while a
-    // frame is still asked for (its spinner), wait in real time. With the
-    // whole suite running, 300 ms was not always enough and pumpAndSettle
-    // then timed out on the spinner.
-    for (var i = 0; i < 100 && tester.binding.hasScheduledFrame; i++) {
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 100)),
-      );
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     // Nothing is typed: the source and the output are buttons, the
     // output's place under its own.
     expect(find.byType(TextField), findsNothing);
@@ -1003,7 +1007,7 @@ void main() {
       await made.startOrStop();
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     expect(p.basename(engine.ran!.output), startsWith('uwmedia_photos_out_'));
     expect(photos.saved, [('IMG_7_color.jpg', 'Dives')]);
     engine.script = null;
@@ -1077,7 +1081,7 @@ void main() {
       );
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     expect(find.text('Live preview'), findsOneWidget);
     // No logs folder of the user's own: the way to the Dive Logs page.
     expect(find.text('Dive logs'), findsNothing);
@@ -1117,7 +1121,7 @@ void main() {
       await tester.tap(find.text('Add'));
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     expect(made.overlays, hasLength(1));
     final label = made.overlays.single.label;
     expect(find.text(label), findsOneWidget);
@@ -1280,7 +1284,7 @@ void main() {
       );
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     expect(find.text('Source'), findsNothing);
     expect(find.text('Output filename'), findsNothing);
     expect(find.text('Hardware acceleration'), findsNothing);
@@ -1315,7 +1319,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
         await Future<void>.delayed(const Duration(milliseconds: 300));
       });
-      await tester.pumpAndSettle();
+      await _settleReal(tester);
     }
 
     await pickFrom(fromLibraryLabel);
@@ -1375,7 +1379,7 @@ void main() {
       end.complete();
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
-    await tester.pumpAndSettle();
+    await _settleReal(tester);
     expect(find.text('Start'), findsOneWidget);
     expect(find.text('Finished: 1 done'), findsOneWidget);
     expect(find.text(pickMediaLabel), findsOneWidget);

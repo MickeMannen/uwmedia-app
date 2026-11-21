@@ -2,8 +2,9 @@
 # `golden` and `release` tags, see CONTRIBUTING.md) on macOS, Windows and
 # Linux. It runs on pushes to main and on release tags only - development
 # branches never go to GitHub - and can be started by hand from the Actions
-# tab. The macOS job also compares the overlay golden images, the one
-# platform whose font rasterising matches the committed PNGs.
+# tab. Every job also compares the overlay golden images: the bundled fonts
+# draw within the golden test's limits on all three systems (roadmap E1,
+# 2026-11-21).
 #
 # The tests need no private data: tests that read the owner's test_data/
 # folder skip themselves when it is missing, and dive logs are synthetic.
@@ -71,14 +72,8 @@ jobs:
       - name: Run the default suite
         run: flutter test --exclude-tags golden,release --coverage
 
-      # Fonts rasterise differently per platform, so the committed goldens
-      # are compared on macOS only (CONTRIBUTING.md "Test tags"). Widen to
-      # the matrix once the bundled fonts are confirmed identical everywhere
-      # (docs/roadmap_v0.1.0.md section E).
       - name: Compare overlay golden images
-        if: runner.os == 'macOS'
-        # Exit 79 is "no test has this tag", fine until the golden tests exist.
-        run: flutter test --tags golden || [ $? -eq 79 ]
+        run: flutter test --tags golden
 
       - name: Upload coverage
         if: runner.os == 'Linux'

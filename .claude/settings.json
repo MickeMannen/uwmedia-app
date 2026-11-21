@@ -22,6 +22,8 @@
       "Bash(git -C ~/development/uwmedia show*)",
       "Bash(git -C ~/development/uwmedia rev-parse*)",
       "Read(~/development/uwmedia/**)",
+      "Read(~/development/app_web/src/assets/uwmedia/**)",
+      "Edit(~/development/app_web/src/assets/uwmedia/**)",
       "Bash(git add*)",
       "Bash(git commit*)",
       "Bash(git push gitea development*)"
@@ -43,6 +45,9 @@
       "Write(~/development/uwmedia/**)",
       "Edit(~/Library/Application Support/**)",
       "Write(~/Library/Application Support/**)"
+    ],
+    "additionalDirectories": [
+      "~/development/app_web/src/assets/uwmedia"
     ]
   },
   "hooks": {

@@ -101,6 +101,11 @@ jobs:
         if: github.event_name != 'schedule'
         run: tool/run_tests.sh 1
 
+      # The fonts draw as on the Mac (roadmap E1, 2026-11-21).
+      - name: Compare overlay golden images
+        if: github.event_name != 'schedule'
+        run: flutter test --tags golden
+
       - name: Everything
         if: github.event_name == 'schedule'
         run: tool/run_tests.sh 4
@@ -124,8 +129,7 @@ jobs:
 
       - name: Compare overlay golden images
         if: github.event_name != 'schedule'
-        # Exit 79 is "no test has this tag", fine until the golden tests exist.
-        run: flutter test --tags golden || [ $? -eq 79 ]
+        run: flutter test --tags golden
 
       - name: Everything
         if: github.event_name == 'schedule'
@@ -198,6 +202,13 @@ jobs:
         run: |
           $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
           & $bash tool/run_tests.sh 1
+          exit $LASTEXITCODE
+
+      # The fonts draw as on the Mac (roadmap E1, 2026-11-21).
+      - name: Compare overlay golden images
+        if: github.event_name != 'schedule'
+        run: |
+          flutter test --tags golden
           exit $LASTEXITCODE
 
       - name: Everything

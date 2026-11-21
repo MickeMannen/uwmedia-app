@@ -62,9 +62,8 @@ Tags are declared in `dart_test.yaml` and set per file or per test with
   page in the Python golden test's states and compares it with the Python
   app's own renders in `test/fixtures/python_reference/overlay_golden/`,
   within the limits its header explains (the rasteriser and, for "Arial",
-  the font differ). Font rasterising differs between machines, so it runs
-  on macOS only until the bundled fonts are confirmed to render alike
-  everywhere. `HUD_GOLDEN_ONLY=<part of a name>` writes golden | port |
+  the font differ). It passes on macOS, Windows and Linux (2026-11-21), so
+  CI runs it on all three. `HUD_GOLDEN_ONLY=<part of a name>` writes golden | port |
   difference images into `build/hud_golden/`. The goldens were made by
   the Python app, which is no longer maintained (2026-11-19): they are
   kept here as they are and never regenerated.

@@ -34,6 +34,11 @@ commit). A machine without a baseline gets one the same way, on the
 owner's word. When it reports a run faster, say so; lowering the baseline
 is again the owner's call.
 
+For the releases of v0.1.0 (desktop, then the phones) the speed work is
+moved to v0.2.0, section G (owner, 2026-11-21): run the speed check and
+report its table, but a slower run does not stop the release, and the
+baseline is not changed. From v0.2.0 on the rule above holds again.
+
 1. **Pick the version**: the one the owner named, else the next patch
    after the newest tag (`git tag --sort=-v:refname | head -1`). Say
    which one you chose, and the target.
