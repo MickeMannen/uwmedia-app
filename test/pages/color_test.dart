@@ -957,6 +957,16 @@ void main() {
       );
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
+    // The page's setup reads real files, which take real time: while a
+    // frame is still asked for (its spinner), wait in real time. With the
+    // whole suite running, 300 ms was not always enough and pumpAndSettle
+    // then timed out on the spinner.
+    for (var i = 0; i < 100 && tester.binding.hasScheduledFrame; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
     // Nothing is typed: the source and the output are buttons, the
     // output's place under its own.

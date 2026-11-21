@@ -6,8 +6,9 @@
 #   tool/bundle_tools.sh [macos|windows|linux]     (default: this system)
 #
 # On macOS the app is signed again afterwards, ad hoc unless
-# UWMEDIA_SIGN_IDENTITY names an identity: files added to a signed bundle
-# break its seal. The Mac App Store build (tool/build_store.sh) takes no
+# UWMEDIA_SIGN_IDENTITY names a Developer ID identity (its name or its
+# hash; then with the hardened runtime and macos/Runner/Release.entitlements,
+# ready to notarise): files added to a signed bundle break its seal. The Mac App Store build (tool/build_store.sh) takes no
 # tools.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -40,19 +41,28 @@ dart run tool/fetch_tools.dart "$system" "$bin"
 
 if [ "$system" = macos ]; then
   identity="${UWMEDIA_SIGN_IDENTITY:--}"
-  # The tools first (each a program of its own), then the bundle around
-  # them.
-  for tool in ffmpeg ffprobe; do
-    if [ "$identity" = "-" ]; then
-      codesign --force --sign - "$bin/$tool"
-    else
-      codesign --force --options runtime --timestamp --sign "$identity" "$bin/$tool"
-    fi
-  done
   if [ "$identity" = "-" ]; then
+    # The tools first (each a program of its own), then the bundle around
+    # them.
+    for tool in ffmpeg ffprobe; do
+      codesign --force --sign - "$bin/$tool"
+    done
     codesign --force --deep --sign - "$app"
   else
-    codesign --force --deep --options runtime --timestamp --sign "$identity" "$app"
+    # A Developer ID, for notarising: every program in the bundle signed
+    # by itself with the hardened runtime and a timestamp, from the inside
+    # out (the tools, the frameworks, then the app), and only the app
+    # given the entitlements. No --deep: it would hand the entitlements
+    # to everything inside.
+    sign() { codesign --force --options runtime --timestamp --sign "$identity" "$@"; }
+    for tool in ffmpeg ffprobe; do
+      sign "$bin/$tool"
+    done
+    find "$app/Contents/Frameworks" -depth \( -name '*.dylib' -o -name '*.framework' \) -print0 |
+      while IFS= read -r -d '' item; do
+        sign "$item"
+      done
+    sign --entitlements macos/Runner/Release.entitlements "$app"
   fi
   codesign --verify --deep --strict "$app"
 fi

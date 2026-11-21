@@ -2,5 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- The download build (spec §13.5): no App Sandbox. Signed with a
+	     Developer ID it runs under the hardened runtime, which keeps the
+	     Photos library closed without this (tool/bundle_tools.sh signs the
+	     app with these). -->
+	<key>com.apple.security.personal-information.photos-library</key>
+	<true/>
 </dict>
 </plist>

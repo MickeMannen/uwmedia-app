@@ -32,6 +32,15 @@ The workflow needs the repository secret `SIGNPATH_API_TOKEN` (a SignPath
 CI user's token) and the variable `SIGNPATH_ORGANIZATION_ID`; the project
 slug is `uwmedia`.
 
+The steps are in the workflow since 2026-11-21 ("Sign the Windows build",
+off by default until SignPath has approved the project;
+`signpath/github-action-submit-signing-request@v3`), not yet run. Each request waits two hours at most for its approval. The
+unsigned files are uploaded as the workflow artifacts
+`unsigned-windows-app` and `unsigned-windows-installer` (SignPath takes
+its input from there); they are kept a day and are not attached to the
+release. After each request the workflow checks that the files came back
+with a valid signature.
+
 ## When a file is added
 
 A new plugin's DLL is signed without a change here (`*_plugin.dll`). A

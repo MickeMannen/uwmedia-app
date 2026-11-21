@@ -8,18 +8,41 @@
 # tip of the selected branch. Leaving "Attach to the GitHub Release"
 # unchecked only uploads workflow artifacts (useful for test builds).
 #
-# What is built today: unsigned macOS .app (zipped), an unsigned Windows
-# installer (Inno Setup) and a Linux bundle (tar.gz). Signing and
-# notarising on macOS, signing on Windows, a Linux package and the mobile
-# store builds are
-# docs/roadmap_v0.1.0.md section E items; the Apple secrets from the Python repo
-# (APPLE_CERTIFICATE_P12, APPLE_CERTIFICATE_PASSWORD, APPLE_TEAM_ID,
-# APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD) can be reused when that lands.
+# What is built today: a macOS .app (zipped), signed with the Developer ID
+# and notarised by Apple unless "Sign and notarise" is unchecked; a
+# Windows installer (Inno Setup), signed through SignPath Foundation
+# when "Sign the Windows build" is checked; and a Linux bundle
+# (tar.gz). A Linux package and the mobile store builds are
+# docs/roadmap_v0.1.0.md section E items.
 # ffmpeg, ffprobe and exiftool go into each desktop build (spec §13.2):
 # tool/bundle_tools.sh fetches the files of this repo's "deps" release
 # (tool/DEPS_RELEASE.md), checks each against assets/licenses/BINARY_MANIFEST.json and
-# puts them where the app looks first. The macOS app is signed ad hoc
-# again after that.
+# puts them where the app looks first, and on macOS signs the app again
+# after that (the tools, the frameworks, then the app).
+#
+# Signing on macOS needs five repository secrets, the Python repo's:
+#   APPLE_CERTIFICATE_P12        base64 of a .p12 holding the "Developer ID
+#                                Application" certificate and its key
+#                                (exported from Keychain Access;
+#                                `base64 -i cert.p12 | pbcopy`)
+#   APPLE_CERTIFICATE_PASSWORD   the password given at that export
+#   APPLE_TEAM_ID                the 10-character team id
+#   APPLE_ID                     the Apple ID (e-mail) of the account
+#   APPLE_APP_SPECIFIC_PASSWORD  an app-specific password from
+#                                account.apple.com, not the account's own
+# The build is refused when signing is asked for and one is missing. An
+# unsigned (ad hoc) build opens only after the user overrides Gatekeeper,
+# so it is for trying the workflow, not for a release.
+#
+# Signing on Windows (.signpath/README.md; the README's "Code signing
+# policy") needs the repository secret SIGNPATH_API_TOKEN (the token of
+# the SignPath CI user) and the variable SIGNPATH_ORGANIZATION_ID. Two
+# signing requests are sent, each approved by hand in SignPath while the
+# run waits (two hours at most, each): the app's own files, before
+# ffmpeg, ffprobe and exiftool are added, and then the installer made
+# from the signed files. SignPath takes only what a GitHub-hosted runner
+# built and uploaded as a workflow artifact, so the unsigned files are
+# uploaded too ("unsigned-*", kept a day, never attached to a release).
 
 name: Release Build
 
@@ -31,13 +54,23 @@ on:
         type: string
         default: ''
       build_macos:
-        description: 'Build macOS (unsigned)'
+        description: 'Build macOS'
+        type: boolean
+        default: true
+      sign_macos:
+        description: 'Sign and notarise the macOS build (needs the Apple secrets)'
         type: boolean
         default: true
       build_windows:
         description: 'Build Windows'
         type: boolean
         default: true
+      sign_windows:
+        description: 'Sign the Windows build through SignPath (needs the SignPath secret and variable, and an approval of each request)'
+        type: boolean
+        # Off until SignPath Foundation has approved the project (owner,
+        # 2026-11-21); then on by default, as the macOS signing.
+        default: false
       build_linux:
         description: 'Build Linux'
         type: boolean
@@ -155,9 +188,161 @@ jobs:
         run: |
           flutter build ${{ matrix.platform }} --release --build-name "$VERSION" --build-number "${{ github.run_number }}"
 
+      # Windows signing, first request (.signpath/README.md): the app's own
+      # files as the build left them, before the tools are added, so that
+      # no third party's file is in the request. upload-artifact zips the
+      # folder's contents, which is the form the artifact configuration
+      # "uwmedia-app" describes (uwmedia.exe at the root).
+      - name: Check the SignPath settings (Windows)
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        shell: bash
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+        run: |
+          if [ -z "$SIGNPATH_API_TOKEN" ] || [ -z "$SIGNPATH_ORGANIZATION_ID" ]; then
+            echo "::error::The secret SIGNPATH_API_TOKEN or the variable SIGNPATH_ORGANIZATION_ID is not set: add them, or uncheck 'Sign the Windows build'."
+            exit 1
+          fi
+
+      - name: Upload the unsigned app files (Windows)
+        id: unsigned-app
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-app
+          path: build/windows/x64/runner/Release
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Sign the app files (Windows, SignPath)
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: uwmedia
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: uwmedia-app
+          github-artifact-id: ${{ steps.unsigned-app.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: signed/app
+
+      # The signed files over the unsigned ones; the build is stopped if
+      # the app or a plugin came back without a valid signature.
+      - name: Take the signed app files (Windows)
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        run: |
+          $release = 'build\windows\x64\runner\Release'
+          Copy-Item -Path 'signed\app\*' -Destination $release -Recurse -Force
+          $files = @(Get-Item "$release\uwmedia.exe") + @(Get-ChildItem "$release\*_plugin.dll")
+          foreach ($file in $files) {
+            $signature = Get-AuthenticodeSignature $file.FullName
+            "{0}: {1}" -f $file.Name, $signature.Status
+            if ($signature.Status -ne 'Valid') { Write-Error "$($file.Name) is not signed"; exit 1 }
+          }
+
+      # The Developer ID certificate into a keychain of this run's own;
+      # its hash goes to tool/bundle_tools.sh as UWMEDIA_SIGN_IDENTITY.
+      - name: Import the Developer ID certificate (macOS)
+        if: matrix.platform == 'macos' && inputs.sign_macos
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in APPLE_CERTIFICATE_P12 APPLE_CERTIFICATE_PASSWORD APPLE_TEAM_ID APPLE_ID APPLE_APP_SPECIFIC_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The secret $name is not set: add it, or uncheck 'Sign and notarise the macOS build'."
+              exit 1
+            fi
+          done
+
+          KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
+
+          # In the search list, the default keychains kept
+          EXISTING_KEYCHAINS=$(security list-keychains -d user | sed 's/[[:space:]"]//g')
+          # shellcheck disable=SC2086
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $EXISTING_KEYCHAINS
+
+          # The identity by its hash, so that no name has to be a secret.
+          # When none fits, what the certificate holds is listed without
+          # the names (the team id shows as *** where it is the secret's).
+          FOUND=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")
+          IDENTITY=$(echo "$FOUND" | grep 'Developer ID Application' | grep "($APPLE_TEAM_ID)" | head -1 | awk '{print $2}' || true)
+          if [ -z "$IDENTITY" ]; then
+            echo "Valid code signing identities in the certificate:"
+            echo "$FOUND" | sed -E 's/^ *[0-9]+\) [0-9A-F]+ "([^:"]*)[^"]*(\([A-Z0-9]+\))"/  \1 \2/'
+            echo "All identities in it, valid or not:"
+            security find-identity "$KEYCHAIN_PATH" | sed -E 's/^ *[0-9]+\) [0-9A-F]+ "([^:"]*)[^"]*(\([A-Z0-9]+\))"/  \1 \2/'
+            echo "::error::No valid 'Developer ID Application' identity of the team APPLE_TEAM_ID in APPLE_CERTIFICATE_P12 (see the lists above)."
+            exit 1
+          fi
+          echo "UWMEDIA_SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+
+      # On macOS this also signs: ad hoc, or with UWMEDIA_SIGN_IDENTITY
+      # from the step above.
       - name: Bundle ffmpeg, ffprobe and exiftool
         shell: bash
         run: tool/bundle_tools.sh ${{ matrix.platform }}
+
+      # Apple checks the signed app and answers with a ticket, which is
+      # stapled to the app so that it opens without a connection too. The
+      # zip sent is only the form Apple takes; the Package step below zips
+      # the stapled app.
+      - name: Notarise and staple (macOS)
+        if: matrix.platform == 'macos' && inputs.sign_macos
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          set -euo pipefail
+          APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
+          ZIP="$RUNNER_TEMP/notarise.zip"
+          RESULT="$RUNNER_TEMP/notarise.json"
+          CREDENTIALS=(--apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD")
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+
+          # notarytool can end with 0 for a refused app: the status decides
+          xcrun notarytool submit "$ZIP" "${CREDENTIALS[@]}" --wait --timeout 45m \
+            --output-format json > "$RESULT" || true
+          cat "$RESULT"; echo
+          ID=$(plutil -extract id raw -o - "$RESULT" 2>/dev/null || true)
+          STATUS=$(plutil -extract status raw -o - "$RESULT" 2>/dev/null || true)
+          if [ "$STATUS" != "Accepted" ]; then
+            if [ -n "$ID" ]; then
+              xcrun notarytool log "$ID" "${CREDENTIALS[@]}" || true
+            fi
+            echo "::error::Apple did not notarise the app (status: ${STATUS:-none}); its log is above."
+            exit 1
+          fi
+
+          xcrun stapler staple "$APP"
+          xcrun stapler validate "$APP"
+          spctl --assess --type execute -vv "$APP"
+
+      - name: Remove the signing keychain (macOS)
+        if: always() && matrix.platform == 'macos' && inputs.sign_macos
+        run: |
+          if [ -n "${KEYCHAIN_PATH:-}" ]; then
+            security delete-keychain "$KEYCHAIN_PATH" || true
+          fi
 
       - name: Package
         shell: bash
@@ -196,6 +381,44 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit 1 }
           Get-ChildItem dist | Select-Object Name, Length
 
+      # Windows signing, second request: the installer, made above from
+      # the signed files and the tools (artifact configuration
+      # "uwmedia-installer"). The signed installer replaces the unsigned
+      # one in dist, which is what is uploaded and attached below.
+      - name: Upload the unsigned installer (Windows)
+        id: unsigned-installer
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-installer
+          path: dist/*-setup.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Sign the installer (Windows, SignPath)
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: uwmedia
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: uwmedia-installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: signed/installer
+
+      - name: Take the signed installer (Windows)
+        if: matrix.platform == 'windows' && inputs.sign_windows
+        run: |
+          Copy-Item -Path 'signed\installer\*-setup.exe' -Destination dist -Force
+          foreach ($file in Get-ChildItem 'dist\*-setup.exe') {
+            $signature = Get-AuthenticodeSignature $file.FullName
+            "{0}: {1}" -f $file.Name, $signature.Status
+            if ($signature.Status -ne 'Valid') { Write-Error "$($file.Name) is not signed"; exit 1 }
+          }
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -210,9 +433,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download all artifacts
+      # The builds only: the "unsigned-*" artifacts of the Windows signing
+      # stay out of the release.
+      - name: Download the builds
         uses: actions/download-artifact@v4
         with:
+          pattern: uwmedia-*
           path: artifacts
 
       # The release and its notes exist already (the /release skill); with
