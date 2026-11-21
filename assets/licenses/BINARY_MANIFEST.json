@@ -1,40 +1,40 @@
 {
   "_comment": "Single source of truth for vendored ffmpeg/ffprobe/exiftool binaries: CI verifies sha256 against this file when fetching from the deps release, and the app's About screen reads the version fields. The files are the assets of this repo's deps release; tool/DEPS_RELEASE.md says how it is made and how a new one is vendored.",
-  "deps_release_tag": "deps-2026.09",
-  "deps_release_url": "https://github.com/MickeMannen/uwmedia-app/releases/tag/deps-2026.09",
-  "vendored_at": "2026-09-08",
+  "deps_release_tag": "deps-2026.11",
+  "deps_release_url": "https://github.com/MickeMannen/uwmedia-app/releases/tag/deps-2026.11",
+  "vendored_at": "2026-11-21",
   "ffmpeg": {
-    "license": "GPL-3.0-or-later (built with --enable-gpl --enable-version3, libx264 + libx265)",
+    "license": "GPL-3.0-or-later (built by this project with --enable-gpl --enable-version3, libx264 + libx265; source: ffmpeg-9.0.2-uwmedia-source.tar on the deps release)",
     "platforms": {
       "macos": {
-        "version": "n8.1.2",
-        "source": "https://github.com/shaka-project/static-ffmpeg-binaries/releases/tag/n8.1.2-1",
+        "version": "9.0.2-uwmedia",
+        "source": "https://github.com/MickeMannen/uwmedia-app/actions/runs/44853071427 (tool/ffmpeg/build.sh macos)",
         "asset": "ffmpeg-macos-arm64",
-        "sha256": "e7b9fcd97f95f333512d6e8b8ac24d9dbc08f189f36047695499bd7b57214b22",
+        "sha256": "2934cf655c6298ff65bf0421256fc4f5bf19e3cfcfe9ea02f8e71a7826a4374c",
         "ffprobe_asset": "ffprobe-macos-arm64",
-        "ffprobe_sha256": "ded4c698b8ff38d0bc1fd30fcc5e768dc46f58bc15a8dfd61f98615ba49cde5c",
+        "ffprobe_sha256": "4edfad109bf699a31a17fc227dd70bb621c926a6c22ca23fc3eaeb9ce1aff38c",
         "hevc_verified": true,
-        "hevc_verify_note": "ffmpeg -encoders shows libx265 and hevc_videotoolbox; ffmpeg -codecs shows hevc decode+encode"
+        "hevc_verify_note": "libx264, libx265 and hevc_videotoolbox; checked with ffmpeg -encoders"
       },
       "windows": {
-        "version": "9.0.1-full_build",
-        "source": "https://www.gyan.dev/ffmpeg/builds/",
+        "version": "9.0.2-uwmedia",
+        "source": "https://github.com/MickeMannen/uwmedia-app/actions/runs/44853071427 (tool/ffmpeg/build.sh windows)",
         "asset": "ffmpeg-windows-amd64.exe",
-        "sha256": "57c56e369d5b4873b4d93fc1a1d833cb7cd8bc9325c14b05c34ce60b22842d8a",
+        "sha256": "30b4a1bce994703052be0a362117165db374e287591dbad1bc5d4eee64bf7145",
         "ffprobe_asset": "ffprobe-windows-amd64.exe",
-        "ffprobe_sha256": "afe05347caaabe479b3c4eae71992b6ec1e11c57266a1d665deb0f9fe9847208",
+        "ffprobe_sha256": "cbd80da0a0e8bd3a2a6324d745508f518f119816336bc96bf49fd16cdfd873f8",
         "hevc_verified": true,
-        "hevc_verify_note": "README.txt encoder list includes libx265"
+        "hevc_verify_note": "libx264, libx265, hevc_nvenc, hevc_amf, hevc_qsv; checked with ffmpeg -encoders on Windows"
       },
       "linux": {
-        "version": "7.0.2",
-        "source": "https://johnvansickle.com/ffmpeg/",
+        "version": "9.0.2-uwmedia",
+        "source": "https://github.com/MickeMannen/uwmedia-app/actions/runs/44853071427 (tool/ffmpeg/build.sh linux)",
         "asset": "ffmpeg-linux-amd64",
-        "sha256": "e7e7fb30477f717e6f55f9180a70386c62677ef8a4d4d1a5d948f4098aa3eb99",
+        "sha256": "5afb1ecabfc95fb74ec158ec92fc86ee8592cbab5796b3a2b0220cc2bf2690d7",
         "ffprobe_asset": "ffprobe-linux-amd64",
-        "ffprobe_sha256": "4f231a1960d83e403d08f7971e271707bec278a9ae18e21b8b5b03186668450d",
+        "ffprobe_sha256": "9929078c1a0fa56199b68478997eff56afdfcb297d30dc2f908c8a614b1e57e8",
         "hevc_verified": true,
-        "hevc_verify_note": "readme.txt lists libx264 0.164.3191 and libx265 3.5+1-f0c1022b6"
+        "hevc_verify_note": "libx264 and libx265 (software only); checked with ffmpeg -encoders"
       }
     }
   },

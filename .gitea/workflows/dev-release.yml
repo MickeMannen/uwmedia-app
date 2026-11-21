@@ -35,11 +35,8 @@ env:
   NODE_VERSION: '20.18.1'
   TZ: Asia/Kuala_Lumpur
   KEEP: '5'
-  # The tools bundled into the apps: the Python app's release of the same
-  # files (tool/DEPS_RELEASE.md), until this repo has its own (roadmap E5).
-  # The release's own address, its tag included (fetch_tools.dart adds
-  # "/<file>").
-  UWMEDIA_DEPS_URL: https://github.com/MickeMannen/UWMedia/releases/download/deps-2026.09
+  # The tools bundled into the apps come from this repo's deps release on
+  # GitHub, the one BINARY_MANIFEST.json names (tool/DEPS_RELEASE.md).
 
 jobs:
   prepare:

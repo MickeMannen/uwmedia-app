@@ -40,7 +40,7 @@ void main() {
 
   test('a tool: the shipped one with its version, else where it is', () {
     final manifest = File(toolManifest).readAsStringSync();
-    expect(shippedVersion(manifest, 'ffmpeg', EngineOs.macos), 'n8.1.2');
+    expect(shippedVersion(manifest, 'ffmpeg', EngineOs.macos), '9.0.2-uwmedia');
     expect(shippedVersion(manifest, 'exiftool', EngineOs.windows), '13.59');
     expect(shippedVersion('no json', 'ffmpeg', EngineOs.linux), isNull);
     expect(shippedVersion(manifest, 'perl', EngineOs.linux), isNull);

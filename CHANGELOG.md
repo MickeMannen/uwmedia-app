@@ -323,6 +323,9 @@ git tags.
 
 ### Changed
 
+- Computers: the ffmpeg in the download is now the same version, 9.0.2,
+  on Windows, macOS and Linux, built by the project itself with its
+  source published beside it; your own ffmpeg still works in its place.
 - Computers: until a folder has been picked in it, a dialog for photos
   and videos opens in your Pictures folder and one for dive logs in
   Downloads, where an export lands, instead of your home folder.

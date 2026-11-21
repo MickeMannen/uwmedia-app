@@ -23,6 +23,32 @@ shot. One app for Windows, macOS, Linux, iPhone and Android.
 - **Resize**, **Color Tuning**, **Tag Editor** (camera dates that are
   wrong) and the **Dive Profile Builder** (a dive log by hand).
 
+## Dive-computer overlays
+
+The overlays draw the screen of these dive computers, with the dive log's
+numbers in it, each in the screen layouts listed:
+
+| Dive computer | Screens |
+|---|---|
+| Garmin Descent Mk3i | main, standard, CCR, gases, transceiver, gauge |
+| Garmin Descent X50i | main, gases, CCR, dynamic depth, gauge |
+| Shearwater Perdix 2 | main, tec, CC, info screens, gauge |
+| Shearwater Perdix 3 | main, air integration, standard, tec, CC, info screens, gauge |
+| Shearwater Peregrine TX | main, air integration, mini displays, info screens, gauge |
+| Shearwater Petrel | main, tec, CC (setpoint and 3 cells), info screens, gauge |
+| Shearwater Teric | main, standard, CC, info screens, gauge |
+| Shearwater Tern | main, standard, info screens, gauge |
+| Suunto EON Core | classic, prominent, tank, graphical, CCR, gauge |
+| Suunto EON Steel Black | classic, prominent, tank, graphical, CCR, gauge |
+| Suunto Nautic | main, NDL / TTS with ppO2 / MOD |
+
+Beside them come plain overlays that fit any computer: depth and
+temperature as a row, a column or a box (dark or light, and in two rows
+for portrait video), and the dive profile with a dot where you are, also
+with deco. The Overlay Designer changes any of them or makes a new one.
+
+## Computer and phone
+
 On a computer the app does all of it, with FFmpeg and ExifTool included
 in the download. On a phone it does Color, Resize, Color Tuning, the dive
 logs and a simple tag editor, with the phone's own video engine.

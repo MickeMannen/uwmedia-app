@@ -797,7 +797,10 @@ void main() {
   });
 
   test('a run: its settings, progress, the end, Stop, the gate', () async {
-    final c = controller();
+    // The preview's colour as it comes: the real correction of a 1080p
+    // frame took 19 s on the Windows runner (roadmap E18), and the run's
+    // settings are what is checked here.
+    final c = controller(correct: (job) async => job.$2);
     await c.startOrStop();
     expect(
       c.statusText,
