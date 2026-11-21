@@ -67,7 +67,7 @@ with the desktop builds are separate programs under their own licences
 
 ## Code signing policy
 
-Free code signing provided by [SignPath.io](https://signpath.io),
+Free code signing provided by [SignPath.io](https://about.signpath.io),
 certificate by [SignPath Foundation](https://signpath.org).
 
 - What is signed: the Windows builds of this project only, `uwmedia.exe`,
@@ -80,9 +80,9 @@ certificate by [SignPath Foundation](https://signpath.org).
 - Committers and reviewers: [Mikael Christersson](https://github.com/MickeMannen)
 - Approvers: [Mikael Christersson](https://github.com/MickeMannen); every
   signing request is approved by hand.
-- Privacy policy: this program will not transfer any information to other
-  networked systems unless specifically requested by the user or the
-  person installing or operating it. (The one request it makes, the
+- [Privacy policy](PRIVACY.md): this program will not transfer any
+  information to other networked systems unless specifically requested by
+  the user or the person installing or operating it. (The one request it makes, the
   update check on the About page, is sent only when that button is
   pressed.)
 
