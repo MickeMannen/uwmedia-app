@@ -1,0 +1,38 @@
+{
+  "manufacturer": "Generic",
+  "model": "Simple",
+  "pages": [
+    {
+      "id": "row_dark",
+      "name": "Row along the bottom, dark"
+    },
+    {
+      "id": "row_light",
+      "name": "Row along the bottom, light"
+    },
+    {
+      "id": "column_dark",
+      "name": "Column in the corner, dark"
+    },
+    {
+      "id": "column_light",
+      "name": "Column in the corner, light"
+    },
+    {
+      "id": "box_dark",
+      "name": "Compact box, dark"
+    },
+    {
+      "id": "box_light",
+      "name": "Compact box, light"
+    },
+    {
+      "id": "block_dark",
+      "name": "Two rows for portrait, dark"
+    },
+    {
+      "id": "block_light",
+      "name": "Two rows for portrait, light"
+    }
+  ]
+}

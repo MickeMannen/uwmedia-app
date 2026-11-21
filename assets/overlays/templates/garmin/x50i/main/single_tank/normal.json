@@ -1,0 +1,48 @@
+{
+  "base": "../normal.json",
+  "linked_elements": [
+    {
+      "id": "primary_tank_name",
+      "field": "primary_tank_name",
+      "align": "center",
+      "rel_x": 0.60789,
+      "rel_y": 0.22413,
+      "color": "#FFFFFF",
+      "font_size": 27,
+      "font_family": "Roboto Condensed",
+      "scale": 1.0,
+      "font_weight": "bold",
+      "hide_when_notice": true
+    },
+    {
+      "id": "primary_tank_pressure_icon",
+      "field": "primary_tank_pressure",
+      "type": "tank_icon",
+      "rel_x": 0.56942,
+      "rel_y": 0.3092,
+      "width": 16,
+      "height": 37,
+      "corner_radius": 2,
+      "draw_outline": true,
+      "outline_color": "#FFFFFF",
+      "outline_width": 2,
+      "outline_gap": 2,
+      "hide_when_notice": true,
+      "fill_level": true,
+      "full_bar": 207,
+      "empty_bar": 21
+    },
+    {
+      "id": "primary_tank_pressure",
+      "field": "primary_tank_pressure",
+      "rel_x": 0.60587,
+      "rel_y": 0.26204,
+      "color": "#FFFFFF",
+      "font_size": 76,
+      "font_family": "Roboto Condensed",
+      "scale": 1.0,
+      "font_weight": "bold",
+      "hide_when_notice": true
+    }
+  ]
+}

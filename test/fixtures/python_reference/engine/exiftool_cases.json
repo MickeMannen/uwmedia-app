@@ -1,0 +1,1225 @@
+{
+ "copies": [
+  {
+   "name": "video_with_timezone",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31",
+    "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+    "QuickTime:Make": "Sony",
+    "File:FileModifyDate": "2025:10:19 10:21:35+08:00"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/20251019_102131.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/20251019_102131.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-QuickTime:CreationDate=2025:10:19 10:21:31+08:00",
+     "-QuickTime:Timezone=+08:00",
+     "-QuickTime:TimeZone=+08:00",
+     "-overwrite_original",
+     "/out/20251019_102131.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ]
+   ]
+  },
+  {
+   "name": "video_forced_timezone",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31",
+    "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+    "QuickTime:Make": "Sony",
+    "File:FileModifyDate": "2025:10:19 10:21:35+08:00"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/a b/ö.mp4",
+   "force_tz_mins": -210,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a b/ö.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-QuickTime:CreationDate=2025:10:19 10:21:31-03:30",
+     "-QuickTime:Timezone=-03:30",
+     "-QuickTime:TimeZone=-03:30",
+     "-overwrite_original",
+     "/out/a b/ö.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ]
+   ]
+  },
+  {
+   "name": "video_without_timezone",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/x.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/x.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ]
+   ]
+  },
+  {
+   "name": "video_without_timezone_forced",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/x.mp4",
+   "force_tz_mins": 0,
+   "custom_tags": [
+    "QuickTime:Make=UWMedia",
+    "Keys:Model=x y"
+   ],
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/x.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-QuickTime:CreationDate=2025:10:19 02:21:31+00:00",
+     "-QuickTime:Timezone=+00:00",
+     "-QuickTime:TimeZone=+00:00",
+     "-overwrite_original",
+     "/out/x.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-QuickTime:Make=UWMedia",
+     "-Keys:Model=x y",
+     "-overwrite_original",
+     "/out/x.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ]
+   ]
+  },
+  {
+   "name": "photo",
+   "meta": {
+    "EXIF:DateTimeOriginal": "2026:05:21 06:58:22",
+    "EXIF:OffsetTimeOriginal": "+08:00",
+    "EXIF:Make": "SONY",
+    "Composite:SubSecDateTimeOriginal": "2026:05:21 06:58:22.123+08:00"
+   },
+   "src": "/in/DSC1.JPG",
+   "dest": "/out/DSC1.jpg",
+   "force_tz_mins": null,
+   "custom_tags": [
+    "Artist=Me"
+   ],
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/DSC1.JPG",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/DSC1.jpg"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/DSC1.JPG"
+    ],
+    [
+     "-G",
+     "-n",
+     "-Artist=Me",
+     "-overwrite_original",
+     "/out/DSC1.jpg"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/DSC1.JPG"
+    ]
+   ]
+  },
+  {
+   "name": "no_metadata",
+   "meta": {},
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": [],
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "sony_xml",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31",
+    "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+    "QuickTime:Make": "Sony",
+    "File:FileModifyDate": "2025:10:19 10:21:35+08:00",
+    "XML:LastUpdate": "2025:09:13 09:37:36+07:00",
+    "XML:CreationDateValue": "2025-09-13T09:37:30+07:00",
+    "XML:VideoFormatVideoFrameCaptureFps": "50.00p",
+    "XML:DeviceManufacturer": "Sony",
+    "XML:DeviceModelName": "ILCE-6700",
+    "XML:LensModelName": "E PZ 16-50mm F3.5-5.6 OSS",
+    "XML:Other": "left alone"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/c.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-QuickTime:CreationDate=2025:10:19 10:21:31+08:00",
+     "-QuickTime:Timezone=+08:00",
+     "-QuickTime:TimeZone=+08:00",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:13 09:37:36+07:00",
+     "-xmp:CreateDate=2025:09:13 09:37:30+07:00",
+     "-XMP-xmpDM:videoFrameRate=50.00",
+     "-XMP:Make=Sony",
+     "-XMP:Model=ILCE-6700",
+     "-XMP-aux:lens=E PZ 16-50mm F3.5-5.6 OSS",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "odd_xml",
+   "meta": {
+    "XML:DeviceModelName": 6700,
+    "XML:VideoFormatVideoFrameCaptureFps": 59.94,
+    "XML:DeviceManufacturer": true,
+    "XML:LastUpdate": "2025:09:13 09:37:36",
+    "XML:CreationDateValue": "2025-09-13T02:37:30Z",
+    "XML:LensModelName": "50p"
+   },
+   "src": "/in/C0001.MP4",
+   "dest": "/out/c.mp4",
+   "force_tz_mins": null,
+   "custom_tags": [
+    "Artist=Me"
+   ],
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/C0001.MP4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-Artist=Me",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/C0001.MP4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-XMP:Model=6700",
+     "-XMP-xmpDM:videoFrameRate=59.94",
+     "-XMP:Make=True",
+     "-xmp:MetadataDate=2025:09:13 09:37:36",
+     "-xmp:CreateDate=2025:09:13 02:37:30",
+     "-XMP-aux:lens=50p",
+     "-overwrite_original",
+     "/out/c.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_0",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36.25+07:00",
+    "XML:CreationDateValue": "2025:09:13 09:37:36.25+07:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:13 09:37:36+07:00",
+     "-xmp:CreateDate=2025:09:13 09:37:36+07:00",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_1",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36,5-03:30",
+    "XML:CreationDateValue": "2025:09:13 09:37:36,5-03:30"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_2",
+   "meta": {
+    "XML:LastUpdate": "2025-09-13 09:37:36",
+    "XML:CreationDateValue": "2025-09-13 09:37:36"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:13 09:37:36",
+     "-xmp:CreateDate=2025:09:13 09:37:36",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_3",
+   "meta": {
+    "XML:LastUpdate": "2025-09-13 09:37:36-00:00",
+    "XML:CreationDateValue": "2025-09-13 09:37:36-00:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:13 09:37:36+00:00",
+     "-xmp:CreateDate=2025:09:13 09:37:36+00:00",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_4",
+   "meta": {
+    "XML:LastUpdate": "2025-09-13T09:37:36+14:00",
+    "XML:CreationDateValue": "2025-09-13T09:37:36+14:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:13 09:37:36+14:00",
+     "-xmp:CreateDate=2025:09:13 09:37:36+14:00",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_5",
+   "meta": {
+    "XML:LastUpdate": "2025:13:13 09:37:36",
+    "XML:CreationDateValue": "2025:13:13 09:37:36"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_6",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36+7:00",
+    "XML:CreationDateValue": "2025:09:13 09:37:36+7:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_7",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36+24:00",
+    "XML:CreationDateValue": "2025:09:13 09:37:36+24:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_8",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36+07:60",
+    "XML:CreationDateValue": "2025:09:13 09:37:36+07:60"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_9",
+   "meta": {
+    "XML:LastUpdate": "13 Sep 2025",
+    "XML:CreationDateValue": "13 Sep 2025"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_10",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:36.1234567+07:00",
+    "XML:CreationDateValue": "2025:09:13 09:37:36.1234567+07:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_11",
+   "meta": {
+    "XML:LastUpdate": "2025:9:3 9:7:6+07:00",
+    "XML:CreationDateValue": "2025:9:3 9:7:6+07:00"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-xmp:MetadataDate=2025:09:03 09:07:06+07:00",
+     "-xmp:CreateDate=2025:09:03 09:07:06+07:00",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_12",
+   "meta": {
+    "XML:LastUpdate": "25:09:13 09:37:36",
+    "XML:CreationDateValue": "25:09:13 09:37:36"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_13",
+   "meta": {
+    "XML:LastUpdate": "2025:09:13 09:37:60",
+    "XML:CreationDateValue": "2025:09:13 09:37:60"
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "xml_date_14",
+   "meta": {
+    "XML:LastUpdate": "",
+    "XML:CreationDateValue": ""
+   },
+   "src": "/in/a.mp4",
+   "dest": "/out/a.mp4",
+   "force_tz_mins": null,
+   "custom_tags": null,
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-TagsFromFile",
+     "/in/a.mp4",
+     "-all:all",
+     "--ThumbnailImage",
+     "--PreviewImage",
+     "--JpgFromRaw",
+     "--OtherImage",
+     "-overwrite_original",
+     "/out/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ],
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/in/a.mp4"
+    ]
+   ]
+  }
+ ],
+ "reads": [
+  {
+   "name": "all",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31",
+    "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+    "QuickTime:Make": "Sony",
+    "File:FileModifyDate": "2025:10:19 10:21:35+08:00"
+   },
+   "tags": null,
+   "result": [
+    "ok",
+    {
+     "SourceFile": "/m/a.mp4",
+     "QuickTime:CreateDate": "2025:10:19 02:21:31",
+     "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+     "QuickTime:Make": "Sony",
+     "File:FileModifyDate": "2025:10:19 10:21:35+08:00"
+    }
+   ],
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-j",
+     "/m/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "named",
+   "meta": {
+    "QuickTime:CreateDate": "2025:10:19 02:21:31",
+    "QuickTime:CreationDate": "2025:10:19 10:21:31+08:00",
+    "QuickTime:Make": "Sony",
+    "File:FileModifyDate": "2025:10:19 10:21:35+08:00"
+   },
+   "tags": [
+    "QuickTime:CreateDate",
+    "CreateDate",
+    "QuickTime:Make",
+    "EXIF:Nothing"
+   ],
+   "result": [
+    "ok",
+    {
+     "QuickTime:CreateDate": "2025:10:19 02:21:31",
+     "CreateDate": "2025:10:19 02:21:31",
+     "QuickTime:Make": "Sony",
+     "EXIF:Nothing": ""
+    }
+   ],
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-j",
+     "-QuickTime:CreateDate",
+     "-CreateDate",
+     "-QuickTime:Make",
+     "-EXIF:Nothing",
+     "/m/a.mp4"
+    ]
+   ]
+  },
+  {
+   "name": "loose",
+   "meta": {
+    "EXIF:CreateDate": "2026:05:21 06:58:22",
+    "XMP:xCreateDate": "x",
+    "QuickTime:Rotation": 90,
+    "QuickTime:Zero": 0
+   },
+   "tags": [
+    "CreateDate",
+    "QuickTime:CreateDate",
+    "Composite:Rotation",
+    "Zero",
+    "Missing"
+   ],
+   "result": [
+    "ok",
+    {
+     "CreateDate": "2026:05:21 06:58:22",
+     "QuickTime:CreateDate": "2026:05:21 06:58:22",
+     "Composite:Rotation": "90",
+     "Zero": "0",
+     "Missing": ""
+    }
+   ],
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-j",
+     "-CreateDate",
+     "-QuickTime:CreateDate",
+     "-Composite:Rotation",
+     "-Zero",
+     "-Missing",
+     "/m/a.mp4"
+    ]
+   ]
+  }
+ ],
+ "writes": [
+  {
+   "kind": "set_tags",
+   "path": "/m/a.mp4",
+   "tags": {
+    "QuickTime:CreationDate": "2026:05:21 06:58:22+08:00",
+    "EXIF:CreateDate": "2026:05:21 06:58:22"
+   },
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-overwrite_original",
+     "-QuickTime:CreationDate=2026:05:21 06:58:22+08:00",
+     "-EXIF:CreateDate=2026:05:21 06:58:22",
+     "/m/a.mp4"
+    ]
+   ]
+  },
+  {
+   "kind": "set_tags",
+   "path": "/m/a b.jpg",
+   "tags": {
+    "EXIF:OffsetTime": "+05:45"
+   },
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-overwrite_original",
+     "-EXIF:OffsetTime=+05:45",
+     "/m/a b.jpg"
+    ]
+   ]
+  },
+  {
+   "kind": "set_tags",
+   "path": "/m/a.mp4",
+   "tags": {},
+   "result": "ok",
+   "calls": []
+  },
+  {
+   "kind": "set_quicktime_tags",
+   "path": "/m/a.mp4",
+   "tags": {
+    "QuickTime:Timezone": "+08:00",
+    "QuickTime:Rotation": 90
+   },
+   "result": "ok",
+   "calls": [
+    [
+     "-G",
+     "-n",
+     "-QuickTime:Timezone=+08:00",
+     "-QuickTime:Rotation=90",
+     "-overwrite_original",
+     "/m/a.mp4"
+    ]
+   ]
+  }
+ ]
+}

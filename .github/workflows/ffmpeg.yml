@@ -1,0 +1,73 @@
+# Builds the ffmpeg and ffprobe the desktop apps ship, for macOS, Windows
+# and Linux, and packs their Corresponding Source (tool/ffmpeg/README.md),
+# by hand: Actions -> "ffmpeg" -> Run workflow. The four artifacts are
+# then put on a deps release with their sha256 in
+# assets/licenses/BINARY_MANIFEST.json (tool/DEPS_RELEASE.md). Nothing is
+# released by the workflow itself.
+
+name: ffmpeg
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: ffmpeg (macOS arm64)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
+      - name: Build
+        run: tool/ffmpeg/build.sh macos
+      - name: Check
+        run: |
+          build/ffmpeg/macos/ffmpeg -hide_banner -encoders | grep -E 'libx26[45]|videotoolbox'
+          otool -L build/ffmpeg/macos/ffmpeg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-macos-arm64
+          path: build/ffmpeg/macos/
+
+  linux:
+    name: ffmpeg (Linux x64)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: tool/ffmpeg/docker.sh linux
+      - name: Check
+        run: |
+          build/ffmpeg/linux/ffmpeg -hide_banner -encoders | grep -E 'libx26[45]'
+          file build/ffmpeg/linux/ffmpeg | grep -q 'statically linked'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-linux-amd64
+          path: build/ffmpeg/linux/
+
+  windows:
+    name: ffmpeg (Windows x64)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: tool/ffmpeg/docker.sh windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-windows-amd64
+          path: build/ffmpeg/windows/
+
+  source:
+    name: Corresponding Source
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pack
+        run: tool/ffmpeg/source.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-source
+          path: build/ffmpeg/ffmpeg-*-uwmedia-source.tar

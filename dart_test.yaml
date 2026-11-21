@@ -1,0 +1,15 @@
+# Test tags for `flutter test --tags` / `--exclude-tags`; what each one means
+# is in CONTRIBUTING.md ("Test tags"). The default run (tool/run_tests.sh 1,
+# the pre-commit hook and CI) excludes `golden` and `release`; dart_test.yaml
+# cannot express a default exclusion, so that lives in the runner.
+tags:
+  render:
+    description: Encodes the fixture media through a media engine (slower).
+    timeout: 5x
+  release:
+    description: Pre-release validation on the full-size media in test_data/.
+    timeout: 10x
+  golden:
+    description: Compares rendered overlays with test/fixtures/overlay_golden (macOS only in CI).
+  requires_media:
+    description: Reads test_data/ (or UWMEDIA_TEST_DATA); skips itself when missing.

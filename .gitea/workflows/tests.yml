@@ -1,0 +1,208 @@
+# The default test suite on the self-hosted Gitea runners, for every branch
+# push (development branches only go to Gitea), by hand, and nightly with
+# everything. Gitea reads .gitea/workflows/ and leaves the GitHub workflow
+# alone.
+#
+# Runners (owner, 2026-11-15): `linux-docker` (Docker mode; the job runs in
+# the Flutter image), `macos-host` and `windows-host` (host mode: the job
+# runs straight on the machine, which needs Flutter and git on PATH; the
+# Mac also ffmpeg, ffprobe and exiftool for the media tests, which skip
+# without them, while the Windows job fetches its own).
+#
+# The private test data is on a read-only SMB share on the LAN (never in
+# git, never in Gitea), kept the same as the development machine's
+# test_data/ by the pre-push hook (tool/test_data_sync.sh). Where it is
+# and who reads it are the repo's Actions variables TEST_DATA_SHARE
+# (//host/share) and TEST_DATA_USER, its password the secret
+# TEST_DATA_PASSWORD (Gitea: the repo's Settings, Actions); nothing of the
+# home network is in the repo. Each job connects it (tool/ci_test_data.sh);
+# without them the tests that use the data skip themselves.
+#
+# Keep the Linux job's FLUTTER_VERSION and the host runners' Flutter in
+# step with FLUTTER_VERSION in .github/workflows/tests.yml and the local
+# Flutter.
+
+name: Tests
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    # Nightly "Everything" run (release tests and goldens) at 03:30.
+    - cron: '30 3 * * *'
+
+# One run at a time: the Linux runner and the Windows VM share a server,
+# and two runs at once made both slow enough to fail (runs 154 and 156,
+# a push and a run by hand). A second run waits; none is cancelled.
+concurrency:
+  group: tests
+  cancel-in-progress: false
+
+env:
+  TEST_DATA_SHARE: ${{ vars.TEST_DATA_SHARE }}
+  TEST_DATA_USER: ${{ vars.TEST_DATA_USER }}
+  TEST_DATA_PASSWORD: ${{ secrets.TEST_DATA_PASSWORD }}
+
+jobs:
+  linux:
+    name: Tests (Linux)
+    runs-on: linux-docker
+    # The newest Flutter image there is (the images stopped at 3.44.0); the
+    # first step moves its SDK to the version the app is built with. The
+    # image has no Node, which the checkout action runs on, so the second
+    # step puts one in.
+    container:
+      image: ghcr.io/cirruslabs/flutter:3.44.0
+    env:
+      FLUTTER_VERSION: '3.47.7'
+      NODE_VERSION: '20.18.1'
+    steps:
+      - name: Flutter ${{ env.FLUTTER_VERSION }}
+        run: |
+          git config --global --add safe.directory '*'
+          git -C "$FLUTTER_HOME" fetch --depth 1 origin tag "$FLUTTER_VERSION"
+          git -C "$FLUTTER_HOME" checkout -f "$FLUTTER_VERSION"
+          flutter --version
+
+      - name: Node ${{ env.NODE_VERSION }}
+        run: |
+          case "$(uname -m)" in aarch64 | arm64) arch=arm64 ;; *) arch=x64 ;; esac
+          curl -fsSL "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$arch.tar.gz" |
+            tar -xz -C /usr/local --strip-components=1
+          node --version
+
+      # What the media tests run (without them those tests skip
+      # themselves), and what copies the test data from its share.
+      # Tried again when the archive does not answer (2026-11-19: a
+      # connection timeout to archive.ubuntu.com failed the job).
+      - name: ffmpeg, exiftool and smbclient
+        run: |
+          for try in 1 2 3; do
+            if apt-get -o Acquire::Retries=3 update -qq &&
+              apt-get -o Acquire::Retries=3 install -y -qq ffmpeg libimage-exiftool-perl smbclient; then
+              break
+            fi
+            [ "$try" = 3 ] && exit 1
+            sleep 30
+          done
+          ffmpeg -version | head -1
+          exiftool -ver
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test data
+        run: tool/ci_test_data.sh ${{ github.event_name == 'schedule' && 'release' || '' }}
+
+      - name: Default suite
+        if: github.event_name != 'schedule'
+        run: tool/run_tests.sh 1
+
+      - name: Everything
+        if: github.event_name == 'schedule'
+        run: tool/run_tests.sh 4
+
+  macos:
+    name: Tests (macOS)
+    runs-on: macos-host
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test data
+        run: tool/ci_test_data.sh ${{ github.event_name == 'schedule' && 'release' || '' }}
+
+      - name: Default suite
+        if: github.event_name != 'schedule'
+        run: tool/run_tests.sh 1
+
+      - name: Compare overlay golden images
+        if: github.event_name != 'schedule'
+        # Exit 79 is "no test has this tag", fine until the golden tests exist.
+        run: flutter test --tags golden || [ $? -eq 79 ]
+
+      - name: Everything
+        if: github.event_name == 'schedule'
+        run: tool/run_tests.sh 4
+
+  # The runner's service has no bash on its PATH, so the steps find the one
+  # that comes with Git for Windows, next to the git that Flutter uses.
+  windows:
+    name: Tests (Windows)
+    runs-on: windows-host
+    # The Windows VM and the Linux runner share a server: run together, the
+    # overlay batch test passed its five minutes on both (runs 149, 151).
+    # After the Linux job, whatever its result.
+    needs: linux
+    if: ${{ !cancelled() }}
+    env:
+      # The versions the development Mac has.
+      FFMPEG_VERSION: '9.0.2'
+      EXIFTOOL_VERSION: '13.55'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # What the media tests run (without them those tests skip
+      # themselves): fetched once into the runner's own folder and kept
+      # there, and put on the PATH of the steps that follow.
+      - name: ffmpeg and exiftool
+        run: |
+          $tools = Join-Path $env:USERPROFILE '.cache\uwmedia_tools'
+          New-Item -ItemType Directory -Force $tools | Out-Null
+          $ffmpeg = Join-Path $tools "ffmpeg-$env:FFMPEG_VERSION-essentials_build\bin"
+          if (-not (Test-Path (Join-Path $ffmpeg 'ffmpeg.exe'))) {
+            curl.exe -fsSL -o "$tools\ffmpeg.zip" "https://github.com/GyanD/codexffmpeg/releases/download/$env:FFMPEG_VERSION/ffmpeg-$env:FFMPEG_VERSION-essentials_build.zip"
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+            Expand-Archive -Force "$tools\ffmpeg.zip" $tools
+            Remove-Item "$tools\ffmpeg.zip"
+          }
+          $exiftool = Join-Path $tools "exiftool-$($env:EXIFTOOL_VERSION)_64"
+          if (-not (Test-Path (Join-Path $exiftool 'exiftool.exe'))) {
+            curl.exe -fsSL -o "$tools\exiftool.zip" "https://sourceforge.net/projects/exiftool/files/exiftool-$($env:EXIFTOOL_VERSION)_64.zip/download"
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+            Expand-Archive -Force "$tools\exiftool.zip" $tools
+            Remove-Item "$tools\exiftool.zip"
+            # The zip's program waits for a key when it is done; under
+            # this name it does not.
+            Rename-Item -LiteralPath (Join-Path $exiftool 'exiftool(-k).exe') 'exiftool.exe'
+          }
+          Add-Content -Path $env:GITHUB_PATH -Value $ffmpeg
+          Add-Content -Path $env:GITHUB_PATH -Value $exiftool
+          & (Join-Path $ffmpeg 'ffmpeg.exe') -version | Select-Object -First 1
+          & (Join-Path $exiftool 'exiftool.exe') -ver
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test data
+        run: |
+          if (-not $env:TEST_DATA_PASSWORD -or -not $env:TEST_DATA_SHARE) {
+            echo "No TEST_DATA_SHARE or TEST_DATA_PASSWORD: the tests that need the data will skip."
+            exit 0
+          }
+          $share = $env:TEST_DATA_SHARE.Replace('/', '\')
+          # Connecting again what is connected already is no error.
+          net use $share $env:TEST_DATA_PASSWORD /user:$env:TEST_DATA_USER /persistent:no
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Add-Content -Path $env:GITHUB_ENV -Value "UWMEDIA_TEST_DATA=$env:TEST_DATA_SHARE"
+
+      - name: Default suite
+        if: github.event_name != 'schedule'
+        run: |
+          $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
+          & $bash tool/run_tests.sh 1
+          exit $LASTEXITCODE
+
+      - name: Everything
+        if: github.event_name == 'schedule'
+        run: |
+          $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
+          & $bash tool/run_tests.sh 4
+          exit $LASTEXITCODE

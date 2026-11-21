@@ -1,0 +1,55 @@
+# Analyzer and lint configuration. `flutter analyze --fatal-infos` is part of
+# the default test suite (tool/run_tests.sh 1), so every rule here fails the
+# build; keep the set deliberate. Suppress a rule on one line with
+# `// ignore: rule_name` and say why, not for a whole file.
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Ported constants and defaults must be explicit; an implicit dynamic
+    # hides a wrong type in a parsed value.
+    invalid_assignment: error
+    argument_type_not_assignable: error
+    missing_required_argument: error
+    # TODOs are tracked in docs/roadmap_v0.1.0.md, not in code comments.
+    todo: info
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+
+linter:
+  rules:
+    # Style the whole repo shares.
+    prefer_single_quotes: true
+    always_use_package_imports: true
+    directives_ordering: true
+    require_trailing_commas: true
+    # Types and nullability (spec §4: missing values are null, never 0).
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    unnecessary_null_checks: true
+    avoid_bool_literals_in_conditional_expressions: true
+    # Async hygiene for engines, processes and streams.
+    unawaited_futures: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    close_sinks: true
+    # Tests and assertions.
+    prefer_asserts_with_message: true
+    # Flutter.
+    use_colored_box: true
+    use_decorated_box: true

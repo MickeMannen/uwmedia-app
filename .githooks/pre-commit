@@ -1,0 +1,18 @@
+#!/bin/sh
+# Runs the default suite (format check, analyzer, tests except golden and
+# release) before each commit; see CONTRIBUTING.md.
+# Enable once per clone:  git config core.hooksPath .githooks
+# Skip in an emergency:   git commit --no-verify
+
+# Nothing to test when only Markdown files are staged
+if [ -z "$(git diff --cached --name-only --diff-filter=ACMRD | grep -v '\.md$')" ]; then
+    exit 0
+fi
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+echo "pre-commit: running the default suite (skip with --no-verify)"
+if ! tool/run_tests.sh 1; then
+    echo "pre-commit: checks failed - commit stopped." >&2
+    exit 1
+fi

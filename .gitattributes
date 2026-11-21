@@ -1,0 +1,4 @@
+# Text files are checked out with LF line ends on every platform: the tests
+# compare bundled files (color.yaml, pubspec.yaml) with the Python app's
+# text, which a Windows checkout with CRLF would fail.
+* text=auto eol=lf

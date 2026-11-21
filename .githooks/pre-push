@@ -1,0 +1,17 @@
+#!/bin/sh
+# Before a push to gitea: the runners' test data is made the same as this
+# machine's test_data/ (tool/test_data_sync.sh), so the run that the push
+# starts tests against what was tested here. A copy that fails only warns.
+# Enable once per clone:  git config core.hooksPath .githooks
+
+if [ "$1" != gitea ]; then
+    exit 0
+fi
+
+cd "$(git rev-parse --show-toplevel)" || exit 0
+
+if ! tool/test_data_sync.sh; then
+    echo "pre-push: the test data was not copied to the runners' share;" \
+        "their run uses what is there." >&2
+fi
+exit 0

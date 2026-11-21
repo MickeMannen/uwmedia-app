@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration "uwmedia-installer": the second signing
+  request of a Windows release (.signpath/README.md). The artifact is the
+  zip the Release Build workflow uploads of the Inno Setup installer, made
+  from the signed app files of the first request
+  (windows/installer/uwmedia.iss). Only the installer itself is signed;
+  what it holds was signed before or is a third party's.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="UWMedia-windows-x64-*-setup.exe" product-name="UWMedia">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

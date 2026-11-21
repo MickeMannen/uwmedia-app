@@ -1,0 +1,1679 @@
+{
+  "Shearwater": {
+    "_manual": "Perdix 2 Recreational manual Rev C unless stated; pages are PDF pages. Full list: hud_rules_sources.md",
+    "ndl": [
+      {
+        "max": 5,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 5,
+        "color": "#FFFFFF"
+      }
+    ],
+    "ndl_zero": "#FF0000",
+    "po2": [
+      {
+        "min": 1.61,
+        "color": "#FF0000"
+      }
+    ],
+    "safety_stop": {
+      "text": "SAFETY STOP",
+      "color": "#00ADED",
+      "trigger_max_depth": 11.0,
+      "duration_sec": 180,
+      "start_below": 6.0,
+      "count_range": [
+        2.4,
+        8.3
+      ],
+      "adapt": {
+        "deep_m": 30.0,
+        "low_ndl_sec": 300,
+        "duration_sec": 300,
+        "enabled": false
+      },
+      "min_depth": 2.4,
+      "max_depth": 8.3
+    },
+    "Perdix 2": {
+      "_tank_pressure": "the brand's tank_reserve rule applies (the old 60 / 70 bar bands had no source)"
+    },
+    "Peregrine TX": {
+      "_tank_pressure": "the brand's tank_reserve rule applies (the old 60 / 70 bar bands had no source)"
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "SAFETY STOP",
+        "color": "#00ADED",
+        "value_color": "#FFFFFF",
+        "counting_color": "#00C800",
+        "complete_color": "#00ADED",
+        "paused_value_color": "#FFFF00",
+        "check_mark": true,
+        "show_depth": false,
+        "timer_format": "m:ss",
+        "value_align": "center",
+        "complete_value_text": "Complete",
+        "complete_value_color": "#00C800"
+      },
+      "deco": {
+        "label": "DECO STOP",
+        "color": "#FF0000",
+        "value_color": "#FFFFFF",
+        "approach_color": "#FFFF00",
+        "at_stop_color": "#00C800",
+        "violation_color": "#FF0000",
+        "check_mark": true,
+        "inline": true,
+        "timer_format": "min"
+      },
+      "clear": {
+        "label": "CLEAR",
+        "color": "#00C800",
+        "value_color": "#FFFFFF",
+        "show_depth": false,
+        "timer_format": "m:ss"
+      },
+      "_source": "p.27-28, p.33 and the figures; real photo test_data/perdix2/Perdix_2_1.webp; p.27-28 figures: check mark in front of the value (✓2:59, 20ft ✓2min), 'Complete' in green under the blue title when the countdown ends, up arrow only while approaching, down arrow above the stop"
+    },
+    "tissue_load": [
+      {
+        "max": 80,
+        "color": "#00FF00"
+      },
+      {
+        "min": 80,
+        "max": 100,
+        "color": "#FFC000"
+      },
+      {
+        "min": 100,
+        "color": "#FF0000"
+      }
+    ],
+    "tank_pressure_fill": [
+      {
+        "max": 50,
+        "color": "#FF0000"
+      },
+      {
+        "max": 70,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 70,
+        "color": "#FFFFFF"
+      }
+    ],
+    "deco_stop": {
+      "approach_m": 5.1,
+      "at_stop_m": 1.5,
+      "ceiling_phase": true
+    },
+    "deco_clear": {
+      "count_up": false,
+      "_source": "Perdix 3 Rev B p.60: 'By default, the safety stop counter is enabled in recreational modes and the deco clear counter is enabled in technical modes'; Perdix 2 Rec p.28: once the stops are complete the safety stop counts down. The Tec pages turn the counter on with a layout rule override ({\"rules\": {\"deco_clear\": {\"count_up\": true}}}); checked against the simulator's Perdix 2 (A7)"
+    },
+    "sidemount_switch": {
+      "threshold_bar": 21.0,
+      "color": "#00C800",
+      "text_color": "#000000"
+    },
+    "Teric": {
+      "badge_states": {
+        "safety_stop": {
+          "label": "SAFETY",
+          "paused_label": "PAUSED",
+          "title_box": true,
+          "check_mark": null,
+          "counting_color": "#00C800",
+          "counting_value_color": "#00C800",
+          "paused_color": "#FFFF00",
+          "paused_value_color": "#FFFF00",
+          "complete_color": "#00ADED",
+          "complete_value_text": "CLEAR",
+          "complete_value_color": "#00C800"
+        },
+        "deco": {
+          "label": "DECO",
+          "check_mark": null,
+          "approach_color": null,
+          "at_stop_color": null,
+          "violation_color": "#FFFF00",
+          "ceiling_violation_color": "#FF0000"
+        },
+        "_source": "Teric Rev H5 p.25-26: SAFETY in a green box while counting, SAFETY / PAUSED in yellow, SAFETY / CLEAR when done; DECO red; stop info yellow when above the stop but below the ceiling, flashing red above the ceiling (ceiling_violation_color needs the ceiling phase, A2); Teric p.13 (Tern p.12): the Deco Clear counter is a boxed green CLEAR title over the green count-up",
+        "clear": {
+          "title_box": true,
+          "value_color": "#00C800"
+        }
+      },
+      "notice_style": {
+        "style": "banner",
+        "color": "#FFFF00",
+        "caption_color": "#000000",
+        "text_color": "#000000",
+        "confirm_text": "CLEAR",
+        "show_seconds": 10,
+        "_source": "Teric Rev H5 p.26 / p.25 figures: a filled banner with the caption (WARNING / INFO) small above the message in black, and a CLEAR tab on the right; yellow for warnings, green for Deco Clear, cyan for the other info events"
+      },
+      "notices": [
+        {
+          "id": "high_ppo2",
+          "text": "HIGH PPO2",
+          "caption": "WARNING",
+          "when": "po2_above",
+          "bar": 1.61,
+          "seconds": 30,
+          "_source": "Teric Rev H5 p.23 (warnings overlay lists HIGH PPO2; banner wording deduced from the Perdix 2's)",
+          "circuits": [
+            "OC",
+            "BO"
+          ]
+        },
+        {
+          "id": "high_ppo2_cc",
+          "text": "HIGH PPO2",
+          "caption": "WARNING",
+          "when": "po2_above",
+          "bar": 1.6,
+          "seconds": 30,
+          "circuits": [
+            "CC",
+            "SC"
+          ],
+          "_source": "Teric Rev H5 p.70: CC Max 1.60 on the loop (banner as the OC HIGH PPO2)"
+        },
+        {
+          "id": "missed_stop",
+          "text": "MISSED STOP",
+          "caption": "WARNING",
+          "when": "stop_violation",
+          "seconds": 30,
+          "_source": "Teric Rev H5 p.26 figure (p.25 on the Tern); the 30 s are assumed"
+        },
+        {
+          "id": "deco_needed",
+          "text": "Deco Needed",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "deco_required",
+          "_source": "Teric Rev H5 p.26 (p.25) figure 'INFO Deco Needed'"
+        },
+        {
+          "id": "deco_clear",
+          "text": "Deco Clear",
+          "caption": "INFO",
+          "color": "#00C800",
+          "when": "deco_cleared",
+          "_source": "Teric Rev H5 p.26 (p.25) figure 'INFO Deco Clear'"
+        },
+        {
+          "id": "safety_stop",
+          "text": "Safety Stop",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "safety_started",
+          "_source": "Teric Rev H5 p.25 (p.24) figure 'INFO Safety Stop': an alert when in the safety stop range"
+        },
+        {
+          "id": "auto_sp_up",
+          "text": "Auto SP Up",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "setpoint_up",
+          "circuits": [
+            "CC",
+            "SC"
+          ],
+          "_source": "Teric Rev H5 p.33 figure 7: INFO band 'Auto SP Up' on the automatic switch to the high setpoint (a log does not say auto or manual: every rise shows it)"
+        },
+        {
+          "id": "auto_sp_down",
+          "text": "Auto SP Down",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "setpoint_down",
+          "circuits": [
+            "CC",
+            "SC"
+          ],
+          "_source": "Assumed from Teric Rev H5 p.33 'Auto SP Up'; the manual shows no figure for the switch down"
+        }
+      ],
+      "display": {
+        "depth_decimals": {
+          "metric": 1,
+          "imperial": 1
+        },
+        "_source": "Teric p.23 figure 103.6ft"
+      },
+      "circuit": {
+        "CC": {
+          "box": "#00C800",
+          "text": "#000000"
+        },
+        "BO": {
+          "box": "#FFFF00",
+          "text": "#000000"
+        },
+        "_source": "Perdix 3 Rev B PDF p.85, p.87; Teric Rev H5 p.12, p.33-34: rounded badges, CC green, BO yellow, black text (no OC badge is pictured)"
+      },
+      "setpoint": {
+        "high_color": "#00C800",
+        "low_color": "#FF00FF",
+        "_source": "Perdix 3 Rev B PDF p.42; Teric Rev H5 p.14: SP green for the high setpoint, magenta for the low"
+      }
+    },
+    "Tern": {
+      "badge_states": {
+        "safety_stop": {
+          "label": "SAFETY",
+          "paused_label": "PAUSED",
+          "title_box": true,
+          "check_mark": null,
+          "counting_color": "#00C800",
+          "counting_value_color": "#00C800",
+          "paused_color": "#FFFF00",
+          "paused_value_color": "#FFFF00",
+          "complete_color": "#00ADED",
+          "complete_value_text": "CLEAR",
+          "complete_value_color": "#00C800"
+        },
+        "deco": {
+          "label": "DECO",
+          "check_mark": null,
+          "approach_color": null,
+          "at_stop_color": null,
+          "violation_color": "#FFFF00",
+          "ceiling_violation_color": "#FF0000"
+        },
+        "_source": "Tern Rev B-1 p.24-25: SAFETY in a green box while counting, SAFETY / PAUSED in yellow, SAFETY / CLEAR when done; DECO red; stop info yellow when above the stop but below the ceiling, flashing red above the ceiling (ceiling_violation_color needs the ceiling phase, A2); Teric p.13 (Tern p.12): the Deco Clear counter is a boxed green CLEAR title over the green count-up",
+        "clear": {
+          "title_box": true,
+          "value_color": "#00C800"
+        }
+      },
+      "notice_style": {
+        "style": "banner",
+        "color": "#FFFF00",
+        "caption_color": "#000000",
+        "text_color": "#000000",
+        "confirm_text": "CLEAR",
+        "show_seconds": 10,
+        "_source": "Tern Rev B-1 p.26 / p.25 figures: a filled banner with the caption (WARNING / INFO) small above the message in black, and a CLEAR tab on the right; yellow for warnings, green for Deco Clear, cyan for the other info events"
+      },
+      "notices": [
+        {
+          "id": "high_ppo2",
+          "text": "HIGH PPO2",
+          "caption": "WARNING",
+          "when": "po2_above",
+          "bar": 1.61,
+          "seconds": 30,
+          "_source": "Tern Rev B-1 p.23 (warnings overlay lists HIGH PPO2; banner wording deduced from the Perdix 2's)"
+        },
+        {
+          "id": "missed_stop",
+          "text": "MISSED STOP",
+          "caption": "WARNING",
+          "when": "stop_violation",
+          "seconds": 30,
+          "_source": "Tern Rev B-1 p.26 figure (p.25 on the Tern); the 30 s are assumed"
+        },
+        {
+          "id": "deco_needed",
+          "text": "Deco Needed",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "deco_required",
+          "_source": "Tern Rev B-1 p.26 (p.25) figure 'INFO Deco Needed'"
+        },
+        {
+          "id": "deco_clear",
+          "text": "Deco Clear",
+          "caption": "INFO",
+          "color": "#00C800",
+          "when": "deco_cleared",
+          "_source": "Tern Rev B-1 p.26 (p.25) figure 'INFO Deco Clear'"
+        },
+        {
+          "id": "safety_stop",
+          "text": "Safety Stop",
+          "caption": "INFO",
+          "color": "#00ADED",
+          "when": "safety_started",
+          "_source": "Tern Rev B-1 p.25 (p.24) figure 'INFO Safety Stop': an alert when in the safety stop range"
+        }
+      ],
+      "display": {
+        "depth_decimals": {
+          "metric": 1,
+          "imperial": 1
+        },
+        "_source": "Tern p.11: 'Displayed to one decimal place in feet or meters', figure 125.6 ft"
+      }
+    },
+    "Perdix 3": {
+      "badge_states": {
+        "safety_stop": {
+          "label": "SAFETY",
+          "paused_label": "PAUSED",
+          "title_box": true,
+          "check_mark": null,
+          "counting_color": "#00C800",
+          "counting_value_color": "#00C800",
+          "paused_color": "#FFFF00",
+          "paused_value_color": "#FFFF00",
+          "complete_color": "#00ADED",
+          "complete_value_text": "CLEAR",
+          "complete_value_color": "#00C800"
+        },
+        "deco": {
+          "label": "DECO",
+          "color": "#00ADED",
+          "check_mark": null,
+          "approach_color": null,
+          "at_stop_color": null
+        },
+        "_source": "Perdix 3 Rev B p.58-60"
+      },
+      "circuit": {
+        "CC": {
+          "box": "#00C800",
+          "text": "#000000"
+        },
+        "BO": {
+          "box": "#FFFF00",
+          "text": "#000000"
+        },
+        "_source": "Perdix 3 Rev B PDF p.85, p.87; Teric Rev H5 p.12, p.33-34: rounded badges, CC green, BO yellow, black text (no OC badge is pictured)"
+      },
+      "setpoint": {
+        "high_color": "#00C800",
+        "low_color": "#FF00FF",
+        "_source": "Perdix 3 Rev B PDF p.42; Teric Rev H5 p.14: SP green for the high setpoint, magenta for the low"
+      }
+    },
+    "ascent_rate": [
+      {
+        "max": 9.0,
+        "color": "#FFFFFF"
+      },
+      {
+        "min": 9.0,
+        "max": 18.0,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 18.0,
+        "color": "#FF0000",
+        "blink": true
+      }
+    ],
+    "ascent_chevrons": {
+      "up_count": 6,
+      "down_count": 0,
+      "bar": false,
+      "m_per_min_per_chevron": 3.0
+    },
+    "_ndl": "p.17 (yellow below the Low NDL alert, default 5 min, p.24); ndl_zero: p.33",
+    "_po2": "p.19: flashing red outside the PPO2 limits; p.62 Adv. Config 2 defaults OC Min 0.18, OC MOD 1.40, OC Deco 1.61. 1.61 is used so a deco gas is not flagged; the bottom gas should use 1.40 once the gas list is known (A2)",
+    "po2_limits": {
+      "min": 0.18,
+      "mod": 1.4,
+      "deco": 1.61,
+      "_source": "p.62"
+    },
+    "_safety_stop": "p.27 (11 m trigger, countdown below 6 m, window 2.4-8.3 m, yellow when paused, reset below 11 m, Complete); adapt p.17; same on Peregrine TX Rev C p.26, Petrel 3 Rec Rev C p.26, Teric Rev H5 p.25, Tern Rev B-1 p.24, Perdix 3 Rev B p.58-59. Duration: 3 min fixed by default (Deco Setup p.55 offers 3 min, Adapt and CntUp; the default is taken as 3 min, as the simulator does); Adapt's 5 min rule stays available with adapt.enabled",
+    "tank_reserve": {
+      "default_bar": 50,
+      "critical_min_bar": 21,
+      "critical_fraction": 0.5,
+      "reserve_color": "#FFFF00",
+      "reserve_text_color": "#000000",
+      "critical_color": "#FF0000",
+      "critical_text_color": "#FFFFFF",
+      "style": "fill",
+      "_source": "p.57: reserve default 50 bar (range 28-137), Reserve Pressure warning below it, Critical Pressure warning below the larger of 21 bar or half the reserve; p.40 figure: value on a yellow box (reserve) or red box (critical); same text on Perdix 3 Rev B p.154, Peregrine TX Rev C p.56, Petrel 3 Rec Rev C p.56, Teric Rev H5 p.74. The box fill is drawn as text colour until the renderer gains a value highlight (A2)"
+    },
+    "_tank_pressure_fill": "assumed; p.40 only says the bar graph scales to the rated pressure. With the reserve box the bar follows the box colour (A5)",
+    "_tissue_load": "assumed (copied from the Garmin table); the N2 bar graph's colour steps are not given as percentages",
+    "_deco_stop": "p.28: approach within 5.1 m (yellow title, flashing up arrow), at the stop down to 1.5 m deeper (green, check mark), flashing red when shallower; ceiling_phase: Teric Rev H5 p.26 / Tern Rev B-1 p.25 distinguish shallower than the stop (yellow) from shallower than the ceiling (flashing red); a Perdix 2 (p.28) colours both red",
+    "_deco_clear": "p.28: Deco Clear counter counts up from zero once all stops are complete",
+    "_sidemount_switch": "p.42 and p.57 (SM Switch 21 bar)",
+    "_ascent_rate": "p.12: 1 arrow per 3 m/min, white under 9, yellow 9-18, flashing red over 18 (6 arrows); deco calculations assume 10 m/min",
+    "notice_style": {
+      "style": "text",
+      "color": "#FFFF00",
+      "caption_color": "#FFFF00",
+      "confirm_text": "Confirm",
+      "show_seconds": 10,
+      "_source": "Perdix 2 p.22: each primary notification is a message in yellow across the bottom row under Warning (Alert for the p.24 custom alerts, Error for resets) with Confirm on the right, until a button is pressed. A log does not record the press: shown for show_seconds (assumed). Same on Peregrine TX p.21, Petrel 3 Rec p.24"
+    },
+    "notices": [
+      {
+        "id": "low_ppo2",
+        "text": "LOW PPO2",
+        "caption": "Warning",
+        "when": "po2_below",
+        "bar": 0.18,
+        "_source": "Perdix 2 p.25: the PPO2 is below the limit set in the PPO2 limits menu (OC Min 0.18, p.62)",
+        "circuits": [
+          "OC",
+          "BO"
+        ]
+      },
+      {
+        "id": "low_ppo2_cc",
+        "text": "LOW PPO2",
+        "caption": "Warning",
+        "when": "po2_below",
+        "bar": 0.4,
+        "circuits": [
+          "CC",
+          "SC"
+        ],
+        "_source": "Petrel 3 Technical Rev B p.25, p.81: LOW PPO2 below CC Min 0.40 on the loop"
+      },
+      {
+        "id": "high_ppo2",
+        "text": "HIGH PPO2",
+        "caption": "Warning",
+        "when": "po2_above",
+        "bar": 1.61,
+        "seconds": 30,
+        "_source": "Perdix 2 p.22, p.25: the average PPO2 above the PPO2 limit for more than 30 s (OC Deco 1.61 used, see _po2)",
+        "circuits": [
+          "OC",
+          "BO"
+        ]
+      },
+      {
+        "id": "high_ppo2_cc",
+        "text": "HIGH PPO2",
+        "caption": "Warning",
+        "when": "po2_above",
+        "bar": 1.6,
+        "seconds": 30,
+        "circuits": [
+          "CC",
+          "SC"
+        ],
+        "_source": "Petrel 3 Technical Rev B p.81: on the loop the limits are CC Min 0.40 / CC Max 1.60, an alert after 30 s in both modes"
+      },
+      {
+        "id": "missed_stop",
+        "text": "MISSED DECO STOP",
+        "caption": "Warning",
+        "when": "stop_violation",
+        "seconds": 30,
+        "_source": "Perdix 2 p.25, p.28: a required stop was violated, after a 'significant' violation; the 30 s are assumed (the manual gives no figure)"
+      },
+      {
+        "id": "fast_ascent",
+        "text": "FAST ASCENT",
+        "caption": "Warning",
+        "when": "ascent_faster_than",
+        "m_per_min": 10,
+        "seconds": 10,
+        "_source": "Perdix 2 p.25: the ascent was sustained as faster than 10 m/min; the 10 s are assumed"
+      },
+      {
+        "id": "very_high_cns",
+        "text": "VERY HIGH CNS",
+        "caption": "Warning",
+        "when": "cns_at_least",
+        "percent": 150,
+        "_source": "Perdix 2 p.25"
+      },
+      {
+        "id": "high_cns",
+        "text": "HIGH CNS",
+        "caption": "Warning",
+        "when": "cns_at_least",
+        "percent": 90,
+        "_source": "Perdix 2 p.25"
+      },
+      {
+        "id": "low_ndl",
+        "text": "Low NDL Alert",
+        "caption": "Alert",
+        "when": "ndl_at_most",
+        "minutes": 5,
+        "rearm_minutes": 3,
+        "_source": "Perdix 2 p.24: default 5 min, re-arms once the NDL is 3 min above the alert value; p.25"
+      },
+      {
+        "id": "depth_alert",
+        "text": "Depth Alert",
+        "caption": "Alert",
+        "when": "depth_deeper_than",
+        "metres": 40,
+        "rearm_m": 2,
+        "_source": "Perdix 2 p.24: default 40 m, re-arms 2 m shallower; p.25"
+      },
+      {
+        "id": "time_alert",
+        "text": "Time Alert",
+        "caption": "Alert",
+        "when": "time_longer_than",
+        "minutes": 60,
+        "enabled": false,
+        "_source": "Perdix 2 p.24: default 60 min but turned off, fires once per dive; p.25"
+      },
+      {
+        "id": "critical_pressure",
+        "text": "{tank} CRITICAL PRES",
+        "caption": "Warning",
+        "when": "tank_critical",
+        "_source": "Perdix 2 p.26: tank pressure has fallen below the critical pressure (p.57)"
+      },
+      {
+        "_order": "the table on p.25-26 lists notifications by priority; this order follows its first column then its second (deduced, the two-column layout makes the exact order uncertain)"
+      }
+    ],
+    "gf_colors": {
+      "above_gf_high": "#FFFF00",
+      "above_100": "#FF0000",
+      "gf_high_default": 85,
+      "_source": "Perdix 2 p.20: GF99 yellow when the GF High-modified M-value is exceeded, red above 100 %; SurGF coloured by the current GF the same way. GF high from the log when it carries one (UDDF decomodel), else the Med default 85 (p.~55)"
+    },
+    "gas_time": {
+      "formula": "shearwater_gtr",
+      "ascent_m_per_min": 10,
+      "sac_window_s": 120,
+      "_source": "Perdix 2 p.44-45 and p.57: GTR = (Ptank - Preserve - Pascent) / (SAC x Pamb), SAC over the last two minutes at 1 ATA, direct ascent at 10 m/min, reserve 50 bar default; 'wait' until two minutes of data; no GTR once deco stops are required (p.26). Pascent as SAC x ascent minutes x mean ambient is our reading of 'the pressure used for the ascent'"
+    },
+    "persistent_notices": [
+      {
+        "id": "high_cns_box",
+        "text": "High\nCNS\n{cns}%",
+        "color": "#FF0000",
+        "when": "cns_at_least",
+        "percent": 100,
+        "_source": "p.23 'High CNS': CNS limit reached; the figure's wording follows the Perdix 2 p.13 box layout"
+      },
+      {
+        "id": "mod_exceeded",
+        "text": "MOD\n{mod}\n↑",
+        "color": "#FF0000",
+        "when": "mod_exceeded",
+        "_source": "p.23 'MOD, go up'; p.13 figure: red box MOD / depth / up arrow"
+      },
+      {
+        "id": "near_mod",
+        "text": "MOD\n{mod}",
+        "color": "#FFFF00",
+        "when": "near_mod",
+        "metres": 1.9,
+        "_source": "p.23 'Near MOD': within 1.9 m below the MOD, a notification only"
+      },
+      {
+        "_order": "p.23 lists High CNS, MOD go up, MOD switch gas, Near MOD, Better Gas; 'switch gas' and 'Better Gas' need the gas list (not modelled)"
+      }
+    ],
+    "display": {
+      "depth_decimals": {
+        "metric": 1,
+        "imperial": 0
+      },
+      "_source": "Perdix 2 p.12: 'When in meters, one decimal place is shown' (the feet figure shows 45 ft)"
+    },
+    "po2_cc": {
+      "min": 0.4,
+      "max": 1.6,
+      "color": "#FF0000",
+      "blink": true,
+      "_source": "Petrel 3 Technical Rev B p.13, p.18, p.81: on the loop the PPO2 flashes red below CC Min 0.40 / above CC Max 1.60 (Perdix 3 PDF p.41, Teric p.70 the same)"
+    },
+    "dil_po2": {
+      "min": 0.19,
+      "max": 1.65,
+      "color": "#FF0000",
+      "blink": true,
+      "_source": "Petrel 3 Technical Rev B p.18: DilPO2 flashes red below 0.19 or above 1.65 (Perdix 3 the same)"
+    },
+    "cells": {
+      "vote_fraction": 0.2,
+      "failed_color": "#FFFF00",
+      "min": 0.4,
+      "max": 1.6,
+      "out_of_range_color": "#FF0000",
+      "_source": "Petrel 3 Technical Rev B p.57, p.67: a cell more than 20 % from every other cell fails the vote and is yellow; with two cells a failed one below 0.4 / above 1.6 is red"
+    },
+    "circuit": {
+      "BO": {
+        "box": "#FFFF00",
+        "text": "#000000"
+      },
+      "_source": "Petrel 3 Technical Rev B p.14 and figures 13-16 p.37: 'BO displays in Yellow' (a yellow box, black text); OC / CC / SC in the main colour"
+    }
+  },
+  "Garmin": {
+    "_manual": "Descent Mk3 series owner's manual (Mk3) and Descent X50i owner's manual (X50i); pages are PDF pages. Full list: hud_rules_sources.md",
+    "ndl": [
+      {
+        "max": 10,
+        "color": "#FF0000"
+      },
+      {
+        "min": 10,
+        "max": 30,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 30,
+        "color": "#FFFFFF"
+      }
+    ],
+    "tank_pressure_fill": [
+      {
+        "max": 50,
+        "color": "#FF0000"
+      },
+      {
+        "max": 70,
+        "color": "#FFFF00"
+      }
+    ],
+    "po2": [
+      {
+        "min": 1.6,
+        "color": "#FF0000"
+      },
+      {
+        "min": 1.4,
+        "color": "#FFFF00"
+      }
+    ],
+    "safety_stop": {
+      "text": "SAFETY STOP",
+      "color": "#FFFF00",
+      "trigger_max_depth": 11.0,
+      "min_depth": 1.2,
+      "max_depth": 6.0,
+      "stop_depth": 5.0,
+      "duration_sec": 180,
+      "start_window": 1.0,
+      "pause_above": 3.0,
+      "warn_above_m": 2.0,
+      "_source": "Mk3 p.10 / X50i p.9-10: after a dive of at least 11 m, stop at 5 m; the timer starts within 1 m of the ceiling, pauses more than 3 m above it, resets below 11 m; Safety Stop Started when ascending above 6 m (Mk3 p.14); depth and stop depth turn yellow more than 2 m above the ceiling (warn_above_m, not drawn yet, A2). min_depth 1.2 (surface) assumed"
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "STOP",
+        "color": "#00FF00",
+        "warn_color": "#FFFF00",
+        "warn_value_color": "#FFFF00"
+      },
+      "deco": {
+        "label": "DECO",
+        "color": "#FFA500"
+      },
+      "clear": {
+        "label": "DECO",
+        "color": "#FFA500",
+        "clear_blink_depth": true
+      },
+      "_source": "X50i p.10 figure (stop box); mk3i: real screenshots test_data/dive_computers/garmin_mk3i",
+      "_warn": "Mk3 p.13 / X50i p.12: more than 2 m above the safety stop ceiling the current depth and stop depth turn yellow (phase 'warn')",
+      "_clear": "Mk3 p.35 / X50i p.27 alert table: Decompression Cleared - 'The current depth and stop depth flash red'"
+    },
+    "tissue_load": [
+      {
+        "max": 80,
+        "color": "#00FF00"
+      },
+      {
+        "min": 80,
+        "max": 100,
+        "color": "#FFC000"
+      },
+      {
+        "min": 100,
+        "color": "#FF0000"
+      }
+    ],
+    "ascent_rate": [
+      {
+        "max": 7.9,
+        "color": "#00FF00"
+      },
+      {
+        "min": 7.9,
+        "max": 10.1,
+        "color": "#FFC000"
+      },
+      {
+        "min": 10.1,
+        "color": "#FF0000"
+      }
+    ],
+    "ceiling_broken": {
+      "margin": 0.6,
+      "color": "#FF0000"
+    },
+    "mk3i": {
+      "badge_states": {
+        "safety_stop": {
+          "label": "",
+          "color": "#FFFFFF",
+          "warn_color": "#FFFF00",
+          "warn_value_color": "#FFFF00"
+        },
+        "deco": {
+          "label": "",
+          "color": "#FFFFFF"
+        },
+        "clear": {
+          "label": "",
+          "color": "#FFFFFF",
+          "clear_blink_depth": true
+        }
+      },
+      "circuit": {
+        "CC": {
+          "box": "#000000",
+          "outline": "#FFFFFF",
+          "text": "#FFFFFF"
+        },
+        "_source": "Descent Mk3 p.24 figure (Big Numbers in CCR mode): CC in a white-outlined box under the gas; OC after a bailout, the same box (p.21: the label says CC or OC)",
+        "BO": {
+          "box": "#000000",
+          "outline": "#FFFFFF",
+          "text": "#FFFFFF"
+        }
+      },
+      "bailout": {
+        "_source": "Descent Mk3 p.28: on a bailout the dividing lines turn red, not the gas name (that is the X50i, p.20)"
+      }
+    },
+    "_ndl": "assumed. The manuals only give Approaching NDL alerts at 10 and 5 min (Mk3 p.13, X50i p.12); real screenshots show the NDL white at 99+",
+    "_tank_pressure": "replaced by tank_reserve (the old 60 / 70 bar bands had no source)",
+    "tank_reserve": {
+      "default_bar": 50,
+      "critical_default_bar": 25,
+      "reserve_color": "#FFFF00",
+      "critical_color": "#FF0000",
+      "critical_blink": true,
+      "style": "text",
+      "_source": "Mk3 p.14 / X50i p.13 transceiver alerts: the tank pressure value turns yellow below the reserve pressure and flashes red below the critical pressure; both are settings (Reserve Pressure, Mk3 p.6 / X50i p.5). Defaults are not in the manuals: 50 / 25 bar assumed"
+    },
+    "_tank_pressure_fill": "assumed; the gauge is scaled by the working pressure (Mk3 p.6), colours not given",
+    "_po2": "Mk3 p.4 / X50i p.4: PO2 Warning and PO2 Critical are settings; the value flashes yellow above Warning and red above Critical (Mk3 p.13-14). Defaults not in the manual: 1.4 / 1.6 assumed (they match a real mk3i FIT dive_settings record)",
+    "deco_stop": {
+      "approach_m": 3.0,
+      "at_stop_m": 0.6,
+      "violation_above_m": 0.6,
+      "_source": "Mk3 p.10, p.13 / X50i p.10, p.12: Approaching Deco Stop within one stop interval (3 m); stay within 0.6 m of the ceiling; more than 0.6 m above it the depth and ceiling flash red and the stop timer pauses"
+    },
+    "_ceiling_broken": "Mk3 p.10 / X50i p.10",
+    "lockout": {
+      "minutes_above_ceiling": 3,
+      "_source": "Mk3 p.13 / X50i p.12: more than three minutes above the deco ceiling puts the decompression lockout into effect (not modelled yet, A2)"
+    },
+    "_tissue_load": "Mk3 p.7-8 / X50i p.7: green 0-79 %, yellow 80-99, red 100 % or more",
+    "_ascent_rate": "Mk3 p.7-8 / X50i p.7: green under 7.9 m/min, yellow 7.9-10.1, red over 10.1; alert Ascending too fast over 9.1 m/min for 5 s (Mk3 p.13)",
+    "notice_style": {
+      "style": "text",
+      "color": "#FFFFFF",
+      "caption_color": "#FFFFFF",
+      "confirm_text": "",
+      "show_seconds": 10,
+      "_source": "Mk3 p.12-14 / X50i p.12-13 give the alert texts; how long a message stays and its colour are not described: white, show_seconds assumed"
+    },
+    "notices": [
+      {
+        "id": "po2_crit_high",
+        "text": "PO2 is high. Ascend or switch to lower O2 gas.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "po2_crit_high",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "po2_crit_low",
+        "text": "PO2 is low. Descend or switch to higher O2 gas.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "po2_crit_low",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "deco_ceiling_broken",
+        "text": "Descend below deco ceiling.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "deco_ceiling_broken",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "ascent_critical",
+        "text": "Ascending too fast. Slow your ascent.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "ascent_critical",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "ndl_reached",
+        "text": "NDL exceeded. Decompression now required.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "ndl_reached",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "approaching_first_deco_stop",
+        "text": "Approaching Deco Stop",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "approaching_first_deco_stop",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "deco_complete",
+        "text": "Decompression Cleared",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "deco_complete",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "safety_stop_broken",
+        "text": "Descend to complete safety stop.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "safety_stop_broken",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "safety_stop_started",
+        "text": "Safety Stop Started",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "safety_stop_started",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "safety_stop_complete",
+        "text": "Safety Stop Cleared",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "safety_stop_complete",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "approaching_ndl",
+        "text": "Approaching NDL",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "approaching_ndl",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "cns_critical",
+        "text": "CNS toxicity at {cns}%. End your dive now.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "cns_critical",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "cns_warning",
+        "text": "CNS toxicity at 80%.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "cns_warning",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "otu_critical",
+        "text": "OTU accumulated. End your dive now.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "otu_critical",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "id": "otu_warning",
+        "text": "250 OTU accumulated.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "otu_warning",
+        "_source": "Mk3 p.12-14"
+      },
+      {
+        "_order": "priority deduced (dangerous first); the manual lists the alerts alphabetically. Alerts with no wording in the manual (depth_alert, time_alert, po2_warn which only colours the value) are left out"
+      },
+      {
+        "id": "setpoint_switch_auto_high",
+        "text": "Switched to high setpoint.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "setpoint_switch_auto_high",
+        "_source": "Mk3 p.34-35, X50i p.25-26 alert tables: the automatic setpoint switch"
+      },
+      {
+        "id": "setpoint_switch_auto_low",
+        "text": "Switched to low setpoint.",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "setpoint_switch_auto_low",
+        "_source": "Mk3 p.34-35, X50i p.25-26 alert tables: the automatic setpoint switch"
+      },
+      {
+        "id": "sidemount_switch",
+        "text": "Breathe from {side} Tank ({tank}).",
+        "caption": "",
+        "when": "sidemount_switch",
+        "_source": "Mk3 p.36 / X50i p.27 alert table: 'Breathe from %1.' - the pressure difference between the sidemounted tanks exceeded the configured threshold; %1 is the side and transceiver name, 'Breathe from Left Tank (Micke01).' (real screenshots test_data/dive_computers/screen_shots/5831.bmp, garmin_x50i/x50i_sidemount_change_tank.png - blue border, no triangle, text centred); the first tank is the left one",
+        "color": "#00AAFF",
+        "icon": "none"
+      }
+    ],
+    "x50i": {
+      "display": {
+        "depth_decimals": {
+          "metric": 1,
+          "imperial": 0
+        },
+        "percent_fields": ["gf", "surf_gf", "cns"],
+        "gf99_on_gassing_text": "On-Gassing",
+        "air_text": "Air",
+        "_source": "Gases page screenshot test_data/dive_computers/screen_shots/1800.bmp: SURF. GF 33%, CNS 2%, GF99 'On-Gassing' while the tissues still take up gas (3466.bmp at the surface: GF99 7%); the gas box reads 'Air' on every screenshot; depth decimals as the Mk3"
+      },
+      "tank_pressure_fill": [
+        {"max": 50, "color": "#FF0000"},
+        {"max": 70, "color": "#FFFF00"},
+        {"min": 70, "color": "#00AAFF"}
+      ],
+      "_tank_pressure_fill": "The tank icon fills blue (0,170,255) at 117 and 146 bar (real screenshots test_data/dive_computers/screen_shots); red / yellow below the reserve assumed as the brand's. Not seen on the Mk3i, which keeps the green",
+      "notices": [
+        {
+          "id": "po2_crit_high",
+          "text": "ASCEND OR SWITCH GAS\nPO2 is high.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "po2_crit_high",
+          "_source": "X50i p.12; two lines as the table prints it"
+        },
+        {
+          "id": "po2_crit_low",
+          "text": "DESCEND OR SWITCH GAS\nPO2 is low.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "po2_crit_low",
+          "_source": "X50i p.12; two lines as the table prints it"
+        },
+        {
+          "id": "deco_ceiling_broken",
+          "text": "DESCEND TO {stop}\nYou are above your deco ceiling.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "deco_ceiling_broken",
+          "_source": "X50i p.12; two lines as the table prints it"
+        },
+        {
+          "id": "ascent_critical",
+          "text": "SLOW YOUR ASCENT\nAscending too fast.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "ascent_critical",
+          "_source": "X50i p.13; two lines as the table prints it"
+        },
+        {
+          "id": "ndl_reached",
+          "text": "NDL exceeded.\nDeco required.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "ndl_reached",
+          "_source": "X50i p.12; two lines as the table prints it"
+        },
+        {
+          "id": "approaching_first_deco_stop",
+          "text": "Approaching deco stop.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "approaching_first_deco_stop",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "deco_complete",
+          "text": "Decompression cleared.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "deco_complete",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "safety_stop_broken",
+          "text": "Descend to complete safety stop.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "safety_stop_broken",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "safety_stop_started",
+          "text": "Safety stop started.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "safety_stop_started",
+          "_source": "X50i p.13"
+        },
+        {
+          "id": "safety_stop_complete",
+          "text": "Safety stop cleared.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "safety_stop_complete",
+          "_source": "X50i p.13"
+        },
+        {
+          "id": "approaching_ndl",
+          "text": "10 minutes to NDL.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "approaching_ndl",
+          "_source": "X50i p.12 (the 5 min alert has the same FIT name; the first wording is used)"
+        },
+        {
+          "id": "cns_critical",
+          "text": "CNS toxicity at {cns}%.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "cns_critical",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "cns_warning",
+          "text": "CNS toxicity at 80%.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "cns_warning",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "otu_critical",
+          "text": "OTU accumulated.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "otu_critical",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "otu_warning",
+          "text": "250 OTU accumulated.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "otu_warning",
+          "_source": "X50i p.12"
+        },
+        {
+          "id": "setpoint_switch_auto_high",
+          "text": "Switched to high setpoint.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "setpoint_switch_auto_high",
+          "_source": "Mk3 p.34-35, X50i p.25-26 alert tables: the automatic setpoint switch"
+        },
+        {
+          "id": "setpoint_switch_auto_low",
+          "text": "Switched to low setpoint.",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "setpoint_switch_auto_low",
+          "_source": "Mk3 p.34-35, X50i p.25-26 alert tables: the automatic setpoint switch"
+        },
+        {
+          "id": "sidemount_switch",
+          "text": "Breathe from {side} Tank ({tank}).",
+          "caption": "",
+          "when": "sidemount_switch",
+          "_source": "X50i EN-US p.27 alert table 'Breathe from %1.'; the real screenshot x50i_sidemount_change_tank.png reads 'Breathe from Left Tank (VASEN).' - blue border, no triangle, centred; white text (test_data/dive_computers/screen_shots/5831.bmp)",
+          "color": "#00AAFF",
+          "text_color": "#FFFFFF",
+          "icon": "none"
+        }
+      ]
+    },
+    "display": {
+      "depth_decimals": {
+        "metric": 1,
+        "imperial": 0
+      },
+      "_source": "Mk3 p.8 figures: 77 ft / 86 ft whole, metric screenshots 0.0 m"
+    },
+    "sidemount_switch": {
+      "threshold_bar": 30.0,
+      "color": "#00AAFF",
+      "text_color": "#FFFFFF",
+      "_source": "Mk3 p.24 / X50i p.13 Enabling Sidemount Setup: 'when the pressure difference is greater than the configured threshold, an alert appears to remind you to breathe from the tank with the higher pressure'; 'The recommended breathing tank is highlighted in blue'. Switch Pressure is a setting; the default is not in the manual - 30 bar assumed (the owner's). Colour: the X50i's own blue (0,170,255), real screenshots test_data/dive_computers/screen_shots/1875-4131.bmp, where the pressure turns blue and two triangles march towards the tank (tank_switch_arrows element)"
+    },
+    "dil_po2": {
+      "min": 0.18,
+      "color": "#FFFF00",
+      "blink": true,
+      "_source": "Descent X50i p.25: 'Diluent PO2 is low' below 0.18 bar, the PO2 flashes yellow (Mk3 p.34: the same alert)"
+    },
+    "bailout": {
+      "gas_color": "#FF0000",
+      "_source": "Descent X50i p.20: on open circuit during a CCR dive 'The gas name turns red' (Mk3 p.28: the dividing lines turn red)"
+    },
+    "circuit_labels": {
+      "BO": "OC",
+      "_source": "Descent Mk3 p.21, X50i p.16-17: the label says whether CC or OC diving is active - a bailout reads OC"
+    }
+  },
+  "Suunto": {
+    "_manual": "Suunto EON Core User Guide 4.0 (EON Core) for the brand level, which the EON Steel Black User Guide 3.0 repeats; Suunto Nautic user guide (2025-12-01) for the Nautic block. Pages are PDF pages; colours sampled from Suunto's product photos (test_data/dive_computers/suunto). Full list: hud_rules_sources.md",
+    "ndl": [
+      {
+        "max": 30,
+        "color": "#B1CB45"
+      },
+      {
+        "min": 30,
+        "color": "#B1CB45"
+      }
+    ],
+    "_ndl": "deduced: an EON shows 'no deco' green at every value (product photos; EON Core p.30, Steel Black p.31 figures); the alarm tables (EON Core p.13-14) have no NDL warning",
+    "po2": [
+      {
+        "min": 1.6,
+        "color": "#FF0000"
+      }
+    ],
+    "_po2": "EON Core p.13: pO2 over 1.6 is an alarm, and alarms are red",
+    "safety_stop": {
+      "text": "SAFETY STOP",
+      "color": "#FFFF00",
+      "trigger_max_depth": 10.0,
+      "duration_sec": 180,
+      "stop_depth": 3.0,
+      "start_below": 6.0,
+      "count_range": [
+        2.4,
+        6.0
+      ],
+      "min_depth": 2.4,
+      "max_depth": 6.0,
+      "_source": "EON Core p.25, p.40: a 3 minute stop (3, 4 or 5 settable) on every dive over 10 m, counted while between 2.4 and 6 m; 'Safety stop is ahead at 3.0 meters' before it counts (p.11). Voluntary yellow; a mandatory stop after an ascent-rate violation is red and longer (p.40) - not modelled"
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "SAFETY STOP",
+        "color": "#FFFF00",
+        "value_color": "#FFFF00",
+        "timer_format": "m:ss"
+      },
+      "deco": {
+        "label": "DECO",
+        "color": "#ED7C2A"
+      },
+      "_source": "EON Core p.40-41 figures: the stop depth and m:ss counter yellow (voluntary); DECO orange top right in deco (p.27 figure; orange sampled from the Steel Black photo's asc. time)"
+    },
+    "deco_stop": {
+      "approach_m": 3.0,
+      "at_stop_m": 3.0,
+      "violation_above_m": 0.6,
+      "_source": "EON Core p.26: the deco window runs from the ceiling to 3 m below it (white up / down arrows), a 0.6 m safe margin above the ceiling (yellow), above that a red arrow, an alarm and the calculation paused. The stop is the logged ceiling (parsers/suunto.py)"
+    },
+    "ceiling_broken": {
+      "margin": 0.6,
+      "color": "#FF0000",
+      "_source": "EON Core p.13, p.26"
+    },
+    "lockout": {
+      "minutes_above_ceiling": 3,
+      "_source": "EON Core p.26-27: three minutes above the safe margin locks Fused RGBM 2 ('Locked', p.17); Bühlmann 16 GF does not lock but shows a red Ceiling broken bar (p.17). Not modelled yet"
+    },
+    "ascent_rate": [
+      {
+        "max": 8.0,
+        "color": "#B1CB45"
+      },
+      {
+        "min": 8.0,
+        "max": 10.0,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 10.0,
+        "color": "#FF0000"
+      }
+    ],
+    "_ascent_rate": "EON Core p.15: one bar step is 2 m/min; green under 8 m/min, yellow 8-10, red over 10; an alarm after five seconds over 10",
+    "tank_reserve": {
+      "default_bar": 70,
+      "critical_default_bar": 50,
+      "reserve_color": "#FFFF00",
+      "critical_color": "#FF0000",
+      "style": "text",
+      "_source": "EON Core p.14: the value turns yellow below the diver's own tank pressure alarm and red below the built-in 50 bar one; the diver's limit has no default in the manual: 70 bar assumed"
+    },
+    "circuit_labels": {
+      "BO": "OC",
+      "_source": "EON Core p.39-40 figures: the gas cell reads CC on the loop and OC after a bailout"
+    },
+    "notice_style": {
+      "style": "box",
+      "color": "#FFFF00",
+      "caption_color": "#FFFF00",
+      "confirm_text": "",
+      "show_seconds": 10,
+      "_source": "EON Core p.13: alarms, warnings and notifications as a pop-up until a button is pressed; alarms red, warnings red or yellow, notifications yellow; the figures show a dark rounded box with a coloured border. A log has no button press: show_seconds assumed"
+    },
+    "notices": [
+      {
+        "id": "ascent_speed",
+        "text": "Ascent speed",
+        "caption": "",
+        "when": "ascent_faster_than",
+        "m_per_min": 10,
+        "seconds": 5,
+        "color": "#FF0000",
+        "_source": "EON Core p.13 alarm: over 10 m/min for five seconds; the pop-up's wording is not in the text (assumed)"
+      },
+      {
+        "id": "ceiling_broken",
+        "text": "Ceiling broken",
+        "caption": "",
+        "when": "stop_violation",
+        "seconds": 0,
+        "color": "#FF0000",
+        "_source": "EON Core p.13 alarm: ceiling broken by more than 0.6 m; 'Ceiling broken' p.17"
+      },
+      {
+        "id": "po2_high",
+        "text": "pO2 high",
+        "caption": "",
+        "when": "po2_above",
+        "bar": 1.6,
+        "seconds": 0,
+        "color": "#FF0000",
+        "_source": "EON Core p.13 alarm: pO2 over 1.6; 'pO2 high' pop-up in the p.13 figure (the screen writes pO₂, the bundled font has no subscript)"
+      },
+      {
+        "id": "po2_low",
+        "text": "pO2 low",
+        "caption": "",
+        "when": "po2_below",
+        "bar": 0.18,
+        "color": "#FF0000",
+        "_source": "EON Core p.13 alarm: pO2 under 0.18 (wording assumed after 'pO2 high')"
+      },
+      {
+        "id": "safety_stop_broken",
+        "text": "Safety stop broken",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "safety_stop_broken",
+        "color": "#FF0000",
+        "_source": "EON Core p.14 warning: safety stop ceiling broken by more than 0.6 m; from the log's own event (parsers/suunto.py)"
+      },
+      {
+        "id": "cns_100",
+        "text": "CNS 100%",
+        "caption": "",
+        "when": "cns_at_least",
+        "percent": 100,
+        "color": "#FF0000",
+        "_source": "EON Core p.13 warning"
+      },
+      {
+        "id": "otu_300",
+        "text": "OTU 300",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "otu_critical",
+        "color": "#FF0000",
+        "_source": "EON Core p.13 warning; from the log's own event (no OTU is computed)"
+      },
+      {
+        "id": "tank_pressure",
+        "text": "Tank pressure",
+        "caption": "",
+        "when": "tank_critical",
+        "color": "#FF0000",
+        "_source": "EON Core p.14 warning: the built-in 50 bar alarm (red); the user's own limit (yellow) is a setting no log holds"
+      },
+      {
+        "id": "cns_80",
+        "text": "CNS 80%",
+        "caption": "",
+        "when": "cns_at_least",
+        "percent": 80,
+        "color": "#FFFF00",
+        "_source": "EON Core p.14 notification"
+      },
+      {
+        "id": "otu_250",
+        "text": "OTU 250",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "otu_warning",
+        "color": "#FFFF00",
+        "_source": "EON Core p.14 notification; from the log's own event"
+      },
+      {
+        "id": "change_gas",
+        "text": "Change gas",
+        "caption": "",
+        "when": "fit_alert",
+        "alert": "suunto:Gas Available",
+        "color": "#FFFF00",
+        "_source": "EON Core p.14 notification on a multi-gas ascent; deduced: a D5 export logs 'Gas Available' just before the diver switches (sample export, 2026-11-14)"
+      },
+      {
+        "id": "setpoint_up",
+        "text": "Setpoint switched {setpoint}",
+        "caption": "",
+        "when": "setpoint_up",
+        "circuits": [
+          "CC",
+          "SC"
+        ],
+        "color": "#FFFF00",
+        "_source": "EON Core p.14 notification, p.39 'Setpoint switched' pop-up figure"
+      },
+      {
+        "id": "setpoint_down",
+        "text": "Setpoint switched {setpoint}",
+        "caption": "",
+        "when": "setpoint_down",
+        "circuits": [
+          "CC",
+          "SC"
+        ],
+        "color": "#FFFF00",
+        "_source": "EON Core p.14 notification"
+      }
+    ],
+    "display": {
+      "depth_decimals": {
+        "metric": 1,
+        "imperial": 0
+      },
+      "air_text": "Air",
+      "_source": "EON Core p.57: depth resolution 0.1 m / 1 ft; the gas reads 'Air', 'Nx32' (EON Steel Black p.31 figures, product photos)"
+    },
+    "Nautic": {
+      "ndl": [
+        {
+          "max": 5,
+          "color": "#FEF01D"
+        },
+        {
+          "min": 5,
+          "color": "#FFFFFF"
+        }
+      ],
+      "_ndl": "Nautic p.22: '>99' above 99 minutes; at 5 minutes or less a mandatory alarm and the area highlighted; white otherwise (product photo); the highlight colour yellow from the p.51 figure (deduced)",
+        "ndl_zero": "#FFFFFF",
+        "_ndl_zero": "Nautic p.52 figures: in deco the NDL / TTS field reads NDL 0' in white",
+      "po2": [
+        {
+          "min": 1.6,
+          "color": "#FF2322"
+        },
+        {
+          "min": 1.4,
+          "color": "#FEF01D"
+        }
+      ],
+      "_po2": "Nautic p.36-37: red over 1.6, yellow over the gas's own set limit (no default in the manual: 1.4 assumed)",
+      "ascent_rate": [
+        {
+          "max": 2.0,
+          "color": "#808080"
+        },
+        {
+          "min": 2.0,
+          "max": 8.0,
+          "color": "#46F083"
+        },
+        {
+          "min": 8.0,
+          "max": 10.0,
+          "color": "#FEF01D"
+        },
+        {
+          "min": 10.0,
+          "color": "#FF2322"
+        }
+      ],
+      "_ascent_rate": "Nautic p.23: one step 2 m/min; grey under 2, green 4-8 (2-4 not stated: green assumed), yellow over 8, red at 10, highlighted red over 10 for 5 s (not modelled)",
+      "safety_stop": {
+        "text": "SAFETY STOP",
+        "color": "#FFB000",
+        "trigger_max_depth": 10.0,
+        "duration_sec": 180,
+        "stop_depth": 3.0,
+        "start_below": 6.0,
+        "count_range": [
+          2.4,
+          6.0
+        ],
+        "min_depth": 2.4,
+        "max_depth": 6.0,
+        "_source": "Nautic p.47: a 3 minute stop on dives over 10 m, timed between 2.4 and 6 m; the timer stops deeper than 6 m and resumes inside the window; amber timer pill from the p.22 figure (colour deduced)"
+      },
+      "badge_states": {
+        "safety_stop": {
+          "label": "SAFETY STOP",
+          "color": "#3FEBDF",
+          "value_color": "#FFFFFF",
+          "timer_format": "m:ss"
+        },
+        "deco": {
+          "label": "DECO",
+          "color": "#ED7C2A"
+        },
+        "_source": "Nautic p.22: a Deco badge in deco (orange in the p.52 figure); stop labels cyan like every Nautic label (product photo)"
+      },
+      "tank_pressure_fill": [
+        {
+          "max": 50,
+          "color": "#FF2322"
+        },
+        {
+          "max": 70,
+          "color": "#FEF01D"
+        },
+        {
+          "min": 70,
+          "color": "#48C2F5"
+        }
+      ],
+      "_tank_pressure_fill": "Nautic product photo: the tank gauge blue over yellow over red; red below 50 bar (p.37), yellow below the user's alarm (70 bar assumed)",
+      "gf_colors": {
+        "above_gf_high": "#FEF01D",
+        "above_100": "#FF2322",
+        "gf_high_default": 85,
+        "_source": "Nautic p.26: GF99 yellow above GF High, red at 100 % and above; GF High default 85 (Medium 40/85, p.42)"
+      },
+      "notice_style": {
+        "style": "banner",
+        "color": "#FF2322",
+        "text_color": "#FFFFFF",
+        "caption_color": "#FFFFFF",
+        "confirm_text": "",
+        "show_seconds": 10,
+        "_source": "Nautic p.36: mandatory warnings are red and stay until resolved; they fill the switch window (p.37, p.49 figures). show_seconds assumed"
+      },
+      "notices": [
+        {
+          "id": "ascent_speed",
+          "text": "ASCENT SPEED",
+          "caption": "",
+          "when": "ascent_faster_than",
+          "m_per_min": 10,
+          "seconds": 5,
+          "color": "#FF2322",
+          "_source": "Nautic p.36 mandatory alarm: over 10 m/min for five seconds (the alarm shows an icon; wording assumed)"
+        },
+        {
+          "id": "ceiling_broken",
+          "text": "CEILING BROKEN",
+          "caption": "",
+          "when": "stop_violation",
+          "seconds": 0,
+          "color": "#FF2322",
+          "_source": "Nautic p.36 mandatory alarm (wording assumed)"
+        },
+        {
+          "id": "po2_high",
+          "text": "PO2 HIGH",
+          "caption": "",
+          "when": "po2_above",
+          "bar": 1.6,
+          "seconds": 0,
+          "color": "#FF2322",
+          "_source": "Nautic p.36 mandatory alarm: pO2 over 1.6 (wording assumed)"
+        },
+        {
+          "id": "tank_pressure",
+          "text": "TANK PRESSURE",
+          "caption": "",
+          "when": "tank_critical",
+          "color": "#FF2322",
+          "_source": "Nautic p.37 mandatory alarm: tank below 50 bar (wording assumed)"
+        },
+        {
+          "id": "cns_80",
+          "text": "CNS {cns}%",
+          "caption": "",
+          "when": "cns_at_least",
+          "percent": 80,
+          "color": "#FF2322",
+          "_source": "Nautic p.37 mandatory alarm at 80 % and 100 %"
+        },
+        {
+          "id": "ndl_low",
+          "text": "NO DECO",
+          "caption": "",
+          "when": "ndl_at_most",
+          "minutes": 5,
+          "rearm_minutes": 6,
+          "color": "#FF2322",
+          "_source": "Nautic p.22, p.37: a mandatory alarm when the NDL is 5 minutes or less"
+        },
+        {
+          "id": "switch_gas",
+          "text": "SWITCH GAS",
+          "caption": "",
+          "when": "fit_alert",
+          "alert": "suunto:Gas Switch",
+          "text_color": "#000000",
+          "color": "#3FEBDF",
+          "_source": "Nautic p.29-30: the switch window turns cyan with the gas to switch to; from the log's own 'Gas Switch' notification (an Ocean export logs it, sample 2026-11-14)"
+        },
+        {
+          "id": "sidemount_switch",
+          "text": "SIDEMOUNT",
+          "caption": "",
+          "when": "sidemount_switch",
+          "text_color": "#000000",
+          "color": "#3FEBDF",
+          "_source": "Nautic p.38-39: the user's sidemount tank-switch alarm, a cyan panel"
+        }
+      ]
+    }
+  },
+  "default": {
+    "ndl": [
+      {
+        "max": 10,
+        "color": "#FF0000"
+      },
+      {
+        "min": 10,
+        "max": 30,
+        "color": "#FFFF00"
+      },
+      {
+        "min": 30,
+        "color": "#FFFFFF"
+      }
+    ],
+    "tank_pressure": [
+      {
+        "max": 60,
+        "color": "#FF0000"
+      },
+      {
+        "max": 70,
+        "color": "#FFA500"
+      }
+    ],
+    "tank_pressure_fill": [
+      {
+        "max": 50,
+        "color": "#FF0000"
+      },
+      {
+        "max": 70,
+        "color": "#FFFF00"
+      }
+    ],
+    "safety_stop": {
+      "text": "SAFETY STOP",
+      "color": "#FFFF00",
+      "trigger_max_depth": 10.0,
+      "min_depth": 3.0,
+      "max_depth": 6.0
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "STOP",
+        "color": "#00FF00"
+      },
+      "deco": {
+        "label": "DECO",
+        "color": "#FFA500"
+      }
+    },
+    "tissue_load": [
+      {
+        "max": 80,
+        "color": "#00FF00"
+      },
+      {
+        "min": 80,
+        "max": 100,
+        "color": "#FFC000"
+      },
+      {
+        "min": 100,
+        "color": "#FF0000"
+      }
+    ],
+    "ascent_rate": [
+      {
+        "max": 7.9,
+        "color": "#00FF00"
+      },
+      {
+        "min": 7.9,
+        "max": 10.1,
+        "color": "#FFC000"
+      },
+      {
+        "min": 10.1,
+        "color": "#FF0000"
+      }
+    ],
+    "_note": "generic values with no source, for Custom templates that borrow no brand profile",
+    "display": {
+      "depth_decimals": {
+        "metric": 1,
+        "imperial": 0
+      }
+    }
+  }
+}

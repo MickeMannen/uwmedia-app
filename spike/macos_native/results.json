@@ -1,0 +1,1291 @@
+{
+ "clips": {
+  "DJI_20260502110658_0002_D_A001.MP4": {
+   "source": {
+    "codec": "hevc",
+    "profile": "Main 10",
+    "width": 3840,
+    "height": 2160,
+    "pixFmt": "yuv420p10le",
+    "bitrate": 64787736,
+    "frames": 5546,
+    "fps": 50.0,
+    "seconds": 110.933333,
+    "bytes": 917923537
+   },
+   "luts": 56,
+   "cases": {
+    "probe_one_call": {
+     "ffmpeg": [
+      {
+       "wall": 0.033,
+       "cpu": 0.029,
+       "rssMb": 17
+      },
+      {
+       "wall": 0.03,
+       "cpu": 0.028,
+       "rssMb": 17
+      },
+      {
+       "wall": 0.031,
+       "cpu": 0.029,
+       "rssMb": 17
+      },
+      {
+       "wall": 0.031,
+       "cpu": 0.029,
+       "rssMb": 17
+      },
+      {
+       "wall": 0.03,
+       "cpu": 0.028,
+       "rssMb": 17
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.067,
+       "cpu": 0.029,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.065,
+       "cpu": 0.027,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.065,
+       "cpu": 0.027,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.063,
+       "cpu": 0.028,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.063,
+       "cpu": 0.027,
+       "rssMb": 25
+      }
+     ]
+    },
+    "frame_grab_1080p_at_5s": {
+     "ffmpeg": [
+      {
+       "wall": 0.212,
+       "cpu": 0.217,
+       "rssMb": 411
+      },
+      {
+       "wall": 0.207,
+       "cpu": 0.207,
+       "rssMb": 411
+      },
+      {
+       "wall": 0.198,
+       "cpu": 0.202,
+       "rssMb": 411
+      },
+      {
+       "wall": 0.194,
+       "cpu": 0.201,
+       "rssMb": 410
+      },
+      {
+       "wall": 0.195,
+       "cpu": 0.206,
+       "rssMb": 411
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.262,
+       "cpu": 0.104,
+       "rssMb": 167
+      },
+      {
+       "wall": 0.255,
+       "cpu": 0.103,
+       "rssMb": 167
+      },
+      {
+       "wall": 0.258,
+       "cpu": 0.099,
+       "rssMb": 167
+      },
+      {
+       "wall": 0.255,
+       "cpu": 0.101,
+       "rssMb": 167
+      },
+      {
+       "wall": 0.257,
+       "cpu": 0.101,
+       "rssMb": 167
+      }
+     ]
+    },
+    "passthrough": {
+     "ffmpeg": [
+      {
+       "wall": 1.4,
+       "cpu": 0.552,
+       "rssMb": 102
+      },
+      {
+       "wall": 1.005,
+       "cpu": 0.541,
+       "rssMb": 133
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 64787736,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 902778566
+     },
+     "native": [
+      {
+       "wall": 0.38,
+       "cpu": 0.536,
+       "rssMb": 68
+      },
+      {
+       "wall": 0.979,
+       "cpu": 0.638,
+       "rssMb": 63
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 64787736,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 903021425
+     }
+    },
+    "resize_1080p_hevc": {
+     "ffmpeg": [
+      {
+       "wall": 267.844,
+       "cpu": 465.307,
+       "rssMb": 589
+      },
+      {
+       "wall": 263.901,
+       "cpu": 458.814,
+       "rssMb": 643
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24209191,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 340157996
+     },
+     "native": [
+      {
+       "wall": 33.288,
+       "cpu": 21.859,
+       "rssMb": 237
+      },
+      {
+       "wall": 32.816,
+       "cpu": 21.398,
+       "rssMb": 236
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24142952,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 339251314
+     }
+    },
+    "share_720p_h264": {
+     "ffmpeg": [
+      {
+       "wall": 262.297,
+       "cpu": 449.718,
+       "rssMb": 625
+      },
+      {
+       "wall": 262.646,
+       "cpu": 449.98,
+       "rssMb": 625
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3028946,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 43885188
+     },
+     "native": [
+      {
+       "wall": 39.859,
+       "cpu": 27.684,
+       "rssMb": 321
+      },
+      {
+       "wall": 39.462,
+       "cpu": 27.197,
+       "rssMb": 319
+      }
+     ],
+     "nativeOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3013695,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 46284730
+     }
+    },
+    "color_one_lut": {
+     "ffmpeg": [
+      {
+       "wall": 242.577,
+       "cpu": 1381.85,
+       "rssMb": 798
+      },
+      {
+       "wall": 235.915,
+       "cpu": 1356.118,
+       "rssMb": 799
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 65166993,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 908038381
+     },
+     "native": [
+      {
+       "wall": 105.039,
+       "cpu": 34.177,
+       "rssMb": 105
+      },
+      {
+       "wall": 104.946,
+       "cpu": 34.786,
+       "rssMb": 120
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 64665754,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 901107374
+     }
+    },
+    "color_fading_luts": {
+     "ffmpeg": [
+      {
+       "wall": 214.287,
+       "cpu": 1164.502,
+       "rssMb": 1076
+      },
+      {
+       "wall": 212.605,
+       "cpu": 1152.033,
+       "rssMb": 1074
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 65189167,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 908345821
+     },
+     "native": [
+      {
+       "wall": 105.121,
+       "cpu": 38.22,
+       "rssMb": 342
+      },
+      {
+       "wall": 104.857,
+       "cpu": 38.442,
+       "rssMb": 299
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 64646696,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 900843107
+     }
+    },
+    "color_one_lut_overlay": {
+     "ffmpeg": [
+      {
+       "wall": 240.975,
+       "cpu": 1349.542,
+       "rssMb": 1148
+      },
+      {
+       "wall": 242.507,
+       "cpu": 1355.833,
+       "rssMb": 1149
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 65157022,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.933333,
+      "bytes": 907899672
+     },
+     "native": [
+      {
+       "wall": 105.198,
+       "cpu": 35.622,
+       "rssMb": 127
+      },
+      {
+       "wall": 104.802,
+       "cpu": 34.553,
+       "rssMb": 95
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 64651996,
+      "frames": 5546,
+      "fps": 50.0,
+      "seconds": 110.92,
+      "bytes": 900916575
+     }
+    }
+   }
+  },
+  "20260527_M0685.MP4": {
+   "source": {
+    "codec": "h264",
+    "profile": "High",
+    "width": 3840,
+    "height": 2160,
+    "pixFmt": "yuv420p",
+    "bitrate": 149979801,
+    "frames": 2832,
+    "fps": 50.0,
+    "seconds": 56.64,
+    "bytes": 1141153146
+   },
+   "luts": 29,
+   "cases": {
+    "probe_one_call": {
+     "ffmpeg": [
+      {
+       "wall": 0.183,
+       "cpu": 0.181,
+       "rssMb": 45
+      },
+      {
+       "wall": 0.182,
+       "cpu": 0.18,
+       "rssMb": 45
+      },
+      {
+       "wall": 0.182,
+       "cpu": 0.18,
+       "rssMb": 45
+      },
+      {
+       "wall": 0.182,
+       "cpu": 0.18,
+       "rssMb": 45
+      },
+      {
+       "wall": 0.182,
+       "cpu": 0.18,
+       "rssMb": 45
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.097,
+       "cpu": 0.036,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.062,
+       "cpu": 0.025,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.061,
+       "cpu": 0.024,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.062,
+       "cpu": 0.025,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.061,
+       "cpu": 0.024,
+       "rssMb": 25
+      }
+     ]
+    },
+    "frame_grab_1080p_at_5s": {
+     "ffmpeg": [
+      {
+       "wall": 0.611,
+       "cpu": 0.328,
+       "rssMb": 311
+      },
+      {
+       "wall": 0.604,
+       "cpu": 0.334,
+       "rssMb": 312
+      },
+      {
+       "wall": 0.598,
+       "cpu": 0.336,
+       "rssMb": 311
+      },
+      {
+       "wall": 0.605,
+       "cpu": 0.34,
+       "rssMb": 312
+      },
+      {
+       "wall": 0.558,
+       "cpu": 0.305,
+       "rssMb": 313
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.28,
+       "cpu": 0.097,
+       "rssMb": 164
+      },
+      {
+       "wall": 0.276,
+       "cpu": 0.093,
+       "rssMb": 164
+      },
+      {
+       "wall": 0.277,
+       "cpu": 0.096,
+       "rssMb": 164
+      },
+      {
+       "wall": 0.28,
+       "cpu": 0.097,
+       "rssMb": 164
+      },
+      {
+       "wall": 0.283,
+       "cpu": 0.097,
+       "rssMb": 164
+      }
+     ]
+    },
+    "passthrough": {
+     "ffmpeg": [
+      {
+       "wall": 2.649,
+       "cpu": 0.765,
+       "rssMb": 46
+      },
+      {
+       "wall": 1.362,
+       "cpu": 0.733,
+       "rssMb": 55
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 149979801,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1072788020
+     },
+     "native": [
+      {
+       "wall": 0.66,
+       "cpu": 0.446,
+       "rssMb": 103
+      },
+      {
+       "wall": 0.718,
+       "cpu": 0.498,
+       "rssMb": 104
+      }
+     ],
+     "nativeOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 149926861,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1072771593
+     }
+    },
+    "resize_1080p_hevc": {
+     "ffmpeg": [
+      {
+       "wall": 22.387,
+       "cpu": 147.773,
+       "rssMb": 358
+      },
+      {
+       "wall": 22.765,
+       "cpu": 148.111,
+       "rssMb": 364
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24217124,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 182373450
+     },
+     "native": [
+      {
+       "wall": 21.572,
+       "cpu": 16.512,
+       "rssMb": 171
+      },
+      {
+       "wall": 20.993,
+       "cpu": 15.48,
+       "rssMb": 173
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24118318,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 172199159
+     }
+    },
+    "share_720p_h264": {
+     "ffmpeg": [
+      {
+       "wall": 21.866,
+       "cpu": 146.677,
+       "rssMb": 335
+      },
+      {
+       "wall": 21.503,
+       "cpu": 146.207,
+       "rssMb": 335
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3028774,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 22408421
+     },
+     "native": [
+      {
+       "wall": 28.72,
+       "cpu": 18.655,
+       "rssMb": 209
+      },
+      {
+       "wall": 25.064,
+       "cpu": 16.704,
+       "rssMb": 215
+      }
+     ],
+     "nativeOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3014297,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 22777840
+     }
+    },
+    "color_one_lut": {
+     "ffmpeg": [
+      {
+       "wall": 63.678,
+       "cpu": 355.055,
+       "rssMb": 452
+      },
+      {
+       "wall": 63.585,
+       "cpu": 354.34,
+       "rssMb": 451
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 150885543,
+      "frames": 2742,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1079184335
+     },
+     "native": [
+      {
+       "wall": 54.851,
+       "cpu": 18.277,
+       "rssMb": 122
+      },
+      {
+       "wall": 54.561,
+       "cpu": 18.249,
+       "rssMb": 123
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 149745158,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1061653716
+     }
+    },
+    "color_fading_luts": {
+     "ffmpeg": [
+      {
+       "wall": 97.048,
+       "cpu": 507.791,
+       "rssMb": 742
+      },
+      {
+       "wall": 97.371,
+       "cpu": 507.447,
+       "rssMb": 742
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 150892572,
+      "frames": 2742,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1079234101
+     },
+     "native": [
+      {
+       "wall": 54.854,
+       "cpu": 20.981,
+       "rssMb": 302
+      },
+      {
+       "wall": 54.497,
+       "cpu": 20.988,
+       "rssMb": 302
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 149743440,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1061641440
+     }
+    },
+    "color_one_lut_overlay": {
+     "ffmpeg": [
+      {
+       "wall": 65.285,
+       "cpu": 357.335,
+       "rssMb": 568
+      },
+      {
+       "wall": 65.544,
+       "cpu": 357.285,
+       "rssMb": 586
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 150854581,
+      "frames": 2742,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1078965118
+     },
+     "native": [
+      {
+       "wall": 54.796,
+       "cpu": 19.184,
+       "rssMb": 126
+      },
+      {
+       "wall": 54.544,
+       "cpu": 19.405,
+       "rssMb": 126
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 149648766,
+      "frames": 2832,
+      "fps": 50.0,
+      "seconds": 56.64,
+      "bytes": 1060971299
+     }
+    }
+   }
+  },
+  "20251019_M0284.MP4": {
+   "source": {
+    "codec": "h264",
+    "profile": "High 4:2:2",
+    "width": 3840,
+    "height": 2160,
+    "pixFmt": "yuv422p10le",
+    "bitrate": 200101942,
+    "frames": 2880,
+    "fps": 50.0,
+    "seconds": 57.6,
+    "bytes": 1543806794
+   },
+   "luts": 29,
+   "cases": {
+    "probe_one_call": {
+     "ffmpeg": [
+      {
+       "wall": 0.261,
+       "cpu": 0.259,
+       "rssMb": 67
+      },
+      {
+       "wall": 0.265,
+       "cpu": 0.263,
+       "rssMb": 67
+      },
+      {
+       "wall": 0.261,
+       "cpu": 0.259,
+       "rssMb": 67
+      },
+      {
+       "wall": 0.261,
+       "cpu": 0.258,
+       "rssMb": 67
+      },
+      {
+       "wall": 0.26,
+       "cpu": 0.258,
+       "rssMb": 67
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.066,
+       "cpu": 0.026,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.062,
+       "cpu": 0.024,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.062,
+       "cpu": 0.025,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.061,
+       "cpu": 0.025,
+       "rssMb": 25
+      },
+      {
+       "wall": 0.062,
+       "cpu": 0.025,
+       "rssMb": 25
+      }
+     ]
+    },
+    "frame_grab_1080p_at_5s": {
+     "ffmpeg": [
+      {
+       "wall": 0.76,
+       "cpu": 2.258,
+       "rssMb": 592
+      },
+      {
+       "wall": 0.719,
+       "cpu": 2.165,
+       "rssMb": 594
+      },
+      {
+       "wall": 0.713,
+       "cpu": 2.177,
+       "rssMb": 594
+      },
+      {
+       "wall": 0.718,
+       "cpu": 2.167,
+       "rssMb": 592
+      },
+      {
+       "wall": 0.718,
+       "cpu": 2.164,
+       "rssMb": 592
+      }
+     ],
+     "native": [
+      {
+       "wall": 0.293,
+       "cpu": 0.095,
+       "rssMb": 166
+      },
+      {
+       "wall": 0.289,
+       "cpu": 0.093,
+       "rssMb": 166
+      },
+      {
+       "wall": 0.295,
+       "cpu": 0.093,
+       "rssMb": 166
+      },
+      {
+       "wall": 0.295,
+       "cpu": 0.094,
+       "rssMb": 166
+      },
+      {
+       "wall": 0.291,
+       "cpu": 0.093,
+       "rssMb": 166
+      }
+     ]
+    },
+    "passthrough": {
+     "ffmpeg": [
+      {
+       "wall": 2.91,
+       "cpu": 1.007,
+       "rssMb": 73
+      },
+      {
+       "wall": 1.296,
+       "cpu": 0.936,
+       "rssMb": 74
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "h264",
+      "profile": "High 4:2:2",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv422p10le",
+      "bitrate": 200101942,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1451850230
+     },
+     "native": [
+      {
+       "wall": 1.294,
+       "cpu": 0.683,
+       "rssMb": 139
+      },
+      {
+       "wall": 1.722,
+       "cpu": 0.469,
+       "rssMb": 116
+      }
+     ],
+     "nativeOutput": {
+      "codec": "h264",
+      "profile": "High 4:2:2",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv422p10le",
+      "bitrate": 200032486,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1451839451
+     }
+    },
+    "resize_1080p_hevc": {
+     "ffmpeg": [
+      {
+       "wall": 38.377,
+       "cpu": 274.869,
+       "rssMb": 628
+      },
+      {
+       "wall": 38.162,
+       "cpu": 275.948,
+       "rssMb": 633
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24201804,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 185354193
+     },
+     "native": [
+      {
+       "wall": 20.981,
+       "cpu": 14.511,
+       "rssMb": 191
+      },
+      {
+       "wall": 21.046,
+       "cpu": 14.824,
+       "rssMb": 186
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 1920,
+      "height": 1080,
+      "pixFmt": "yuv420p",
+      "bitrate": 24173395,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 175515026
+     }
+    },
+    "share_720p_h264": {
+     "ffmpeg": [
+      {
+       "wall": 37.357,
+       "cpu": 266.224,
+       "rssMb": 615
+      },
+      {
+       "wall": 37.674,
+       "cpu": 264.6,
+       "rssMb": 611
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3029575,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 22796080
+     },
+     "native": [
+      {
+       "wall": 24.098,
+       "cpu": 16.124,
+       "rssMb": 224
+      },
+      {
+       "wall": 24.205,
+       "cpu": 16.039,
+       "rssMb": 231
+      }
+     ],
+     "nativeOutput": {
+      "codec": "h264",
+      "profile": "High",
+      "width": 1280,
+      "height": 720,
+      "pixFmt": "yuv420p",
+      "bitrate": 3026435,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 23251998
+     }
+    },
+    "color_one_lut": {
+     "ffmpeg": [
+      {
+       "wall": 140.346,
+       "cpu": 893.626,
+       "rssMb": 726
+      },
+      {
+       "wall": 138.208,
+       "cpu": 903.593,
+       "rssMb": 726
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 200934914,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1457831954
+     },
+     "native": [
+      {
+       "wall": 55.674,
+       "cpu": 18.044,
+       "rssMb": 135
+      },
+      {
+       "wall": 55.196,
+       "cpu": 17.916,
+       "rssMb": 136
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 199811698,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1440129815
+     }
+    },
+    "color_fading_luts": {
+     "ffmpeg": [
+      {
+       "wall": 128.295,
+       "cpu": 812.65,
+       "rssMb": 1000
+      },
+      {
+       "wall": 128.595,
+       "cpu": 812.997,
+       "rssMb": 1002
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 200941927,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1457882523
+     },
+     "native": [
+      {
+       "wall": 55.311,
+       "cpu": 19.703,
+       "rssMb": 171
+      },
+      {
+       "wall": 55.104,
+       "cpu": 20.01,
+       "rssMb": 266
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 199832052,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1440276385
+     }
+    },
+    "color_one_lut_overlay": {
+     "ffmpeg": [
+      {
+       "wall": 139.48,
+       "cpu": 896.085,
+       "rssMb": 1097
+      },
+      {
+       "wall": 139.396,
+       "cpu": 895.019,
+       "rssMb": 1099
+      }
+     ],
+     "ffmpegOutput": {
+      "codec": "hevc",
+      "profile": "Main 10",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p10le",
+      "bitrate": 200951148,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1457948967
+     },
+     "native": [
+      {
+       "wall": 55.466,
+       "cpu": 18.775,
+       "rssMb": 137
+      },
+      {
+       "wall": 55.223,
+       "cpu": 18.735,
+       "rssMb": 139
+      }
+     ],
+     "nativeOutput": {
+      "codec": "hevc",
+      "profile": "Main",
+      "width": 3840,
+      "height": 2160,
+      "pixFmt": "yuv420p",
+      "bitrate": 199692419,
+      "frames": 2880,
+      "fps": 50.0,
+      "seconds": 57.6,
+      "bytes": 1439270952
+     }
+    }
+   }
+  }
+ }
+}

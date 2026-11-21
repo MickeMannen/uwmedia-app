@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration "uwmedia-app": the first signing request
+  of a Windows release (.signpath/README.md). The artifact is the zip that
+  the Release Build workflow uploads of build\windows\x64\runner\Release
+  before ffmpeg, ffprobe and exiftool are added, so none of those is in it.
+
+  Signed: what this repository's build compiles from source.
+  - uwmedia.exe, the app.
+  - *_plugin.dll and dartjni.dll, the Flutter plugins' native parts,
+    compiled from their source by the same build.
+  Left as it is (not listed, so passed through unsigned):
+  - flutter_windows.dll, built and shipped by the Flutter project.
+  - data\ (the Dart code as a snapshot, assets): not executables.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="uwmedia.exe" product-name="UWMedia">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file-set>
+      <include path="*_plugin.dll" min-matches="1" max-matches="unbounded" />
+      <include path="dartjni.dll" min-matches="0" max-matches="1" />
+      <for-each>
+        <authenticode-sign />
+      </for-each>
+    </pe-file-set>
+  </zip-file>
+</artifact-configuration>

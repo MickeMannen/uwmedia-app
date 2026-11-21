@@ -1,0 +1,166 @@
+{
+ "instructions": [
+  {
+   "missing": [
+    "ffmpeg"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffmpeg'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "exiftool"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install exiftool\n\nOption 2: Manual Download\n  • ExifTool: Download the MacOS package from https://exiftool.org/\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "exiftool"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffmpeg', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n  brew install exiftool\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n  • ExifTool: Download the MacOS package from https://exiftool.org/\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n  brew install exiftool\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n  • ExifTool: Download the MacOS package from https://exiftool.org/\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Darwin",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- macOS Installation ---\nOption 1: Using Homebrew (Recommended)\n  brew install ffmpeg\n  brew install exiftool\n\nOption 2: Manual Download\n  • FFmpeg/FFprobe: Download static binaries from https://evermeet.cx/ffmpeg/ or https://ffmpeg.org/download.html\n    Extract and copy 'ffmpeg' and 'ffprobe' to /usr/local/bin or /opt/homebrew/bin\n  • ExifTool: Download the MacOS package from https://exiftool.org/\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffmpeg'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "exiftool"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install OliverBetz.ExifTool   (or: choco install exiftool)\n\nOption 2: Manual Download\n  • ExifTool: Download Windows executable from https://exiftool.org/\n    Rename 'exiftool(-k).exe' to 'exiftool.exe' and add to System PATH (or C:\\Windows).\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "exiftool"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffmpeg', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n  winget install OliverBetz.ExifTool   (or: choco install exiftool)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n  • ExifTool: Download Windows executable from https://exiftool.org/\n    Rename 'exiftool(-k).exe' to 'exiftool.exe' and add to System PATH (or C:\\Windows).\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n  winget install OliverBetz.ExifTool   (or: choco install exiftool)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n  • ExifTool: Download Windows executable from https://exiftool.org/\n    Rename 'exiftool(-k).exe' to 'exiftool.exe' and add to System PATH (or C:\\Windows).\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Windows",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Windows Installation ---\nOption 1: Using Package Manager (winget / chocolatey)\n  winget install FFmpeg   (or: choco install ffmpeg)\n  winget install OliverBetz.ExifTool   (or: choco install exiftool)\n\nOption 2: Manual Download\n  • FFmpeg: Download build from https://www.gyan.dev/ffmpeg/builds/\n    Extract zip and add the 'bin' folder to your System PATH.\n  • ExifTool: Download Windows executable from https://exiftool.org/\n    Rename 'exiftool(-k).exe' to 'exiftool.exe' and add to System PATH (or C:\\Windows).\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffmpeg'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg\n\nFedora / RHEL:\n  sudo dnf install ffmpeg\n\nArch Linux:\n  sudo pacman -S ffmpeg\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg\n\nFedora / RHEL:\n  sudo dnf install ffmpeg\n\nArch Linux:\n  sudo pacman -S ffmpeg\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "exiftool"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install libimage-exiftool-perl\n\nFedora / RHEL:\n  sudo dnf install perl-Image-ExifTool\n\nArch Linux:\n  sudo pacman -S perl-image-exiftool\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg\n\nFedora / RHEL:\n  sudo dnf install ffmpeg\n\nArch Linux:\n  sudo pacman -S ffmpeg\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "exiftool"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffmpeg', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg libimage-exiftool-perl\n\nFedora / RHEL:\n  sudo dnf install ffmpeg perl-Image-ExifTool\n\nArch Linux:\n  sudo pacman -S ffmpeg perl-image-exiftool\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg libimage-exiftool-perl\n\nFedora / RHEL:\n  sudo dnf install ffmpeg perl-Image-ExifTool\n\nArch Linux:\n  sudo pacman -S ffmpeg perl-image-exiftool\n\nAfter installing the missing dependencies, please restart the application."
+  },
+  {
+   "missing": [
+    "ffmpeg",
+    "ffprobe",
+    "exiftool"
+   ],
+   "system": "Linux",
+   "text": "Missing required external dependencies: 'ffmpeg', 'ffprobe', 'exiftool'\n\nTo resolve this issue, please install the missing software for your system:\n\n--- Linux Installation ---\nUbuntu / Debian:\n  sudo apt update && sudo apt install ffmpeg libimage-exiftool-perl\n\nFedora / RHEL:\n  sudo dnf install ffmpeg perl-Image-ExifTool\n\nArch Linux:\n  sudo pacman -S ffmpeg perl-image-exiftool\n\nAfter installing the missing dependencies, please restart the application."
+  }
+ ]
+}

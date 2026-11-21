@@ -1,0 +1,343 @@
+name: uwmedia_app
+description: "UWMedia done in flutter"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  xml: ^7.1.0
+  fit_sdk: ^0.3.0
+  path: ^1.9.1
+  yaml: ^3.1.4
+  path_provider: ^2.1.6
+  file_selector: ^1.1.0
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.3
+  archive: ^4.7.0
+  image_picker: ^1.2.4
+  # The desktop window's size and place (lib/engine/desktop/desktop_window.dart).
+  # Held at 0.5: 0.6 is a new rewrite on nativeapi (a C++ core compiled
+  # by a build hook) with the 0.5 API deprecated, and 0.7 needs Dart 3.14.
+  window_manager: ^0.5.1
+  screen_retriever: ^0.2.0
+  # Logs dropped on the desktop's Dive Logs page (spec §10.85). It applies the
+  # Kotlin Gradle plugin on Android, unused there (roadmap E11).
+  desktop_drop: ^0.8.4
+  # The user's Pictures folder, where the dialogs of photos and videos
+  # start (lib/engine/start_folders.dart): Windows' known folder, Linux's
+  # XDG user folder. Both come with path_provider already.
+  path_provider_windows: ^2.3.0
+  xdg_directories: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  # The host side of `flutter drive` (test_driver/integration_test.dart).
+  flutter_driver:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^6.0.0
+  crypto: ^3.0.8
+  fake_async: ^1.3.3
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # Data the app ships with. hud_rules.json (overlay colour and state
+  # rules) and color.yaml (the colour profiles) came from the Python app
+  # and are this app's own now.
+  # The overlay templates (manifests, layouts and skins), the fonts'
+  # licences and the fonts came from it too. Flutter
+  # lists a folder's files, not its subfolders: every template folder is
+  # named here, and test/assets_test.dart fails when one is missing.
+  assets:
+    - assets/hud_rules.json
+    - assets/color.yaml
+    - assets/licenses/
+    # The app's own licence, shown on the About page.
+    - LICENSE
+    # The app's icon, shown while a picture is being read.
+    - assets/icon/
+    # The font files as data too (the renderer measures text from them),
+    # and ink_tables.bin beside them.
+    - assets/fonts/
+    - assets/overlays/templates/garmin/mk3i/
+    - assets/overlays/templates/garmin/mk3i/cc/
+    - assets/overlays/templates/garmin/mk3i/gases/
+    - assets/overlays/templates/garmin/mk3i/gauge/
+    - assets/overlays/templates/garmin/mk3i/main/
+    - assets/overlays/templates/garmin/mk3i/main/sidemount/
+    - assets/overlays/templates/garmin/mk3i/main/single_tank/
+    - assets/overlays/templates/garmin/mk3i/standard/
+    - assets/overlays/templates/garmin/mk3i/standard/sidemount/
+    - assets/overlays/templates/garmin/mk3i/standard/single_tank/
+    - assets/overlays/templates/garmin/mk3i/standard_cc/
+    - assets/overlays/templates/garmin/mk3i/standard_cc/sidemount/
+    - assets/overlays/templates/garmin/mk3i/standard_cc/single_tank/
+    - assets/overlays/templates/garmin/mk3i/transceiver/
+    - assets/overlays/templates/garmin/mk3i/transceiver/sidemount/
+    - assets/overlays/templates/garmin/mk3i/transceiver/single_tank/
+    - assets/overlays/templates/garmin/x50i/
+    - assets/overlays/templates/garmin/x50i/cc/
+    - assets/overlays/templates/garmin/x50i/dynamic_depth/
+    - assets/overlays/templates/garmin/x50i/dynamic_depth_cc/
+    - assets/overlays/templates/garmin/x50i/gases/
+    - assets/overlays/templates/garmin/x50i/gauge/
+    - assets/overlays/templates/garmin/x50i/main/
+    - assets/overlays/templates/garmin/x50i/main/sidemount/
+    - assets/overlays/templates/garmin/x50i/main/single_tank/
+    - assets/overlays/templates/generic/depth_temp/
+    - assets/overlays/templates/generic/depth_temp/compact/
+    - assets/overlays/templates/generic/depth_temp/standard/
+    - assets/overlays/templates/generic/dive_profile/
+    - assets/overlays/templates/generic/dive_profile/main/
+    - assets/overlays/templates/generic/dive_profile_deco/
+    - assets/overlays/templates/generic/dive_profile_deco/main/
+    - assets/overlays/templates/generic/simple/
+    - assets/overlays/templates/generic/simple/block_dark/sidemount/
+    - assets/overlays/templates/generic/simple/block_dark/single_tank/
+    - assets/overlays/templates/generic/simple/block_light/sidemount/
+    - assets/overlays/templates/generic/simple/block_light/single_tank/
+    - assets/overlays/templates/generic/simple/box_dark/
+    - assets/overlays/templates/generic/simple/box_light/
+    - assets/overlays/templates/generic/simple/column_dark/sidemount/
+    - assets/overlays/templates/generic/simple/column_dark/single_tank/
+    - assets/overlays/templates/generic/simple/column_light/sidemount/
+    - assets/overlays/templates/generic/simple/column_light/single_tank/
+    - assets/overlays/templates/generic/simple/row_dark/sidemount/
+    - assets/overlays/templates/generic/simple/row_dark/single_tank/
+    - assets/overlays/templates/generic/simple/row_light/sidemount/
+    - assets/overlays/templates/generic/simple/row_light/single_tank/
+    - assets/overlays/templates/shearwater/perdix_2/
+    - assets/overlays/templates/shearwater/perdix_2/cc/
+    - assets/overlays/templates/shearwater/perdix_2/gauge/
+    - assets/overlays/templates/shearwater/perdix_2/info_ai/
+    - assets/overlays/templates/shearwater/perdix_2/info_ai/sidemount/
+    - assets/overlays/templates/shearwater/perdix_2/info_ai/single_tank/
+    - assets/overlays/templates/shearwater/perdix_2/info_battery/
+    - assets/overlays/templates/shearwater/perdix_2/info_date/
+    - assets/overlays/templates/shearwater/perdix_2/info_gf/
+    - assets/overlays/templates/shearwater/perdix_2/info_mod/
+    - assets/overlays/templates/shearwater/perdix_2/info_pressure/
+    - assets/overlays/templates/shearwater/perdix_2/info_temp/
+    - assets/overlays/templates/shearwater/perdix_2/main/
+    - assets/overlays/templates/shearwater/perdix_2/main/sidemount/
+    - assets/overlays/templates/shearwater/perdix_2/main/single_tank/
+    - assets/overlays/templates/shearwater/perdix_2/tec/
+    - assets/overlays/templates/shearwater/perdix_3/
+    - assets/overlays/templates/shearwater/perdix_3/cc/
+    - assets/overlays/templates/shearwater/perdix_3/gauge/
+    - assets/overlays/templates/shearwater/perdix_3/info_ai/
+    - assets/overlays/templates/shearwater/perdix_3/info_ai/sidemount/
+    - assets/overlays/templates/shearwater/perdix_3/info_ai/single_tank/
+    - assets/overlays/templates/shearwater/perdix_3/info_date_clock/
+    - assets/overlays/templates/shearwater/perdix_3/info_gf/
+    - assets/overlays/templates/shearwater/perdix_3/info_max_avg/
+    - assets/overlays/templates/shearwater/perdix_3/info_mod/
+    - assets/overlays/templates/shearwater/perdix_3/info_mod_cc/
+    - assets/overlays/templates/shearwater/perdix_3/info_pressure/
+    - assets/overlays/templates/shearwater/perdix_3/info_temp_battery/
+    - assets/overlays/templates/shearwater/perdix_3/main/
+    - assets/overlays/templates/shearwater/perdix_3/main/sidemount/
+    - assets/overlays/templates/shearwater/perdix_3/main/single_tank/
+    - assets/overlays/templates/shearwater/perdix_3/main_ai/
+    - assets/overlays/templates/shearwater/perdix_3/standard/
+    - assets/overlays/templates/shearwater/perdix_3/standard/sidemount/
+    - assets/overlays/templates/shearwater/perdix_3/standard/single_tank/
+    - assets/overlays/templates/shearwater/perdix_3/tec/
+    - assets/overlays/templates/shearwater/perdix_3/tec/sidemount/
+    - assets/overlays/templates/shearwater/perdix_3/tec/single_tank/
+    - assets/overlays/templates/shearwater/peregrine/
+    - assets/overlays/templates/shearwater/peregrine/gauge/
+    - assets/overlays/templates/shearwater/peregrine/info_ai/
+    - assets/overlays/templates/shearwater/peregrine/info_ai/sidemount/
+    - assets/overlays/templates/shearwater/peregrine/info_ai/single_tank/
+    - assets/overlays/templates/shearwater/peregrine/info_battery/
+    - assets/overlays/templates/shearwater/peregrine/info_date/
+    - assets/overlays/templates/shearwater/peregrine/info_gf/
+    - assets/overlays/templates/shearwater/peregrine/info_mod/
+    - assets/overlays/templates/shearwater/peregrine/info_pressure/
+    - assets/overlays/templates/shearwater/peregrine/info_temp/
+    - assets/overlays/templates/shearwater/peregrine/main/
+    - assets/overlays/templates/shearwater/peregrine/main/sidemount/
+    - assets/overlays/templates/shearwater/peregrine/main/single_tank/
+    - assets/overlays/templates/shearwater/peregrine/main_ai/
+    - assets/overlays/templates/shearwater/peregrine/mini/
+    - assets/overlays/templates/shearwater/petrel/
+    - assets/overlays/templates/shearwater/petrel/cc/
+    - assets/overlays/templates/shearwater/petrel/cc_cells/
+    - assets/overlays/templates/shearwater/petrel/gauge/
+    - assets/overlays/templates/shearwater/petrel/info_ai/
+    - assets/overlays/templates/shearwater/petrel/info_ai/sidemount/
+    - assets/overlays/templates/shearwater/petrel/info_ai/single_tank/
+    - assets/overlays/templates/shearwater/petrel/info_battery/
+    - assets/overlays/templates/shearwater/petrel/info_date/
+    - assets/overlays/templates/shearwater/petrel/info_gf/
+    - assets/overlays/templates/shearwater/petrel/info_mod/
+    - assets/overlays/templates/shearwater/petrel/info_pressure/
+    - assets/overlays/templates/shearwater/petrel/info_temp/
+    - assets/overlays/templates/shearwater/petrel/main/
+    - assets/overlays/templates/shearwater/petrel/main/sidemount/
+    - assets/overlays/templates/shearwater/petrel/main/single_tank/
+    - assets/overlays/templates/shearwater/petrel/tec/
+    - assets/overlays/templates/shearwater/teric/
+    - assets/overlays/templates/shearwater/teric/cc/
+    - assets/overlays/templates/shearwater/teric/gauge/
+    - assets/overlays/templates/shearwater/teric/info_ai/
+    - assets/overlays/templates/shearwater/teric/info_gf/
+    - assets/overlays/templates/shearwater/teric/info_max_avg/
+    - assets/overlays/templates/shearwater/teric/info_mbar/
+    - assets/overlays/templates/shearwater/teric/info_mod/
+    - assets/overlays/templates/shearwater/teric/info_temp/
+    - assets/overlays/templates/shearwater/teric/info_time/
+    - assets/overlays/templates/shearwater/teric/main/
+    - assets/overlays/templates/shearwater/teric/standard/
+    - assets/overlays/templates/shearwater/tern/
+    - assets/overlays/templates/shearwater/tern/gauge/
+    - assets/overlays/templates/shearwater/tern/info_gf/
+    - assets/overlays/templates/shearwater/tern/info_max_avg/
+    - assets/overlays/templates/shearwater/tern/info_mbar/
+    - assets/overlays/templates/shearwater/tern/info_mod/
+    - assets/overlays/templates/shearwater/tern/info_temp/
+    - assets/overlays/templates/shearwater/tern/info_time/
+    - assets/overlays/templates/shearwater/tern/main/
+    - assets/overlays/templates/shearwater/tern/standard/
+    - assets/overlays/templates/suunto/eon_core/
+    - assets/overlays/templates/suunto/eon_core/ccr/
+    - assets/overlays/templates/suunto/eon_core/classic/
+    - assets/overlays/templates/suunto/eon_core/graphical/
+    - assets/overlays/templates/suunto/eon_core/prominent/
+    - assets/overlays/templates/suunto/eon_core/prominent_tank/
+    - assets/overlays/templates/suunto/eon_core/timer/
+    - assets/overlays/templates/suunto/eon_steel_black/
+    - assets/overlays/templates/suunto/eon_steel_black/ccr/
+    - assets/overlays/templates/suunto/eon_steel_black/classic/
+    - assets/overlays/templates/suunto/eon_steel_black/graphical/
+    - assets/overlays/templates/suunto/eon_steel_black/prominent/
+    - assets/overlays/templates/suunto/eon_steel_black/prominent_tank/
+    - assets/overlays/templates/suunto/eon_steel_black/timer/
+    - assets/overlays/templates/suunto/nautic/
+    - assets/overlays/templates/suunto/nautic/main/
+    - assets/overlays/templates/suunto/nautic/main/sidemount/
+    - assets/overlays/templates/suunto/nautic/main/single_tank/
+    - assets/overlays/templates/suunto/nautic/ndl_tts/
+
+  # The colour correction of the live previews (lib/color/color_shader.dart).
+  shaders:
+    - shaders/color_correct.frag
+    - shaders/unsharp.frag
+
+  # One family per font file, named after the file: the renderer picks the
+  # file itself (lib/core/hud/hud_fonts.dart), never a weight of a family.
+  fonts:
+    - family: DSEG7Classic-Bold
+      fonts:
+        - asset: assets/fonts/DSEG7Classic-Bold.ttf
+    - family: DSEG7Classic-Regular
+      fonts:
+        - asset: assets/fonts/DSEG7Classic-Regular.ttf
+    - family: DejaVuSans-Bold
+      fonts:
+        - asset: assets/fonts/DejaVuSans-Bold.ttf
+    - family: DejaVuSans
+      fonts:
+        - asset: assets/fonts/DejaVuSans.ttf
+    - family: LiberationSans-Bold
+      fonts:
+        - asset: assets/fonts/LiberationSans-Bold.ttf
+    - family: LiberationSans-Regular
+      fonts:
+        - asset: assets/fonts/LiberationSans-Regular.ttf
+    - family: Roboto-Bold
+      fonts:
+        - asset: assets/fonts/Roboto-Bold.ttf
+    - family: Roboto-Regular
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+    - family: RobotoCondensed-Bold
+      fonts:
+        - asset: assets/fonts/RobotoCondensed-Bold.ttf
+    - family: RobotoCondensed-Regular
+      fonts:
+        - asset: assets/fonts/RobotoCondensed-Regular.ttf
+    - family: RobotoMono-Bold
+      fonts:
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+    - family: RobotoMono-Regular
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package

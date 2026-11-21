@@ -1,0 +1,226 @@
+# Manual-only release builds. Nothing runs on push. The release itself is
+# created first (the /release skill: changelog, version bump, tag, GitHub
+# release with notes); this workflow builds the desktop apps for a tag and,
+# if asked, attaches them to that release without touching the notes.
+#
+# The tag to build is resolved by the prepare job: the "Tag" input if filled
+# in, else the "Use workflow from" ref if it is a tag, else the v* tag on the
+# tip of the selected branch. Leaving "Attach to the GitHub Release"
+# unchecked only uploads workflow artifacts (useful for test builds).
+#
+# What is built today: unsigned macOS .app (zipped), an unsigned Windows
+# installer (Inno Setup) and a Linux bundle (tar.gz). Signing and
+# notarising on macOS, signing on Windows, a Linux package and the mobile
+# store builds are
+# docs/roadmap_v0.1.0.md section E items; the Apple secrets from the Python repo
+# (APPLE_CERTIFICATE_P12, APPLE_CERTIFICATE_PASSWORD, APPLE_TEAM_ID,
+# APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD) can be reused when that lands.
+# ffmpeg, ffprobe and exiftool go into each desktop build (spec §13.2):
+# tool/bundle_tools.sh fetches the files of this repo's "deps" release
+# (tool/DEPS_RELEASE.md), checks each against assets/licenses/BINARY_MANIFEST.json and
+# puts them where the app looks first. The macOS app is signed ad hoc
+# again after that.
+
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (e.g. v0.1.0). Leave empty to use the selected tag, or the tag on the selected branch''s latest commit'
+        type: string
+        default: ''
+      build_macos:
+        description: 'Build macOS (unsigned)'
+        type: boolean
+        default: true
+      build_windows:
+        description: 'Build Windows'
+        type: boolean
+        default: true
+      build_linux:
+        description: 'Build Linux'
+        type: boolean
+        default: true
+      create_release:
+        description: 'Attach the builds to the GitHub Release for the resolved tag'
+        type: boolean
+        default: false
+
+env:
+  FLUTTER_VERSION: '3.47.x'
+
+jobs:
+  prepare:
+    name: Prepare build matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      tag: ${{ steps.resolve-tag.outputs.tag }}
+      version: ${{ steps.resolve-tag.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: resolve-tag
+        name: Resolve tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          NEEDS_TAG: ${{ inputs.create_release }}
+        run: |
+          TAG="$INPUT_TAG"
+          if [ -z "$TAG" ] && [ "$REF_TYPE" = "tag" ]; then
+            TAG="$REF_NAME"
+          fi
+          if [ -z "$TAG" ]; then
+            TAG=$(git tag --points-at HEAD --list 'v*' --sort=-v:refname | head -1)
+          fi
+          if [ -n "$TAG" ] && ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::Tag '$TAG' does not exist in the repository."
+            exit 1
+          fi
+          if [ -z "$TAG" ] && [ "$NEEDS_TAG" = "true" ]; then
+            echo "::error::No tag found: '$REF_NAME' has no v* tag on its latest commit. Fill in the 'Tag' input or pick a tag from 'Use workflow from'."
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          echo "Building tag: ${TAG:-<none, untagged test build of $REF_NAME>}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION:-0.0.0}" >> "$GITHUB_OUTPUT"
+
+      - id: set-matrix
+        name: Select targets
+        env:
+          BUILD_MACOS: ${{ inputs.build_macos }}
+          BUILD_WINDOWS: ${{ inputs.build_windows }}
+          BUILD_LINUX: ${{ inputs.build_linux }}
+        run: |
+          ENTRIES=()
+          if [ "$BUILD_LINUX" = "true" ]; then
+            ENTRIES+=('{"os":"ubuntu-latest","platform":"linux"}')
+          fi
+          if [ "$BUILD_WINDOWS" = "true" ]; then
+            ENTRIES+=('{"os":"windows-latest","platform":"windows"}')
+          fi
+          if [ "$BUILD_MACOS" = "true" ]; then
+            ENTRIES+=('{"os":"macos-15","platform":"macos"}')
+          fi
+          if [ ${#ENTRIES[@]} -eq 0 ]; then
+            echo "::error::No build targets selected - check at least one of the three build_* inputs."
+            exit 1
+          fi
+          JOINED=$(IFS=,; echo "${ENTRIES[*]}")
+          echo "matrix={\"include\":[$JOINED]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      # The GTK toolchain flutter build linux needs on a bare runner.
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # The tag is the version (CLAUDE.md "Changelog and releases"); the build
+      # number is the run number so every build of a tag is distinguishable.
+      - name: Build
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          flutter build ${{ matrix.platform }} --release --build-name "$VERSION" --build-number "${{ github.run_number }}"
+
+      - name: Bundle ffmpeg, ffprobe and exiftool
+        shell: bash
+        run: tool/bundle_tools.sh ${{ matrix.platform }}
+
+      - name: Package
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p dist
+          case "${{ matrix.platform }}" in
+            macos)
+              APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
+              ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/UWMedia-macos-${VERSION}.zip"
+              ;;
+            linux)
+              tar -C build/linux/x64/release/bundle -czf "dist/UWMedia-linux-x64-${VERSION}.tar.gz" .
+              ;;
+          esac
+          ls -l dist
+
+      # The Windows installer (windows/installer/uwmedia.iss, spec §13.2),
+      # as the Gitea Dev release makes it. The file version takes the
+      # version's numbers only (0.1.0 of 0.1.0-rc1) and the run number.
+      - name: Installer (Windows)
+        if: matrix.platform == 'windows'
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
+          $numbers = ($env:VERSION -split '[-+]')[0]
+          & $iscc /Q "/DAppVersion=$env:VERSION" "/DFileVersion=$numbers.${{ github.run_number }}" `
+            "/DSourceDir=$PWD\build\windows\x64\runner\Release" "/DOutputDir=$PWD\dist" `
+            "/DOutputName=UWMedia-windows-x64-$env:VERSION-setup" windows\installer\uwmedia.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem dist | Select-Object Name, Length
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: uwmedia-${{ matrix.platform }}
+          path: dist/*
+
+  release:
+    name: Attach to release
+    needs: [prepare, build]
+    if: inputs.create_release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # The release and its notes exist already (the /release skill); with
+      # no body given this only attaches the files.
+      - name: Attach builds
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          files: artifacts/*/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

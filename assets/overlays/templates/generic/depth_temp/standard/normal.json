@@ -1,0 +1,45 @@
+{
+  "manufacturer": "Generic",
+  "model": "",
+  "hud_skin": {
+    "type": "shape",
+    "anchor": "BOTTOM_RIGHT",
+    "ref_offset_x": -14.68065483440023,
+    "ref_offset_y": -13.567822734412402,
+    "opacity": 0.5,
+    "x_pct": 0.8361038256070832,
+    "y_pct": 0.8022520159866552,
+    "linked_elements": [
+      {
+        "field": "depth",
+        "rel_x": 0.18435,
+        "rel_y": 0.16173,
+        "color": "#ffffff",
+        "font_size": 45,
+        "scale": 1.4,
+        "unit_suffix": true,
+        "unit_scale": 0.889,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      },
+      {
+        "field": "temp",
+        "rel_x": 0.18435,
+        "rel_y": 0.53682,
+        "color": "#ffffff",
+        "font_size": 45,
+        "scale": 1.4,
+        "unit_suffix": true,
+        "unit_scale": 0.889,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      }
+    ],
+    "width": 300,
+    "height": 200,
+    "color": "#000000",
+    "corner_radius": 20
+  },
+  "design_width": 1920,
+  "design_height": 1080
+}

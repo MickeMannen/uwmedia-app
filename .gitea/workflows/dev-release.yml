@@ -1,0 +1,273 @@
+# Development builds of the desktop apps as a Gitea release, for internal
+# testing only, made when asked: Actions -> "Dev release" -> Run workflow
+# (owner, 2026-11-20). Never on a push or a schedule.
+#
+# The apps are built from the head of `development`, whatever branch the
+# run was started from, on the three runners of tests.yml: Windows in
+# its VM, macOS on the owner's Mac (unsigned: the first start on another
+# Mac needs right-click -> Open), Linux in the Flutter image. The release is named by the date and time of the build in the
+# owner's time zone ("2026-11-20 08:15", tag "dev-20261120-0815"), is a
+# pre-release, and says the commit it was built from and the commits since
+# the build before. It is a draft until all three apps are attached; a run
+# where a build fails leaves no release and no tag. The last five builds
+# are kept, the older ones removed with their tags.
+#
+# These are not the app's releases: those are the /release skill's, with
+# a version, on GitHub (.github/workflows/build.yml). pubspec.yaml is not
+# touched; the build number is the run number.
+#
+# The repo's automatic token makes the release and uploads the files.
+
+name: Dev release
+
+on:
+  workflow_dispatch:
+
+# One build at a time, in a group of its own: a group keeps only one
+# waiting run and a newer one cancels it, so sharing tests.yml's group let
+# a push cancel a waiting build (run 223) and a build cancel waiting tests.
+concurrency:
+  group: dev-release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.7'
+  NODE_VERSION: '20.18.1'
+  TZ: Asia/Kuala_Lumpur
+  KEEP: '5'
+  # The tools bundled into the apps: the Python app's release of the same
+  # files (tool/DEPS_RELEASE.md), until this repo has its own (roadmap E5).
+  # The release's own address, its tag included (fetch_tools.dart adds
+  # "/<file>").
+  UWMEDIA_DEPS_URL: https://github.com/MickeMannen/UWMedia/releases/download/deps-2026.09
+
+jobs:
+  prepare:
+    name: Draft release
+    runs-on: linux-docker
+    outputs:
+      sha: ${{ steps.draft.outputs.sha }}
+      stamp: ${{ steps.draft.outputs.stamp }}
+      id: ${{ steps.draft.outputs.id }}
+    steps:
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          fetch-depth: 0
+
+      - name: Draft the release
+        id: draft
+        env:
+          TOKEN: ${{ secrets.GITEA_TOKEN }}
+          API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          sha=$(git rev-parse HEAD)
+          stamp=$(date +%Y%m%d-%H%M)
+          title=$(date '+%Y-%m-%d %H:%M')
+          tag="dev-$stamp"
+          git fetch --tags --quiet
+          # What is new since the last build (the newest dev tag), or the
+          # last 20 commits for the first.
+          last=$(git tag --list 'dev-*' --sort=-creatordate | head -1)
+          if [ -n "$last" ]; then range="$last..$sha"; else range="-20 $sha"; fi
+          {
+            echo "Development build of \`development\` at ${sha:0:7}, for internal testing."
+            echo
+            echo "Unsigned. macOS: the first start needs right-click -> Open."
+            echo
+            if [ -n "$last" ]; then echo "Since $last:"; else echo "The last commits:"; fi
+            echo
+            # shellcheck disable=SC2086
+            git log --format='- %h %<(100,trunc)%s' $range
+          } > notes.md
+          body=$(jq -Rs . < notes.md)
+          created=$(curl -fsS -X POST "$API/releases" \
+            -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+            -d "{\"tag_name\":\"$tag\",\"target_commitish\":\"$sha\",\"name\":\"$title\",\"body\":$body,\"draft\":true,\"prerelease\":true}")
+          id=$(echo "$created" | jq -r .id)
+          echo "Draft $id: $title ($tag) at $sha"
+          {
+            echo "sha=$sha"
+            echo "stamp=$stamp"
+            echo "id=$id"
+          } >> "$GITHUB_OUTPUT"
+
+  windows:
+    name: Build (Windows)
+    needs: prepare
+    runs-on: windows-host
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Build
+        run: |
+          flutter pub get
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          flutter build windows --release --build-number "${{ github.run_number }}"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Bundle ffmpeg, ffprobe and exiftool
+        run: |
+          $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
+          & $bash tool/bundle_tools.sh windows
+          exit $LASTEXITCODE
+
+      # An installer (windows/installer/uwmedia.iss, Inno Setup 6 in the
+      # VM), not the folder zipped (owner, 2026-11-20).
+      - name: Installer and attach
+        env:
+          TOKEN: ${{ secrets.GITEA_TOKEN }}
+          API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+        run: |
+          $base = "UWMedia-windows-x64-${{ needs.prepare.outputs.stamp }}-setup"
+          $name = "$base.exe"
+          $version = ((Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9.]+)').Matches[0].Groups[1].Value)
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { $iscc = (Get-Command ISCC.exe).Source }
+          & $iscc /Q "/DAppVersion=$version-dev.${{ needs.prepare.outputs.stamp }}" "/DFileVersion=$version.${{ github.run_number }}" `
+            "/DSourceDir=$PWD\build\windows\x64\runner\Release" "/DOutputDir=$PWD\dist" "/DOutputName=$base" windows\installer\uwmedia.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          curl.exe -fsS -o NUL -X POST "$env:API/releases/${{ needs.prepare.outputs.id }}/assets?name=$name" `
+            -H "Authorization: token $env:TOKEN" -F "attachment=@dist\$name"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-Item "dist\$name" | Select-Object Name, Length
+
+  macos:
+    name: Build (macOS)
+    needs: prepare
+    runs-on: macos-host
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Build
+        run: |
+          flutter pub get
+          flutter build macos --release --build-number "${{ github.run_number }}"
+
+      - name: Bundle ffmpeg, ffprobe and exiftool
+        run: tool/bundle_tools.sh macos
+
+      - name: Package and attach
+        env:
+          TOKEN: ${{ secrets.GITEA_TOKEN }}
+          API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          name="UWMedia-macos-${{ needs.prepare.outputs.stamp }}.zip"
+          mkdir -p dist
+          app=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
+          ditto -c -k --sequesterRsrc --keepParent "$app" "dist/$name"
+          curl -fsS -o /dev/null -X POST "$API/releases/${{ needs.prepare.outputs.id }}/assets?name=$name" \
+            -H "Authorization: token $TOKEN" -F "attachment=@dist/$name"
+          ls -l dist
+
+  linux:
+    name: Build (Linux)
+    needs: prepare
+    runs-on: linux-docker
+    # As tests.yml: the newest Flutter image, moved to the app's Flutter,
+    # with Node for the checkout action.
+    container:
+      image: ghcr.io/cirruslabs/flutter:3.44.0
+    # The container's default shell is sh, which has no pipefail.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Flutter ${{ env.FLUTTER_VERSION }}
+        run: |
+          git config --global --add safe.directory '*'
+          git -C "$FLUTTER_HOME" fetch --depth 1 origin tag "$FLUTTER_VERSION"
+          git -C "$FLUTTER_HOME" checkout -f "$FLUTTER_VERSION"
+          flutter --version
+
+      - name: Node ${{ env.NODE_VERSION }}
+        run: |
+          case "$(uname -m)" in aarch64 | arm64) arch=arm64 ;; *) arch=x64 ;; esac
+          curl -fsSL "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$arch.tar.gz" |
+            tar -xz -C /usr/local --strip-components=1
+          node --version
+
+      # The GTK toolchain flutter build linux needs (retried: the archive
+      # has timed out on this runner before).
+      - name: Build tools
+        run: |
+          for i in 1 2 3; do
+            apt-get -o Acquire::Retries=3 update && \
+              apt-get -o Acquire::Retries=3 install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev && break
+            [ "$i" = 3 ] && exit 1
+            sleep 20
+          done
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Build
+        run: |
+          flutter pub get
+          flutter build linux --release --build-number "${{ github.run_number }}"
+
+      - name: Bundle ffmpeg, ffprobe and exiftool
+        run: tool/bundle_tools.sh linux
+
+      - name: Package and attach
+        env:
+          TOKEN: ${{ secrets.GITEA_TOKEN }}
+          API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          name="UWMedia-linux-x64-${{ needs.prepare.outputs.stamp }}.tar.gz"
+          mkdir -p dist
+          tar -C build/linux/x64/release/bundle -czf "dist/$name" .
+          curl -fsS -o /dev/null -X POST "$API/releases/${{ needs.prepare.outputs.id }}/assets?name=$name" \
+            -H "Authorization: token $TOKEN" -F "attachment=@dist/$name"
+          ls -l dist
+
+  publish:
+    name: Publish and keep the last five
+    needs: [prepare, windows, macos, linux]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: linux-docker
+    env:
+      TOKEN: ${{ secrets.GITEA_TOKEN }}
+      API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+      ID: ${{ needs.prepare.outputs.id }}
+      BUILT: ${{ needs.windows.result == 'success' && needs.macos.result == 'success' && needs.linux.result == 'success' }}
+    steps:
+      - name: Publish, or remove the draft
+        run: |
+          set -euo pipefail
+          if [ "$BUILT" = true ]; then
+            curl -fsS -o /dev/null -X PATCH "$API/releases/$ID" \
+              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+              -d '{"draft":false}'
+            echo "Published release $ID"
+          else
+            # A draft has no tag yet: removing it leaves nothing behind.
+            curl -fsS -o /dev/null -X DELETE "$API/releases/$ID" -H "Authorization: token $TOKEN"
+            echo "A build failed: the draft $ID is removed"
+            exit 1
+          fi
+
+      - name: Keep the last ${{ env.KEEP }}
+        run: |
+          set -euo pipefail
+          curl -fsS "$API/releases?draft=false&limit=50" -H "Authorization: token $TOKEN" |
+            jq -r '[.[] | select(.tag_name | startswith("dev-"))]
+                   | sort_by(.created_at) | reverse
+                   | .['"$KEEP"':][] | "\(.id) \(.tag_name)"' |
+            while read -r id tag; do
+              curl -fsS -o /dev/null -X DELETE "$API/releases/$id" -H "Authorization: token $TOKEN"
+              curl -fsS -o /dev/null -X DELETE "$API/tags/$tag" -H "Authorization: token $TOKEN" || true
+              echo "Removed $tag"
+            done

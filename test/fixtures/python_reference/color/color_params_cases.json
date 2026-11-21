@@ -1,0 +1,356 @@
+{
+ "groups": [
+  {
+   "title": "Color Restoration & Blend",
+   "params": [
+    [
+     "cifval",
+     "Blend Weight",
+     0.0,
+     1.0,
+     1.0,
+     false
+    ],
+    [
+     "red_threshold",
+     "Red Threshold",
+     0.0,
+     1.0,
+     0.3,
+     false
+    ],
+    [
+     "red_scale",
+     "Red Scale",
+     0.01,
+     1.0,
+     0.2,
+     false
+    ],
+    [
+     "blue_threshold",
+     "Blue Threshold",
+     0.0,
+     1.0,
+     0.3,
+     false
+    ],
+    [
+     "blue_scale",
+     "Blue Scale",
+     0.01,
+     2.0,
+     0.6,
+     false
+    ]
+   ]
+  },
+  {
+   "title": "Black Point Floors",
+   "params": [
+    [
+     "black_point_cutoff",
+     "CDF Cutoff Floor",
+     0.0001,
+     0.01,
+     0.001,
+     false
+    ]
+   ]
+  },
+  {
+   "title": "Gray World White Balance",
+   "params": [
+    [
+     "gw_mask_mult",
+     "Mask Multiplier",
+     0.5,
+     3.0,
+     1.5,
+     false
+    ],
+    [
+     "gw_mask_fallback",
+     "Mask Fallback Weight",
+     0.0,
+     1.0,
+     0.2,
+     false
+    ],
+    [
+     "gw_blur_radius",
+     "Gaussian Blur Radius",
+     1,
+     31,
+     9,
+     true
+    ],
+    [
+     "gw_blur_sigma",
+     "Gaussian Blur Sigma",
+     0.1,
+     5.0,
+     1.8,
+     false
+    ],
+    [
+     "gw_isolation_threshold",
+     "Isolation Variation",
+     0.001,
+     0.5,
+     0.07,
+     false
+    ],
+    [
+     "gw_isolation_min_sum",
+     "Isolation Min Sum",
+     10,
+     500,
+     100,
+     true
+    ]
+   ]
+  },
+  {
+   "title": "De-haze Adjustment",
+   "params": [
+    [
+     "dehaze_sat_cutoff",
+     "Saturation Cutoff",
+     0.01,
+     0.5,
+     0.1,
+     false
+    ],
+    [
+     "dehaze_sat_scale",
+     "Saturation Divisor",
+     0.1,
+     2.0,
+     0.75,
+     false
+    ],
+    [
+     "dehaze_min",
+     "Dehaze Min Bound",
+     0.5,
+     1.0,
+     0.81,
+     false
+    ],
+    [
+     "dehaze_max",
+     "Dehaze Max Bound",
+     1.0,
+     2.0,
+     1.0,
+     false
+    ]
+   ]
+  },
+  {
+   "title": "Exposure Normalization",
+   "params": [
+    [
+     "exposure_cdf_cutoff",
+     "CDF Brightness Cutoff",
+     0.001,
+     0.1,
+     0.01,
+     false
+    ],
+    [
+     "exposure_numerator",
+     "Target Reference Brightness",
+     0.1,
+     2.0,
+     0.5,
+     false
+    ],
+    [
+     "exposure_min",
+     "Exposure Min Mult",
+     0.5,
+     2.0,
+     1.0,
+     false
+    ],
+    [
+     "exposure_max",
+     "Exposure Max Mult",
+     1.0,
+     4.0,
+     2.0,
+     false
+    ]
+   ]
+  },
+  {
+   "title": "OKLCh Blue Hue Translation",
+   "params": [
+    [
+     "bh_min_idx",
+     "Min Hue Scanning Bin",
+     0,
+     255,
+     155,
+     true
+    ],
+    [
+     "bh_max_idx",
+     "Max Hue Scanning Bin",
+     0,
+     255,
+     218,
+     true
+    ],
+    [
+     "bh_decay",
+     "Scan Decay Weight",
+     0.0,
+     1.0,
+     0.85,
+     false
+    ],
+    [
+     "bh_fallback",
+     "Fallback Blue Hue",
+     0.0,
+     1.0,
+     0.67,
+     false
+    ]
+   ]
+  },
+  {
+   "title": "Final Adjustments",
+   "params": [
+    [
+     "sharpness",
+     "Sharpness",
+     0.0,
+     3.0,
+     0.0,
+     false
+    ],
+    [
+     "darkness",
+     "Darkness",
+     -1.0,
+     1.0,
+     0.0,
+     false
+    ]
+   ]
+  }
+ ],
+ "slider_scale": 10000,
+ "name_max": 10,
+ "texts": [
+  [
+   0.0,
+   false,
+   "0.000"
+  ],
+  [
+   0.0001,
+   false,
+   "0.000"
+  ],
+  [
+   0.00049,
+   false,
+   "0.000"
+  ],
+  [
+   0.0005,
+   false,
+   "0.001"
+  ],
+  [
+   0.0015,
+   false,
+   "0.002"
+  ],
+  [
+   0.0025,
+   false,
+   "0.003"
+  ],
+  [
+   0.125,
+   false,
+   "0.125"
+  ],
+  [
+   0.3,
+   false,
+   "0.300"
+  ],
+  [
+   1.0,
+   false,
+   "1.000"
+  ],
+  [
+   1.9995,
+   false,
+   "2.000"
+  ],
+  [
+   -0.5,
+   false,
+   "-0.500"
+  ],
+  [
+   -0.0004,
+   false,
+   "-0.000"
+  ],
+  [
+   2.5,
+   false,
+   "2.500"
+  ],
+  [
+   3.0,
+   false,
+   "3.000"
+  ],
+  [
+   0,
+   true,
+   "0"
+  ],
+  [
+   1,
+   true,
+   "1"
+  ],
+  [
+   9,
+   true,
+   "9"
+  ],
+  [
+   9.5,
+   true,
+   "10"
+  ],
+  [
+   10.5,
+   true,
+   "10"
+  ],
+  [
+   254.6,
+   true,
+   "255"
+  ],
+  [
+   31,
+   true,
+   "31"
+  ]
+ ]
+}

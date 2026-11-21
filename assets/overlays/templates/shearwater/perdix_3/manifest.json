@@ -1,0 +1,99 @@
+{
+  "manufacturer": "Shearwater",
+  "model": "Perdix 3",
+  "pages": [
+    {
+      "id": "main",
+      "name": "Main Screen"
+    },
+    {
+      "id": "main_ai",
+      "name": "Main: AI (gas / GTR / SAC)"
+    },
+    {
+      "id": "standard",
+      "name": "Standard"
+    },
+    {
+      "id": "tec",
+      "name": "Tec"
+    },
+    {
+      "id": "cc",
+      "name": "CC (setpoint)",
+      "dive": "ccr"
+    },
+    {
+      "id": "info_ai",
+      "name": "Info: AI"
+    },
+    {
+      "id": "info_max_avg",
+      "name": "Info: MAX / AVG"
+    },
+    {
+      "id": "info_mod",
+      "name": "Info: CNS / MOD / PPO2"
+    },
+    {
+      "id": "info_mod_cc",
+      "name": "Info: CNS / MOD / DilPO2",
+      "dive": "ccr"
+    },
+    {
+      "id": "info_gf",
+      "name": "Info: GF / GF99 / TTS"
+    },
+    {
+      "id": "info_temp_battery",
+      "name": "Info: TEMP / BATTERY"
+    },
+    {
+      "id": "info_pressure",
+      "name": "Info: PRESSURE"
+    },
+    {
+      "id": "info_date_clock",
+      "name": "Info: DATE / CLOCK"
+    },
+    {
+      "id": "gauge",
+      "name": "Gauge"
+    }
+  ],
+  "notes": {
+    "verified": [
+      "SAFETY boxed title, PAUSED, SAFETY / CLEAR; DECO blue label over depth and minutes (manual Rev B p.58-60)",
+      "Tank rules (p.154)",
+      "Active gas on the Main Screen, Standard and Main: AI bottom row: the breathing gas's O2 percentage (32%), O2/He for a trimix (18/50), from the log (PDF p.27)",
+      "CC page: the Tec layout with SP in the centre slot, green high / magenta low, PPO2 there on a bailout; CC green / BO yellow badges (Rev B PDF p.42, p.85, p.87); loop PPO2 limits 0.40 / 1.60 (PDF p.41)",
+      "Info pages: one page per info screen, in the manual order, each replacing the bottom row of the main page (Rev B PDF p.37 figure)",
+      "Info: AI - T1 pressure, GTR, SAC, grey T1 tags (PDF p.37, p.38 T1 & GTR/SAC)",
+      "Main: AI page: the Main Screen with T1 in the configurable slot and the Info: AI row's GTR and SAC (with their grey T1 tags) in the bottom row's centre and right positions, the gas kept on the left (bottom row options, PDF p.27; GTR / SAC p.38); on a sidemount dive the Main Screen's sidemount variant already shows the AI row",
+      "Info: MAX / AVG (PDF p.37, p.40)",
+      "Info: CNS / MOD / PPO2, PPO2 as .21 (PDF p.37, p.41-42); CC page Info: CNS / MOD / DilPO2 (PDF p.37, p.41)",
+      "Info: GF / GF99 / TTS - GF setting 50/85, GF99 with %, TTS in minutes (PDF p.37, p.43-44)",
+      "Info: TEMP / BATTERY (PDF p.37, p.40, p.46); Info: PRESSURE mBar SURF / NOW (PDF p.37, p.46-47); Info: DATE / CLOCK (PDF p.37, p.46)",
+      "Gauge page: Standard / Big layout - depth, time, STOPWATCH (green while running) top right, CLOCK, GA badge, MAX / AVG bottom row, no NDL and no tissue bar (PDF p.88-89)",
+      "Sidemount (Tec page and Info: AI): the Tec centre row T1 | SurfGF | T2 with the green switch box on the label of the tank to breathe from (Rev B PDF p.113, SM Switch 21 bar), and the AI row T1 | GTR / SM / SAC | T2 (PDF p.112 combination table); on the Main Screen and Standard pages the AI row is the info row (PDF p.22, p.112)"
+    ],
+    "assumed": [
+      "Text sizes measured from the manual's figures as a share of the screen height and drawn in Roboto Condensed, the narrowest bundled font, standing in for the device's own: Main / Standard / Main: AI from the Standard layout figure (PDF p.69 Descent: depth 0.295, dive time 0.221 with small seconds, NDL label 0.092 / value 0.145, slot and row labels 0.08-0.096, values 0.145, gas % 0.087, gas badge 0.145 tall), Tec / CC from PDF p.23 (labels 0.08, values 0.163, TIME and TTS in whole minutes), Gauge from PDF p.89; wide values (18/50, 4-digit psi, 1013 mBar) are shrunk to their cells",
+      "Main and Standard are both the Standard layout (the owner's choice; the Big layout with bold depth and NDL and the vertical N/D/L label is not drawn); the TIME, T1, BAR and MAX labels painted into the skins are replaced by drawn labels, the TIME label dropped as on the manual's figures, NDL without the 'min' tag",
+      "Info pages: title and value sizes match the Standard bottom row, column positions approximated from the PDF p.37 figure",
+      "Info: TEMP shows one decimal in metric (the figure shows whole degrees), battery as a percent from the log",
+      "Info: PRESSURE - surface 1013 mbar and now from depth (salt water), not the logged barometer",
+      "Gauge: STOPWATCH shows the dive time - a log records no stopwatch start or reset; the stopwatch title is always green (running)",
+      "Gauge: no TIME label, as on the figure; the figure shows no temperature, so none is drawn",
+      "Sidemount: the tank icons' size and the GTR / SM / SAC spacing approximated from the PDF p.112 figure",
+      "Sidemount Main Screen and Standard: MAX in the configurable slot (the manual shows no sidemount figure of these layouts; MAX is one of the slot's options, PDF p.147), no gas or compass on the info row while it shows the AI row"
+    ],
+    "not_shown": [
+      "Persistent notifications",
+      "Info screens LAST DIVE (surface only), Compass (no heading in the logs) and TISSUES (no tissue-graph element) (PDF p.37-39, p.48-49)",
+      "Info: AI three- and four-transmitter rows (PDF p.112), RTR (PDF p.112)",
+      "Gauge: the Tec-layout gauge screen, RATE, resettable average depth, stopwatch stopped (red) state (PDF p.88-89)"
+    ],
+    "_about": "What this template reproduces of the real screen and what it does not; manual pages in hud_rules_sources.md"
+  }
+}

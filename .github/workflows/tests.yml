@@ -1,0 +1,89 @@
+# Runs the default test suite (format check, analyzer, every test except the
+# `golden` and `release` tags, see CONTRIBUTING.md) on macOS, Windows and
+# Linux. It runs on pushes to main and on release tags only - development
+# branches never go to GitHub - and can be started by hand from the Actions
+# tab. The macOS job also compares the overlay golden images, the one
+# platform whose font rasterising matches the committed PNGs.
+#
+# The tests need no private data: tests that read the owner's test_data/
+# folder skip themselves when it is missing, and dive logs are synthetic.
+#
+# The Flutter version must satisfy `environment.sdk` in pubspec.yaml; bump
+# `flutter-version` together with the local Flutter.
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.47.x'
+
+jobs:
+  static:
+    name: Format and analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+  tests:
+    name: Tests (${{ matrix.os }})
+    needs: static
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-latest, ubuntu-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run the default suite
+        run: flutter test --exclude-tags golden,release --coverage
+
+      # Fonts rasterise differently per platform, so the committed goldens
+      # are compared on macOS only (CONTRIBUTING.md "Test tags"). Widen to
+      # the matrix once the bundled fonts are confirmed identical everywhere
+      # (docs/roadmap_v0.1.0.md section E).
+      - name: Compare overlay golden images
+        if: runner.os == 'macOS'
+        # Exit 79 is "no test has this tag", fine until the golden tests exist.
+        run: flutter test --tags golden || [ $? -eq 79 ]
+
+      - name: Upload coverage
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: ignore

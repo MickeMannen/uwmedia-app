@@ -1,0 +1,30 @@
+FFmpeg
+https://ffmpeg.org/
+
+UWMedia's desktop builds include ffmpeg and ffprobe, FFmpeg 9.0.2, built by
+the UWMedia project from unmodified sources with libx264, libx265 and
+zlib (tool/ffmpeg/ in UWMedia's repository). They are configured with
+--enable-gpl --enable-version3, so these two programs are licensed under
+the GNU General Public License version 3 (or, at your option, any later
+version). The full text is provided alongside this file in
+GPLV3_LICENSE.txt.
+
+Because UWMedia runs ffmpeg and ffprobe as separate programs rather than
+linking against them, this does not affect the license of UWMedia's own
+source code (MIT, see the LICENSE file): this is mere aggregation, not a
+combined or derivative work.
+
+Corresponding Source: the complete source of these programs (FFmpeg,
+x264, x265, zlib and, for Windows, the NVIDIA, AMD and Intel encoder
+interfaces), unmodified, with the scripts that built them, is offered
+for download from the same place as the programs, the release that holds
+them:
+
+  https://github.com/MickeMannen/uwmedia-app/releases/tag/deps-2026.11
+  file ffmpeg-9.0.2-uwmedia-source.tar
+
+The exact configure line of each build is in that archive's scripts, and
+each binary's checksum in assets/licenses/BINARY_MANIFEST.json.
+
+You may use your own ffmpeg instead: UWMedia uses the one installed on
+the computer when none is included.

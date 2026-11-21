@@ -1,0 +1,5266 @@
+{
+ "bbox": [
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    346,
+    461
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    653,
+    878
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    219,
+    2356
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    270,
+    538
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3139,
+    -195
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    346,
+    461
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    653,
+    1094
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    219,
+    2788
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    270,
+    702
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3139,
+    -375
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    692,
+    922
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1306,
+    1757
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    439,
+    4712
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    541,
+    1076
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6279,
+    -389
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    95,
+    126
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    179,
+    241
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    60,
+    647
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    73,
+    147
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    863,
+    -53
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    194,
+    259
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    367,
+    1281
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    123,
+    2900
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    151,
+    900
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1765,
+    -766
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    757,
+    1009
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    858,
+    1152
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    1166,
+    3618
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    311,
+    592
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3448,
+    217
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    757,
+    1009
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    858,
+    1368
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    1166,
+    4050
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    311,
+    756
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3448,
+    37
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    1515,
+    2019
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1717,
+    2305
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    2333,
+    7236
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    623,
+    1185
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6896,
+    434
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    208,
+    277
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    236,
+    316
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    321,
+    994
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    84,
+    162
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    948,
+    60
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    426,
+    567
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    483,
+    1435
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    656,
+    3610
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    174,
+    931
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1939,
+    -535
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    346,
+    461
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    653,
+    878
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    219,
+    2356
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    270,
+    538
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3139,
+    -195
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    346,
+    461
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    653,
+    1094
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    219,
+    2788
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    270,
+    702
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3139,
+    -375
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    692,
+    922
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1306,
+    1757
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    439,
+    4712
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    541,
+    1076
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6279,
+    -389
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    95,
+    126
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    179,
+    241
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    60,
+    647
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    73,
+    147
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    863,
+    -53
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    194,
+    259
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    367,
+    1281
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    123,
+    2900
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    151,
+    900
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.5
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1765,
+    -766
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    757,
+    1009
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    858,
+    1152
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    1166,
+    3618
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    311,
+    592
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3448,
+    217
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    757,
+    1009
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    858,
+    1368
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    1166,
+    4050
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    311,
+    756
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3448,
+    37
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    1515,
+    2019
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1717,
+    2305
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    2333,
+    7236
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    623,
+    1185
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6896,
+    434
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    208,
+    277
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    236,
+    316
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    321,
+    994
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    84,
+    162
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    948,
+    60
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    426,
+    567
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    483,
+    1435
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    656,
+    3610
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    174,
+    931
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "layout": {
+    "design_width": 1280,
+    "hud_skin": {
+     "type": "image",
+     "path": "normal.png",
+     "scale": 0.73
+    }
+   },
+   "skin_size": [
+    692,
+    922
+   ],
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1939,
+    -535
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    420,
+    180
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    690,
+    738
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    389,
+    1709
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    278,
+    510
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3195,
+    -405
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    420,
+    180
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    690,
+    954
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    389,
+    2141
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    278,
+    674
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3195,
+    -585
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    840,
+    360
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1380,
+    1476
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    779,
+    3419
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    556,
+    1020
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6390,
+    -810
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    115,
+    49
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    189,
+    202
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    107,
+    469
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    75,
+    139
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    878,
+    -111
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    236,
+    101
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    388,
+    1202
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    219,
+    2536
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    155,
+    885
+   ]
+  },
+  {
+   "name": "shape",
+   "layout": {
+    "design_width": 1920,
+    "hud_skin": {
+     "type": "shape",
+     "width": 420,
+     "height": 180
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1797,
+    -885
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    400,
+    200
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    648,
+    680,
+    748
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1296,
+    343,
+    1755
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    492,
+    276,
+    512
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -540,
+    3180,
+    -390
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    400,
+    200
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    480,
+    864,
+    680,
+    964
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -576,
+    1728,
+    343,
+    2187
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    236,
+    656,
+    276,
+    676
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    2880,
+    -720,
+    3180,
+    -570
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    800,
+    400
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    960,
+    1296,
+    1360,
+    1496
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -1152,
+    2592,
+    687,
+    3511
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    472,
+    984,
+    552,
+    1024
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    5760,
+    -1080,
+    6360,
+    -780
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    110,
+    55
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    132,
+    178,
+    187,
+    205
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -158,
+    356,
+    95,
+    482
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    64,
+    135,
+    75,
+    140
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    792,
+    -148,
+    874,
+    -107
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    225,
+    112
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    270,
+    1152,
+    382,
+    1208
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    -324,
+    2304,
+    193,
+    2562
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    132,
+    875,
+    154,
+    886
+   ]
+  },
+  {
+   "name": "shape default",
+   "layout": {
+    "hud_skin": {
+     "type": "shape"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    1620,
+    -960,
+    1788,
+    -876
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1080
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1920,
+    1440
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    3840,
+    2160
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    528,
+    297
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.25,
+    0.6,
+    0.5
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    -0.3,
+    1.2,
+    2.3
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    0.123,
+    0.456,
+    0.1
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "no skin",
+   "layout": {
+    "hud_skin": {
+     "type": "image"
+    }
+   },
+   "skin_size": null,
+   "frame": [
+    1080,
+    1920
+   ],
+   "placement": [
+    1.5,
+    -0.5,
+    0.75
+   ],
+   "bbox": [
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "seeds": [
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.5731481481481482
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.6798611111111111
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.5731481481481482
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.5757575757575757
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.8651041666666667
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.06574074074074077
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.2993055555555556
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.06527777777777777
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.06734006734006737
+   ]
+  },
+  {
+   "name": "garmin/mk3i/main/normal.json scaled",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.7046875
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.5731481481481482
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.6798611111111111
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.5731481481481482
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.5757575757575757
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.8651041666666667
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.06574074074074077
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.2993055555555556
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.06527777777777777
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.06734006734006737
+   ]
+  },
+  {
+   "name": "garmin/mk3i/gauge/normal.json scaled",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.7046875
+   ]
+  },
+  {
+   "name": "shape",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.8333333333333334
+   ]
+  },
+  {
+   "name": "shape",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.875
+   ]
+  },
+  {
+   "name": "shape",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.8333333333333334
+   ]
+  },
+  {
+   "name": "shape",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.835016835016835
+   ]
+  },
+  {
+   "name": "shape",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.9473958333333333
+   ]
+  },
+  {
+   "name": "shape default",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    0.8148148148148149
+   ]
+  },
+  {
+   "name": "shape default",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    0.8611111111111112
+   ]
+  },
+  {
+   "name": "shape default",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    0.8148148148148149
+   ]
+  },
+  {
+   "name": "shape default",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    0.8148148148148149
+   ]
+  },
+  {
+   "name": "shape default",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    0.9416666666666667
+   ]
+  },
+  {
+   "name": "no skin",
+   "frame": [
+    1920,
+    1080
+   ],
+   "seed": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "no skin",
+   "frame": [
+    1920,
+    1440
+   ],
+   "seed": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "no skin",
+   "frame": [
+    3840,
+    2160
+   ],
+   "seed": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "no skin",
+   "frame": [
+    528,
+    297
+   ],
+   "seed": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "no skin",
+   "frame": [
+    1080,
+    1920
+   ],
+   "seed": [
+    0.0,
+    1.0
+   ]
+  }
+ ]
+}

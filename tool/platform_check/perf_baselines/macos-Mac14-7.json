@@ -1,0 +1,41 @@
+{
+  "format": "uwmedia-perf-baseline/1",
+  "about": "The platform check timed runs on this machine, the times a release is held to (tool/platform_check/perf_gate.dart). Written by --update; not edited by hand.",
+  "machine": {
+    "os": "macos",
+    "os_version": "Version 27.2.1 (Build 26B131)",
+    "device": "Mac14,7",
+    "processors": 8
+  },
+  "build_mode": "debug",
+  "app": {
+    "name": "UWMedia",
+    "version": "1.0.0",
+    "build": "1"
+  },
+  "commit": "5bc1e9f",
+  "recorded": "2026-11-15T03:54:01.784681Z",
+  "repeats": 3,
+  "runs": {
+    "engine/perf/color": {
+      "ms": 7696.0,
+      "encoder": "hevc_videotoolbox"
+    },
+    "engine/perf/color_overlay": {
+      "ms": 7872.0,
+      "encoder": "hevc_videotoolbox"
+    },
+    "engine/perf/overlay/prores": {
+      "ms": 1190.0,
+      "encoder": "prores_ks"
+    },
+    "engine/perf/overlay/png": {
+      "ms": 257.0,
+      "encoder": "png"
+    },
+    "engine/perf/overlay/hevc": {
+      "ms": 721.0,
+      "encoder": "hevc_videotoolbox"
+    }
+  }
+}

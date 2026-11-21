@@ -1,0 +1,103 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# Project specific
+
+# The owner's private media and dive logs; UWMEDIA_TEST_DATA points at a
+# copy elsewhere. Tests that need it skip themselves when it is missing.
+/test_data/
+
+# Dive logs are never committed (device serial numbers, personal IDs);
+# tests build synthetic ones at run time. See CONTRIBUTING.md.
+*.fit
+*.FIT
+*.uddf
+*.UDDF
+*.ssrf
+*.ssrf.xml
+
+# Media goes into git only after the owner's review of each file; these
+# patterns stop an accidental `git add`. Reviewed fixtures are whitelisted
+# below.
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.jpg
+*.JPG
+*.jpeg
+*.png
+*.webp
+!/test/fixtures/**/*.mp4
+!/test/fixtures/**/*.jpg
+!/test/fixtures/**/*.png
+!/assets/**/*.png
+# The platform check's two synthetic test clips (ffmpeg testsrc2 and a sine
+# tone; approved by the owner, 2026-11-15).
+!/integration_test/platform_check/clip.mp4
+!/integration_test/platform_check/perf_clip.mp4
+!/android/**/*.png
+!/ios/**/*.png
+!/macos/**/*.png
+!/web/**/*.png
+!/windows/**/*.png
+!/linux/**/*.png
+
+# Coverage and tool output
+/coverage/
+/.flutter-plugins
+
+# The README's pictures (reviewed by the owner, 2026-11-19)
+!docs/images/*.jpg
+
+# Machine-local settings and notes, never in git: tool/local.env
+# (TEST_DATA_HOST for tool/test_data_sync.sh) and docs/local-ci.private.md
+# (the home network's addresses, docs/local-ci.md).
+/tool/local.env
+/docs/local-ci.private.md

@@ -1,0 +1,231 @@
+{
+  "manufacturer": "Generic",
+  "model": "Simple",
+  "hud_skin": {
+    "type": "shape",
+    "anchor": "BOTTOM_CENTER",
+    "ref_offset_x": 0.0,
+    "ref_offset_y": -28.0,
+    "opacity": 0.55,
+    "linked_elements": [
+      {
+        "id": "label_depth",
+        "field": "custom:DEPTH",
+        "rel_x": 0.0714,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "depth",
+        "field": "depth",
+        "rel_x": 0.0714,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "unit_suffix": true,
+        "unit_scale": 0.55,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      },
+      {
+        "id": "label_time",
+        "field": "custom:TIME",
+        "rel_x": 0.2143,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "time",
+        "field": "dive_time",
+        "rel_x": 0.2143,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "label_ndl_ndl",
+        "field": "custom:NDL",
+        "rel_x": 0.3571,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "deco"
+        ]
+      },
+      {
+        "id": "ndl_ndl",
+        "field": "ndl",
+        "rel_x": 0.3571,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "deco"
+        ]
+      },
+      {
+        "id": "label_ndl_stop",
+        "field": "custom:STOP",
+        "rel_x": 0.3571,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "normal",
+          "clear",
+          "safety_stop"
+        ]
+      },
+      {
+        "id": "ndl_stop",
+        "field": "deco_stop_depth",
+        "rel_x": 0.3571,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "unit_suffix": true,
+        "unit_scale": 0.55,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0,
+        "hide_in_states": [
+          "normal",
+          "clear",
+          "safety_stop"
+        ]
+      },
+      {
+        "id": "label_temp",
+        "field": "custom:TEMP",
+        "rel_x": 0.5,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "temp",
+        "field": "temp",
+        "rel_x": 0.5,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "unit_suffix": true,
+        "unit_scale": 0.55,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      },
+      {
+        "id": "label_gas",
+        "field": "custom:GAS",
+        "rel_x": 0.6429,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "gas",
+        "field": "gasmix",
+        "rel_x": 0.6429,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "label_tank",
+        "field": "primary_tank_name",
+        "rel_x": 0.7857,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "tank",
+        "field": "primary_tank_pressure",
+        "rel_x": 0.7857,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "unit_suffix": true,
+        "unit_scale": 0.55,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      },
+      {
+        "id": "label_tank_2",
+        "field": "secondary_tank_name",
+        "rel_x": 0.9286,
+        "rel_y": 0.1,
+        "color": "#9FD8F0",
+        "font_size": 22,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top"
+      },
+      {
+        "id": "tank_2",
+        "field": "secondary_tank_pressure",
+        "rel_x": 0.9286,
+        "rel_y": 0.38,
+        "color": "#FFFFFF",
+        "font_size": 46,
+        "scale": 1.0,
+        "align": "center",
+        "valign": "top",
+        "unit_suffix": true,
+        "unit_scale": 0.55,
+        "unit_dx": 0.0,
+        "unit_dy": 0.0
+      }
+    ],
+    "width": 1470,
+    "height": 104,
+    "color": "#000000",
+    "corner_radius": 18
+  },
+  "design_width": 1920,
+  "design_height": 1080
+}

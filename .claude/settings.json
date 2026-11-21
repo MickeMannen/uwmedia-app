@@ -1,0 +1,61 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze*)",
+      "Bash(flutter test*)",
+      "Bash(flutter pub *)",
+      "Bash(flutter doctor*)",
+      "Bash(flutter --version)",
+      "Bash(flutter config*)",
+      "Bash(dart format*)",
+      "Bash(dart analyze*)",
+      "Bash(dart test*)",
+      "Bash(dart pub *)",
+      "Bash(dart fix --dry-run*)",
+      "Bash(tool/run_tests.sh *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git tag --list*)",
+      "Bash(git -C ~/development/uwmedia log*)",
+      "Bash(git -C ~/development/uwmedia show*)",
+      "Bash(git -C ~/development/uwmedia rev-parse*)",
+      "Read(~/development/uwmedia/**)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push gitea development*)"
+    ],
+    "ask": [
+      "Bash(git push)",
+      "Bash(git push origin*)",
+      "Bash(git push github*)",
+      "Bash(git push gitea main*)",
+      "Bash(git push gitea --tags*)",
+      "Bash(git push --*)",
+      "Bash(git push -*)",
+      "Bash(git tag *)",
+      "Bash(gh release*)",
+      "Bash(flutter test --update-goldens*)"
+    ],
+    "deny": [
+      "Edit(~/development/uwmedia/**)",
+      "Write(~/development/uwmedia/**)",
+      "Edit(~/Library/Application Support/**)",
+      "Write(~/Library/Application Support/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tool/format_hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

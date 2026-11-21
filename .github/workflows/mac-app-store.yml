@@ -1,0 +1,117 @@
+# The Mac App Store build (spec §10.74, docs/design/macos-remove-ffmpeg.md step 7):
+# manual only. Builds the variant without ffmpeg and exiftool, signs it for
+# the App Sandbox (tool/build_store.sh), packages it and, if asked, uploads
+# it to App Store Connect. Without "upload" the .pkg is only kept as a
+# workflow artifact.
+#
+# Written 2026-11-18 and NOT RUN YET: the secrets below have to be there
+# first (roadmap C9).
+#
+# Secrets:
+#   MAS_CERTIFICATES_P12       base64 of one .p12 holding both certificates:
+#                              "Apple Distribution" and "3rd Party Mac
+#                              Developer Installer" (Mac Installer Distribution)
+#   MAS_CERTIFICATES_PASSWORD  the .p12's password
+#   MAS_PROVISIONING_PROFILE   base64 of the Mac App Store provisioning
+#                              profile of the app's bundle id
+#   MAS_SIGN_IDENTITY          e.g. "Apple Distribution: Name (TEAMID)"
+#   MAS_INSTALLER_IDENTITY     e.g. "3rd Party Mac Developer Installer: Name (TEAMID)"
+#   APPLE_TEAM_ID              the team id
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8
+#                              an App Store Connect API key (the .p8's text),
+#                              only for the upload
+# Variable (optional):
+#   MAS_BUNDLE_ID              the store app's bundle id, when it is not the
+#                              one of macos/Runner/Configs/AppInfo.xcconfig
+
+name: Mac App Store Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 0.1.0). Leave empty for the one in pubspec.yaml'
+        type: string
+        default: ''
+      upload:
+        description: 'Upload the package to App Store Connect'
+        type: boolean
+        default: false
+
+env:
+  FLUTTER_VERSION: '3.47.x'
+
+jobs:
+  store:
+    name: Build and sign for the Mac App Store
+    runs-on: macos-15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # The certificates in a keychain of this run's own, removed at the end.
+      - name: Import the certificates
+        env:
+          P12: ${{ secrets.MAS_CERTIFICATES_P12 }}
+          P12_PASSWORD: ${{ secrets.MAS_CERTIFICATES_PASSWORD }}
+          PROFILE: ${{ secrets.MAS_PROVISIONING_PROFILE }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/store.keychain-db"
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/certificates.p12"
+          echo "$PROFILE" | base64 --decode > "$RUNNER_TEMP/store.provisionprofile"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/certificates.p12" -P "$P12_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: \
+            -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+
+      - name: Build, sign and package
+        env:
+          UWMEDIA_SIGN_IDENTITY: ${{ secrets.MAS_SIGN_IDENTITY }}
+          UWMEDIA_INSTALLER_IDENTITY: ${{ secrets.MAS_INSTALLER_IDENTITY }}
+          UWMEDIA_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          UWMEDIA_BUNDLE_ID: ${{ vars.MAS_BUNDLE_ID }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          export UWMEDIA_PROFILE="$RUNNER_TEMP/store.provisionprofile"
+          ARGS=(--build-number "${{ github.run_number }}")
+          if [ -n "$VERSION" ]; then ARGS+=(--build-name "$VERSION"); fi
+          tool/build_store.sh "${ARGS[@]}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uwmedia-mac-app-store
+          path: build/store/UWMedia.pkg
+
+      - name: Upload to App Store Connect
+        if: inputs.upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$ASC_KEY_P8" > ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          xcrun altool --upload-app --type macos --file build/store/UWMedia.pkg \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Remove the keychain
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/store.keychain-db" || true
+          rm -f ~/.appstoreconnect/private_keys/AuthKey_*.p8

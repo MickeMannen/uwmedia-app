@@ -1,0 +1,109 @@
+{
+  "base": "../normal.json",
+  "linked_elements": [
+    {
+      "id": "label_t1",
+      "field": "custom:T1",
+      "rel_x": 0.1529,
+      "rel_y": 0.6812,
+      "color": "#00ADED",
+      "font_size": 58,
+      "scale": 1.0,
+      "font_family": "Roboto Condensed",
+      "valign": "bottom"
+    },
+    {
+      "id": "primary_tank_pressure",
+      "field": "primary_tank_pressure",
+      "box_pad": 0.04,
+      "rel_x": 0.1529,
+      "rel_y": 0.8135,
+      "color": "#FFFFFF",
+      "font_size": 105,
+      "scale": 1.0,
+      "unit_suffix": true,
+      "unit_color": "#00ADED",
+      "unit_orientation": "stacked",
+      "unit_span": "digits",
+      "font_family": "Roboto Condensed",
+      "valign": "bottom",
+      "max_width": 160,
+      "unit_dx": 8.0
+    },
+    {
+      "id": "label_gtr",
+      "field": "custom:GTR",
+      "rel_x": 0.4575,
+      "rel_y": 0.6812,
+      "color": "#00ADED",
+      "font_size": 58,
+      "scale": 1.0,
+      "font_family": "Roboto Condensed",
+      "valign": "bottom",
+      "align": "right"
+    },
+    {
+      "id": "label_gtr_tank",
+      "field": "custom:T1",
+      "rel_x": 0.465,
+      "rel_y": 0.6812,
+      "color": "#808080",
+      "font_size": 58,
+      "scale": 1.0,
+      "font_family": "Roboto Condensed",
+      "valign": "bottom"
+    },
+    {
+      "id": "gtr",
+      "field": "air_remaining",
+      "rel_x": 0.4521,
+      "rel_y": 0.8135,
+      "color": "#FFFFFF",
+      "font_size": 105,
+      "scale": 1.0,
+      "align": "center",
+      "font_family": "Roboto Condensed",
+      "valign": "bottom"
+    },
+    {
+      "id": "label_sac",
+      "field": "custom:SAC",
+      "rel_x": 0.6889,
+      "rel_y": 0.6812,
+      "color": "#00ADED",
+      "font_size": 58,
+      "scale": 1.0,
+      "font_family": "Roboto Condensed",
+      "valign": "bottom",
+      "align": "right"
+    },
+    {
+      "id": "label_sac_tank",
+      "field": "custom:T1",
+      "rel_x": 0.6964,
+      "rel_y": 0.6812,
+      "color": "#808080",
+      "font_size": 58,
+      "scale": 1.0,
+      "font_family": "Roboto Condensed",
+      "valign": "bottom"
+    },
+    {
+      "id": "sac",
+      "field": "pressure_sac",
+      "rel_x": 0.8019,
+      "rel_y": 0.8135,
+      "color": "#FFFFFF",
+      "font_size": 105,
+      "scale": 1.0,
+      "align": "right",
+      "unit_suffix": true,
+      "unit_scale": 0.3,
+      "unit_color": "#00ADED",
+      "font_family": "Roboto Condensed",
+      "valign": "bottom",
+      "align_unit": true,
+      "max_width": 220
+    }
+  ]
+}
