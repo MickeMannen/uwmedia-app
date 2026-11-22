@@ -22,6 +22,7 @@ import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
 import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
+import 'package:uwmedia_app/core/engine/space_estimate.dart';
 import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/hud/image_size.dart';
 import 'package:uwmedia_app/core/hud/layouts.dart';
@@ -34,6 +35,7 @@ import 'package:uwmedia_app/core/naming/filename_formats.dart';
 import 'package:uwmedia_app/core/naming/output_naming.dart';
 import 'package:uwmedia_app/core/pages/display_paths.dart';
 import 'package:uwmedia_app/core/pages/dive_matches.dart';
+import 'package:uwmedia_app/core/pages/run_estimate.dart';
 import 'package:uwmedia_app/core/pages/run_timing.dart';
 import 'package:uwmedia_app/core/util/naive_time.dart';
 import 'package:uwmedia_app/core/util/py_round.dart';
@@ -275,6 +277,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     this.watermarkStore,
     this.keptLogsDir,
     this.compareOffered = false,
+    this.freeSpace,
     double Function()? clock,
     DateTime Function()? now,
     Future<RgbImage> Function((ColorProfile, RgbImage) job)? correct,
@@ -297,6 +300,11 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
 
   /// The engine; throws when the tools are missing.
   final Future<ColorPageEngine> Function() engine;
+
+  /// The bytes free on the disk of a folder, `null` when that cannot be
+  /// told; without it (a phone) the page says nothing of the room the
+  /// results take ([spaceText]).
+  final Future<int?> Function(String dir)? freeSpace;
 
   // The preview's colour correction: the frame's own analysis off the UI
   // thread, then the filter drawn by the shaders (spec §6), or without
@@ -350,7 +358,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   bool get hasSource => _source.trim().isNotEmpty || _sourceFiles.isNotEmpty;
 
   /// The source as the page shows it: the folder, the file, or the picked
-  /// files' names and where they lie.
+  /// files' number and where they lie.
   String get sourceSummary {
     if (_sourceFiles.isEmpty) {
       return displayPath(_source);
@@ -517,8 +525,87 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
         _remember(outputField, value);
       }
       notifyListeners();
+      unawaited(_refreshSpace());
     }
   }
+
+  // -- the room the results take (spec §10.96) -------------------------------
+
+  List<SourceSize> _sizes = const [];
+  int? _free;
+  int _spaceTicket = 0;
+
+  // The source files' sizes and the room on the output's disk, read
+  // again when the source or the output changes and when a run ends.
+  Future<void> _refreshSpace() async {
+    final free = freeSpace;
+    if (free == null) {
+      return;
+    }
+    final ticket = ++_spaceTicket;
+    final sizes = <SourceSize>[];
+    for (final file in _sourceList() ?? const <String>[]) {
+      try {
+        sizes.add((
+          bytes: File(file).lengthSync(),
+          video: _videoSuffixes.contains(p.extension(file).toLowerCase()),
+        ));
+      } on FileSystemException {
+        // Gone meanwhile: the run says so.
+      }
+    }
+    int? room;
+    var dir = _output.trim();
+    if (dir.isNotEmpty) {
+      // The output need not be there yet: the nearest folder that is.
+      while (!FileSystemEntity.isDirectorySync(dir) && p.dirname(dir) != dir) {
+        dir = p.dirname(dir);
+      }
+      try {
+        room = await free(dir);
+      } on Object {
+        room = null;
+      }
+    }
+    if (ticket != _spaceTicket || _disposed) {
+      return;
+    }
+    _sizes = sizes;
+    _free = room;
+    notifyListeners();
+  }
+
+  /// The bytes the run's results take, about, with the settings as they
+  /// are; `null` with no source, no output, or where the free space is
+  /// not asked for.
+  int? get spaceNeeded {
+    if (freeSpace == null || _sizes.isEmpty || _output.trim().isEmpty) {
+      return null;
+    }
+    final compare = _color ? compareChoice : null;
+    return estimatedOutputBytes(
+      _sizes,
+      rewritten: _color || overlays.isNotEmpty || _watermarkLayers().isNotEmpty,
+      compare: compare != null,
+      wipe: compare != null && compare.wipe,
+      partFraction: _part != null && videoSeconds > 0
+          ? (part.end - part.start) / videoSeconds
+          : null,
+    );
+  }
+
+  /// "About 14.2 GB needed, 114.0 GB free" under the output, or that
+  /// there is only so much; empty when [spaceNeeded] is.
+  String get spaceText => switch (spaceNeeded) {
+    null => '',
+    final needed => spaceLine(needed, _free),
+  };
+
+  /// Whether the results will not fit, as far as can be told.
+  bool get spaceShort => switch (spaceNeeded) {
+    null => false,
+    final needed => spaceIsShort(needed, _free),
+  };
 
   /// The folder whose logs are read (a phone's page: the logs kept in
   /// the app). Nothing of it is kept: since §10.65 no page has a logs
@@ -633,6 +720,15 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   bool _divesLoading = false;
   int? _scrubWanted;
   bool _scrubbing = false;
+
+  // The photos the slider goes through, when the source is several files
+  // and the first is a photo (owner, 2026-11-22: each picked photo can be
+  // looked at before the run); empty otherwise. [_walkAt] is the one
+  // shown.
+  List<String> _walk = const [];
+  int _walkAt = 0;
+  int? _walkWanted;
+  bool _walking = false;
   bool _stopRequested = false;
   bool _disposed = false;
 
@@ -770,10 +866,20 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   Future<void> refreshPreview() async {
     final ticket = ++_previewTicket;
     unawaited(_readSourceDates());
+    unawaited(_refreshSpace());
     _videoPath = null;
     final files = _sourceList();
     _sourceCount = files?.length ?? 0;
-    final file = files?.firstOrNull;
+    final first = files?.firstOrNull;
+    final shown = _walk.isEmpty ? null : _walk[_walkAt];
+    final photos = [
+      for (final file in files ?? const <String>[])
+        if (!_videoSuffixes.contains(p.extension(file).toLowerCase())) file,
+    ];
+    _walk = photos.length > 1 && first == photos.first ? photos : const [];
+    // The photo shown stays the one shown while it is among them.
+    _walkAt = math.max(0, shown == null ? 0 : _walk.indexOf(shown));
+    final file = _walk.isEmpty ? first : _walk[_walkAt];
     if (file != null && !_previewLoading) {
       _previewLoading = true;
       notifyListeners();
@@ -798,7 +904,41 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   // How many files the run takes, as of the last [refreshPreview].
   int _sourceCount = 0;
 
-  Future<void> _readPreview(int ticket, String? file) async {
+  String get _walkText =>
+      '${p.basename(_walk[_walkAt])} · ${_walkAt + 1} of ${_walk.length}';
+
+  // The slider moved to photo [index] of [_walk]: the slider follows at
+  // once; the photos are read one at a time, the latest asked for next.
+  Future<void> _walkTo(int index) async {
+    _walkAt = index.clamp(0, _walk.length - 1);
+    _scrubValue = _walkAt;
+    _scrubTimeText = _walkText;
+    notifyListeners();
+    _walkWanted = _walkAt;
+    if (_walking) {
+      return;
+    }
+    _walking = true;
+    try {
+      while (_walkWanted != null && !_disposed) {
+        final want = _walkWanted!;
+        _walkWanted = null;
+        if (want >= _walk.length) {
+          break;
+        }
+        // The dives are the ones read already: only matched again.
+        await _readPreview(++_previewTicket, _walk[want], dives: false);
+      }
+    } finally {
+      _walking = false;
+    }
+  }
+
+  Future<void> _readPreview(
+    int ticket,
+    String? file, {
+    bool dives = true,
+  }) async {
     if (file == null) {
       _grabbed = null;
       _setFrame(null);
@@ -892,6 +1032,10 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
         viewH = frame.height.toDouble();
         scrub = (false, 0, 0, 'Photo');
       }
+      if (_walk.isNotEmpty) {
+        // Also for a photo that cannot be shown: the slider goes on.
+        scrub = (true, _walk.length - 1, _walkAt, _walkText);
+      }
     }
     if (ticket != _previewTicket || _disposed) {
       frame?.dispose();
@@ -917,7 +1061,12 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     }
     _setScrub(scrub.$1, scrub.$2, scrub.$3, scrub.$4);
     _setFrame(frame);
-    await loadDives();
+    if (dives) {
+      await loadDives();
+    } else {
+      _match();
+      await _compose();
+    }
   }
 
   Future<ui.Image?> _photo(String path) async {
@@ -987,9 +1136,13 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
 
   /// The scrub slider moved to frame [index] of the previewed video: the
   /// slider follows at once; frames are read one at a time, the latest
-  /// asked for next.
+  /// asked for next. With several photos as the source the slider goes
+  /// through them instead, and [index] is the photo's.
   Future<void> scrubTo(int index) async {
     if (_videoPath == null) {
+      if (_walk.isNotEmpty) {
+        await _walkTo(index);
+      }
       return;
     }
     _scrubValue = index;
@@ -2196,6 +2349,17 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   int get filesTotal => _total;
   List<String> get activeFiles => List.unmodifiable(_active);
 
+  /// The file in progress the page names: of the files worked on at once
+  /// the one begun first.
+  String? get currentFile => _active.firstOrNull;
+
+  /// How far [currentFile] is, 0 to 1; `null` when it has not said (a
+  /// photo says nothing until it is done).
+  double? get currentFileFraction {
+    final percent = _filePercent[currentFile];
+    return percent == null ? null : (percent / 100).clamp(0.0, 1.0);
+  }
+
   /// The run's warnings and errors, a line each.
   List<String> get messages => List.unmodifiable(_messages);
 
@@ -2210,8 +2374,29 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
           _filePercent.values.fold<double>(0, (a, b) => a + b) / (_total * 100),
         );
 
-  String get timingText =>
-      timer.text(_filePercent.isEmpty ? overallFraction : currentFraction);
+  /// "Elapsed 4:12 · about 9:30 left": the time left is the run's own
+  /// estimate (spec §10.97), by the files' sizes and their pace.
+  String get timingText => timer.textWithLeft(_estimate?.remaining());
+
+  RunEstimate? _estimate;
+
+  // The run's files by name with their work: a file's size; for a
+  // comparison every video the same, as each gives its ten seconds.
+  Map<String, RunFile> _runFiles() {
+    final sameVideos = _color && compareChoice != null;
+    final files = <String, RunFile>{};
+    for (final file in _sourceList() ?? const <String>[]) {
+      final video = _videoSuffixes.contains(p.extension(file).toLowerCase());
+      double weight;
+      try {
+        weight = video && sameVideos ? 1 : File(file).lengthSync().toDouble();
+      } on FileSystemException {
+        continue;
+      }
+      files[p.basename(file)] = (weight: weight, video: video);
+    }
+    return files;
+  }
 
   void _setStatus(String text) {
     _status = text;
@@ -2242,6 +2427,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     _done = 0;
     _active.clear();
     _filePercent.clear();
+    _estimate = null;
     _messages.clear();
     _drag = null;
     _status = 'Starting…';
@@ -2332,17 +2518,20 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
       timer.stop(ok: ok);
       gate.leave(colorPage);
       notifyListeners();
+      unawaited(_refreshSpace());
     }
   }
 
   @override
   void started(int total) {
     _total = total;
+    _estimate = RunEstimate(timer.clock, _runFiles(), total: total);
     _setStatus('Starting — 0 of $total files…');
   }
 
   @override
   void active(String file) {
+    _estimate?.begun(file);
     if (!_active.contains(file)) {
       _active.add(file);
       notifyListeners();
@@ -2355,6 +2544,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     _total = total;
     _active.remove(result.file);
     _filePercent[result.file] = 100;
+    _estimate?.ended(result.file, counted: result.status == FileStatus.done);
     if (result.status == FileStatus.error) {
       _messages.add('${result.file}: ${result.error}');
       AppLog.note('Color', '${result.file}: ${result.error}');
@@ -2396,6 +2586,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
   @override
   void progress(String file, double percent) {
     _filePercent[file] = percent;
+    _estimate?.progress(file, percent);
     if (_status.startsWith('Starting') && _done < _total) {
       _status = 'Processing — $_done of $_total files done…';
     }

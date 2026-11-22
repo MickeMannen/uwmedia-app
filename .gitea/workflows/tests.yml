@@ -7,7 +7,7 @@
 # the Flutter image), `macos-host` and `windows-host` (host mode: the job
 # runs straight on the machine, which needs Flutter and git on PATH; the
 # Mac also ffmpeg, ffprobe and exiftool for the media tests, which skip
-# without them, while the Windows job fetches its own).
+# without them, while the Linux and the Windows job fetch their own).
 #
 # The private test data is on a read-only SMB share on the LAN (never in
 # git, never in Gitea), kept the same as the development machine's
@@ -71,28 +71,41 @@ jobs:
             tar -xz -C /usr/local --strip-components=1
           node --version
 
-      # What the media tests run (without them those tests skip
-      # themselves), and what copies the test data from its share.
-      # Tried again when the archive does not answer (2026-11-19: a
-      # connection timeout to archive.ubuntu.com failed the job).
-      - name: ffmpeg, exiftool and smbclient
+      # What copies the test data from its share, and Perl's modules for
+      # exiftool. Tried again when the archive does not answer
+      # (2026-11-19: a connection timeout to archive.ubuntu.com failed
+      # the job). No ffmpeg from Ubuntu: the media tests run the app's
+      # own, fetched below.
+      - name: exiftool's Perl and smbclient
         run: |
           for try in 1 2 3; do
             if apt-get -o Acquire::Retries=3 update -qq &&
-              apt-get -o Acquire::Retries=3 install -y -qq ffmpeg libimage-exiftool-perl smbclient; then
+              apt-get -o Acquire::Retries=3 install -y -qq libimage-exiftool-perl smbclient; then
               break
             fi
             [ "$try" = 3 ] && exit 1
             sleep 30
           done
-          ffmpeg -version | head -1
-          exiftool -ver
 
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Get dependencies
         run: flutter pub get
+
+      # The media tests run the ffmpeg, ffprobe and exiftool the Linux
+      # download ships (spec §13.2; tool/fetch_tools.dart, each file
+      # checked against its sha256), first on the PATH, as the Windows
+      # job runs the version the app has. Ubuntu's ffmpeg 6.1.1 writes a
+      # Color video with shifted colours (BT.601 under the BT.709 tag;
+      # roadmap v0.2.0 E6), which failed the comparison's test here
+      # (owner, 2026-11-22).
+      - name: The app's own ffmpeg, ffprobe and exiftool
+        run: |
+          dart run tool/fetch_tools.dart linux "$PWD/build/ci_tools"
+          echo "$PWD/build/ci_tools" >> "$GITHUB_PATH"
+          "$PWD/build/ci_tools/ffmpeg" -version | head -1
+          "$PWD/build/ci_tools/exiftool" -ver
 
       - name: Test data
         run: tool/ci_test_data.sh ${{ github.event_name == 'schedule' && 'release' || '' }}

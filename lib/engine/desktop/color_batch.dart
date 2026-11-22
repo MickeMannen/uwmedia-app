@@ -20,6 +20,7 @@ import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/config/tank_config.dart';
 import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
+import 'package:uwmedia_app/core/engine/space_estimate.dart';
 import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/hud/layouts.dart';
 import 'package:uwmedia_app/core/metadata/media_dates.dart';
@@ -463,6 +464,9 @@ class ColorBatch {
           FileSystemEntity.typeSync(path) != FileSystemEntityType.notFound,
     );
     final results = <FileResult>[];
+    // Set when a file could not be written for want of room: no further
+    // file is begun (spec §10.96).
+    var diskFull = false;
     listener.started(files.length);
 
     Future<void> one(String file) async {
@@ -486,10 +490,12 @@ class ColorBatch {
       } on RunStopped {
         return;
       } on Object catch (e) {
+        final full = saysDiskFull('$e');
+        diskFull = diskFull || full;
         result = (
           file: p.basename(file),
           status: FileStatus.error,
-          error: '$e',
+          error: full ? 'the disk is full' : '$e',
         );
       }
       results.add(result);
@@ -499,7 +505,7 @@ class ColorBatch {
     if (files.length > 1) {
       var next = 0;
       Future<void> worker() async {
-        while (!_stopped && next < files.length) {
+        while (!_stopped && !diskFull && next < files.length) {
           await one(files[next++]);
         }
       }
@@ -514,6 +520,14 @@ class ColorBatch {
     }
     if (_stopped) {
       throw const RunStopped();
+    }
+    if (diskFull) {
+      final written = results.where((r) => r.status == FileStatus.done).length;
+      throw FormatException(
+        'The disk is full: the run ended with $written of ${files.length} '
+        'files written. A file that was being written then may be there '
+        'in part. Free some space and run the rest again.',
+      );
     }
     return results;
   }

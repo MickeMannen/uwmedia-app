@@ -89,9 +89,15 @@ void main() {
         const picture =
             'testsrc2=size=${_w}x$_h:rate=25,trim=end_frame=1,'
             'colorchannelmixer=rr=0.25:gg=0.8:bb=0.9';
+        // The clip is BT.709 and tagged so, as a camera's footage is.
+        // (With an old ffmpeg, Ubuntu's 6.1.1, the test fails all the
+        // same: it writes BT.601 under the BT.709 tag, roadmap v0.2.0
+        // E6. The tests run the ffmpeg the app ships.)
         final clip = p.join(media.path, 'Reef.mp4');
         await make([
           '-f', 'lavfi', '-i', '$picture,loop=loop=299:size=1', //
+          '-vf', 'scale=out_color_matrix=bt709,format=yuv420p',
+          '-color_primaries', '1', '-color_trc', '1', '-colorspace', '1',
           '-c:v', 'libx264', '-crf', '10', '-pix_fmt', 'yuv420p', clip,
         ]);
         expect(await tools.ffmpeg.duration(clip), closeTo(12, 0.1));

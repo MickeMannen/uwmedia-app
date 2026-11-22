@@ -179,7 +179,7 @@ class OverlayGeneratorController extends ChangeNotifier
   bool get hasSource => _source.trim().isNotEmpty || _sourceFiles.isNotEmpty;
 
   /// The source as the page shows it: the folder, the file, or the picked
-  /// files' names and where they lie.
+  /// files' number and where they lie.
   String get sourceSummary {
     if (_sourceFiles.isEmpty) {
       return displayPath(_source);

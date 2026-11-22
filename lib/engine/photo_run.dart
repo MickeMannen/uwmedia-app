@@ -69,14 +69,50 @@ class PhotoRun {
   final ColorEngine? engine;
   final UnitSystem units;
 
-  // The colour correction on another isolate (a large photo takes a
-  // second or two); the closure holds only the engine and the picture.
+  // The colour correction on another isolate, with the loops that turn
+  // the pixels into the engine's three bytes and back (a large photo
+  // takes seconds, and four are worked on at once: on the app's own
+  // isolate the window stood still meanwhile; owner, 2026-11-22). The
+  // closure holds only the engine and the picture.
   static Future<Uint8List> _correctedOffThread(
     ColorEngine colour,
-    RgbImage frame,
-  ) => Isolate.run(
-    () => colour.applyFilter(frame, colour.analyze(frame).filter).rgb,
-  );
+    Uint8List rgba,
+    int width,
+    int height,
+  ) => Isolate.run(() {
+    final frame = RgbImage(width, height, _rgbOf(rgba));
+    final corrected = colour
+        .applyFilter(frame, colour.analyze(frame).filter)
+        .rgb;
+    final out = Uint8List(rgba.length);
+    var o = 0;
+    for (var i = 0; i < out.length; i += 4) {
+      out[i] = corrected[o++];
+      out[i + 1] = corrected[o++];
+      out[i + 2] = corrected[o++];
+      out[i + 3] = 255;
+    }
+    return out;
+  });
+
+  // The JPEG file of [rgba], on another isolate as well: the encoder is
+  // the app's own Dart and takes a second or more for a camera's photo.
+  static Future<Uint8List> _jpegOffThread(
+    Uint8List rgba,
+    int width,
+    int height,
+    Uint8List? source,
+  ) => Isolate.run(() {
+    final read = source == null ? null : readJpegTables(source);
+    final tables = read == null ? null : usableQuantTables(read.quantization);
+    return encodeJpeg(
+      _rgbOf(rgba),
+      width,
+      height,
+      quantTables: tables ?? jpegFinestTables,
+      sampling: read?.sampling,
+    );
+  });
 
   static Future<ui.Image> _decode(Uint8List bytes) async {
     final codec = await ui.instantiateImageCodec(bytes);
@@ -186,15 +222,7 @@ class PhotoRun {
       image.dispose();
       return png!.buffer.asUint8List();
     }
-    final read = source == null ? null : readJpegTables(source);
-    final tables = read == null ? null : usableQuantTables(read.quantization);
-    return encodeJpeg(
-      _rgbOf(rgba),
-      width,
-      height,
-      quantTables: tables ?? jpegFinestTables,
-      sampling: read?.sampling,
-    );
+    return _jpegOffThread(rgba, width, height, source);
   }
 
   // The photo in [sourceBytes] upright as RGBA pixels, only the window
@@ -233,19 +261,7 @@ class PhotoRun {
     Uint8List rgba,
     int width,
     int height,
-  ) async {
-    final frame = RgbImage(width, height, _rgbOf(rgba));
-    final corrected = await _correctedOffThread(colour, frame);
-    final out = Uint8List(rgba.length);
-    var o = 0;
-    for (var i = 0; i < out.length; i += 4) {
-      out[i] = corrected[o++];
-      out[i + 1] = corrected[o++];
-      out[i + 2] = corrected[o++];
-      out[i + 3] = 255;
-    }
-    return out;
-  }
+  ) => _correctedOffThread(colour, rgba, width, height);
 
   // [rgba] with the [layers] a run draws laid over it for the dive
   // sample at [matchDate]. Without a dive only the layers that need none
@@ -493,7 +509,7 @@ class PhotoRun {
       );
     }
     final bytes = await process(
-      File(source).readAsBytesSync(),
+      await File(source).readAsBytes(),
       format: format,
       colorCorrect: colorCorrect,
       layers: layers,
@@ -502,7 +518,7 @@ class PhotoRun {
       cut: cut,
       compare: compare,
     );
-    File(target).writeAsBytesSync(bytes, flush: true);
+    await File(target).writeAsBytes(bytes, flush: true);
     if (exiftool == null) {
       return const [];
     }

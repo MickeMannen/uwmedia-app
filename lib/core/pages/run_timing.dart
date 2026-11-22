@@ -69,9 +69,11 @@ class RunTimer {
     if (done < minFraction || soFar < minElapsed) {
       return null;
     }
-    final left = soFar * (1.0 - done) / done;
-    return left > 60 ? (left / 10.0).ceilToDouble() * 10 : left;
+    return _rounded(soFar * (1.0 - done) / done);
   }
+
+  static double _rounded(double left) =>
+      left > 60 ? (left / 10.0).ceilToDouble() * 10 : left;
 
   /// The progress card's line: empty before the first run, "Elapsed
   /// 0:04", "Elapsed 4:12 · about 9:30 left", then "Finished in 13:41" or
@@ -84,8 +86,24 @@ class RunTimer {
       return '${_stoppedOk ? 'Finished in' : 'Stopped after'} '
           '${formatDuration(elapsed)}';
     }
-    final left = remaining(fraction);
-    return 'Elapsed ${formatDuration(elapsed)}'
-        '${left == null ? '' : ' · about ${formatDuration(left)} left'}';
+    return _line(remaining(fraction));
   }
+
+  /// [text] with the seconds left worked out elsewhere ([left], `null`
+  /// when not known; a run's own estimate, `RunEstimate`): hidden for
+  /// the first [minElapsed] seconds and rounded as [remaining] is.
+  String textWithLeft(double? left) {
+    if (!running) {
+      return text(null);
+    }
+    return _line(
+      left == null || elapsed < minElapsed
+          ? null
+          : _rounded(left < 0 ? 0 : left),
+    );
+  }
+
+  String _line(double? left) =>
+      'Elapsed ${formatDuration(elapsed)}'
+      '${left == null ? '' : ' · about ${formatDuration(left)} left'}';
 }

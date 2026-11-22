@@ -221,7 +221,7 @@ void main() {
     c.setSourceFiles(['/media/a.mp4', '/media/b.jpg']);
     expect(c.sourceText, '');
     expect(c.sourceFiles, ['/media/a.mp4', '/media/b.jpg']);
-    expect(c.sourceSummary, '2 files: a.mp4, b.jpg in /media');
+    expect(c.sourceSummary, '2 files in /media');
     expect(c.hasSource, isTrue);
     // Kept for the next start.
     expect(controller().sourceFiles, ['/media/a.mp4', '/media/b.jpg']);

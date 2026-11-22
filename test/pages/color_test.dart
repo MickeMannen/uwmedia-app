@@ -172,8 +172,10 @@ void main() {
     Future<RgbImage> Function((ColorProfile, RgbImage) job)? correct,
     WatermarkStore? watermarks,
     bool compareOffered = false,
+    Future<int?> Function(String dir)? freeSpace,
   }) => ColorController(
     compareOffered: compareOffered,
+    freeSpace: freeSpace,
     correct: correct,
     watermarkStore: watermarks,
     config: config,
@@ -358,6 +360,91 @@ void main() {
     await c.setOffsetHours(24);
     expect(c.diveMatches!.unmatched, 2);
     expect(c.matchedDive, isNull);
+    c.dispose();
+  });
+
+  test('several photos: the slider goes through them', () async {
+    final c = controller(correct: (job) async => job.$2);
+    await c.setLogs(logs);
+    final inDive = dive.startTime.add(const Duration(minutes: 2));
+    final before = dive.startTime.subtract(const Duration(days: 1));
+    engine.tagsOf['One.jpg'] = {
+      'EXIF:DateTimeOriginal': pyStrftime(before, '%Y:%m:%d %H:%M:%S'),
+    };
+    engine.tagsOf['Two.jpg'] = {
+      'EXIF:DateTimeOriginal': pyStrftime(inDive, '%Y:%m:%d %H:%M:%S'),
+    };
+    final photos = [p.join(media, 'One.jpg'), p.join(media, 'Two.jpg')];
+    for (final file in photos) {
+      File(file).writeAsStringSync('x');
+    }
+    await c.setSourceFiles(photos);
+    await pumpEventQueue();
+    expect((c.scrubEnabled, c.scrubMaximum, c.scrubValue), (true, 1, 0));
+    expect((c.scrubFrom, c.scrubUntil), (0, 1));
+    expect(c.scrubTimeText, 'One.jpg · 1 of 2');
+    expect(c.matchedDive, isNull);
+
+    // The second photo: its own date, and so its dive.
+    await c.scrubTo(1);
+    expect(c.scrubValue, 1);
+    expect(c.scrubTimeText, 'Two.jpg · 2 of 2');
+    expect(c.matchedDive, isNotNull);
+    expect(c.matchTime, inDive);
+
+    // It stays the one shown when the preview is read again.
+    await c.refreshPreview();
+    expect(c.scrubTimeText, 'Two.jpg · 2 of 2');
+
+    // A video first: the slider is the video's.
+    await c.setSourceFiles([clip, ...photos]);
+    await pumpEventQueue();
+    expect(c.scrubTimeText, isNot(contains(' of ')));
+    c.dispose();
+  });
+
+  test('the room the results take, and too little of it', () async {
+    int? free = 500000000000;
+    final asked = <String>[];
+    final c = controller(
+      correct: (job) async => job.$2,
+      freeSpace: (dir) async {
+        asked.add(dir);
+        return free;
+      },
+    );
+    final photos = [p.join(media, 'One.jpg'), p.join(media, 'Two.jpg')];
+    for (final file in photos) {
+      File(file).writeAsBytesSync(Uint8List(3000000));
+    }
+    await c.setSourceFiles(photos);
+    await pumpEventQueue();
+    // No output yet: nothing to say.
+    expect(c.spaceText, '');
+
+    // An output that is not there yet: the disk of the folder above it.
+    c.setOutput(p.join(tmp.path, 'results', 'today'));
+    await pumpEventQueue();
+    expect(asked.last, tmp.path);
+    expect(c.spaceText, 'About 7 MB needed, 500.0 GB free');
+    expect(c.spaceShort, isFalse);
+
+    // Without the colour correction the photos are copied.
+    c.colorChecked = false;
+    expect(c.spaceText, 'About 6 MB needed, 500.0 GB free');
+    c.colorChecked = true;
+
+    // Too little room, then a disk that does not tell.
+    free = 2000000;
+    c.setOutput(p.join(tmp.path, 'elsewhere'));
+    await pumpEventQueue();
+    expect(c.spaceText, 'About 7 MB needed, only 2 MB free on this disk');
+    expect(c.spaceShort, isTrue);
+    free = null;
+    c.setOutput(p.join(tmp.path, 'results'));
+    await pumpEventQueue();
+    expect(c.spaceText, 'About 7 MB needed');
+    expect(c.spaceShort, isFalse);
     c.dispose();
   });
 
@@ -1072,10 +1159,7 @@ void main() {
       p.join(media, 'Abyss.MP4'),
       p.join(media, 'Fish.jpg'),
     ]);
-    expect(
-      find.textContaining('2 files: Abyss.MP4, Fish.jpg in '),
-      findsOneWidget,
-    );
+    expect(find.textContaining('2 files in '), findsOneWidget);
     expect(find.text('1 video, 1 photo found'), findsOneWidget);
     expect(config.fields()[sourceFilesField], made.sourceFiles);
     // The files dialog takes one or several: no folder as a source.
@@ -1413,7 +1497,8 @@ void main() {
     await tester.pump();
     expect(find.text('Stop'), findsOneWidget);
     expect(find.text('Progress'), findsOneWidget);
-    expect(find.text('Overall'), findsOneWidget);
+    expect(find.text('Total'), findsOneWidget);
+    expect(find.textContaining('Now: Wreck.mp4'), findsOneWidget);
     expect(find.text(pickMediaLabel), findsNothing);
     expect(find.text('Color correction'), findsNothing);
 

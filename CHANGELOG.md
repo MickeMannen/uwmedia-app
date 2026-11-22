@@ -4,13 +4,44 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
-## [Unreleased]
+## [0.1.3] - 2026-11-22
+
+### Added
+
+- Color: with several photos picked, the slider under the live preview
+  steps through them, so each photo can be looked at with its color
+  correction and overlays before the run. It names the photo shown,
+  "DSC08854.JPG · 3 of 679".
+- Color, on a computer: under the output the page says how much room
+  the results will take, about, and how much is free on that disk. When
+  they will not fit it warns, and Start asks before going on. A run
+  that fills the disk anyway stops with a plain message.
 
 ### Changed
 
+- Color: the progress of a run shows the whole run first (one bar, the
+  files done and the time left) and then the one file in progress,
+  instead of two bars and a line naming every file being worked on.
+- Color: the time left of a run is worked out from the sizes of the
+  files, the pace of the files just finished and how far the videos in
+  progress really are. Before, every file counted the same, and with
+  videos of different lengths the figure stayed far too high.
+- Color: a photo named by its date ends in the hundredths of a second
+  instead of the milliseconds ("20261107_105639_23.jpg", before
+  "…_233.jpg"). Two files of a run that would still get the same name
+  are numbered "_1", "_2", and one never writes over the other.
+- Color and Overlay Generator, on a computer: with several files picked
+  the source line shows how many there are and their folder ("679 files
+  in ~/DivingMedia/…/photo") instead of listing the first names.
 - macOS: the download is a disk image (.dmg) instead of a zip: open it
   and drag UWMedia to Applications. The image is signed and notarised
   as the app is.
+
+### Fixed
+
+- Color, on a computer: the window no longer stands still for seconds
+  when a run of many photos starts; the photos are written in the
+  background.
 
 ## [0.1.2] - 2026-11-22
 

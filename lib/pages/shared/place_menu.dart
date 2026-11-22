@@ -69,13 +69,8 @@ class PlaceMenuButton extends StatelessWidget {
   );
 }
 
-/// "3 files: a.mp4, b.mp4, c.jpg", or the first [shown] and how many
-/// more; for one file its name.
-String pickedFilesText(List<String> names, {int shown = 3}) {
-  if (names.length == 1) {
-    return names.single;
-  }
-  final more = names.length - shown;
-  return '${names.length} files: ${names.take(shown).join(', ')}'
-      '${more > 0 ? ' and $more more' : ''}';
-}
+/// "3 files" for several picked files, without their names (owner,
+/// 2026-11-22: hundreds of picked photos made a long line); for one file
+/// its name.
+String pickedFilesText(List<String> names) =>
+    names.length == 1 ? names.single : '${names.length} files';

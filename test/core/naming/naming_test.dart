@@ -8,6 +8,7 @@ import 'package:uwmedia_app/core/naming/clock_offset.dart';
 import 'package:uwmedia_app/core/naming/filename_formats.dart';
 import 'package:uwmedia_app/core/naming/output_naming.dart';
 import 'package:uwmedia_app/core/util/naive_time.dart';
+import 'package:uwmedia_app/core/util/py_parse.dart';
 import 'package:uwmedia_app/core/util/py_strftime.dart';
 
 import '../../helpers/python_reference.dart';
@@ -97,13 +98,13 @@ void main() {
     });
 
     test('test_default_batch_naming_is_still_date_taken', () {
-      expect(name(const NamingArgs()), '20260905_143000_123.jpg');
+      expect(name(const NamingArgs()), '20260905_143000_12.jpg');
     });
 
     test('test_filename_format_pattern', () {
       expect(
         name(const NamingArgs(filenameFormat: '%Y%m%d_Bali')),
-        '20260905_Bali_123.jpg',
+        '20260905_Bali_12.jpg',
       );
     });
 
@@ -227,7 +228,7 @@ void main() {
             ],
           ),
         ),
-        '20260905_143000_garmin_mk3i_main_123.jpg',
+        '20260905_143000_garmin_mk3i_main_12.jpg',
       );
       expect(
         name(
@@ -236,21 +237,21 @@ void main() {
             originalLayoutStem: 'my_hud',
           ),
         ),
-        '20260905_143000_my_hud_123.jpg',
+        '20260905_143000_my_hud_12.jpg',
       );
     });
 
     test('test_hud_token_without_an_overlay_is_left_out', () {
       expect(
         name(const NamingArgs(filenameFormat: '%Y%m%d_%H%M%S_{hud}')),
-        '20260905_143000_123.jpg',
+        '20260905_143000_12.jpg',
       );
     });
 
     test('a pattern with an unknown date code gives the source name', () {
       expect(
         name(const NamingArgs(filenameFormat: '%Y_%Q')),
-        'DSC06641_123.jpg',
+        'DSC06641_12.jpg',
       );
     });
   });
@@ -385,17 +386,32 @@ void main() {
     test('outputFilename', () {
       final cases = jsonObjects(reference['output_filename']);
       expect(cases.length, greaterThan(2000));
+      // Python appended a photo's milliseconds ("_123"); the app
+      // appends the hundredths ("_12", spec §10.95), so those names are
+      // Python's without their last digit.
+      var withMilliseconds = 0;
       for (final c in cases) {
+        final taken = parseNaive(c['taken'] as String);
         final got = outputFilename(
           source: '/work/${c['source']}',
           outputDir: '/work/${c['output_dir']}',
           sourceIsFolder: c['source_is_dir'] as bool,
           args: argsOf(c['args'] as Map<String, dynamic>),
-          creationDate: parseNaive(c['taken'] as String),
+          creationDate: taken,
           forcedFilename: c['forced'] as String?,
         );
-        expect(got, c['want'], reason: '$c');
+        final python = c['want'] as String;
+        if (got == python) {
+          continue;
+        }
+        withMilliseconds++;
+        expect(
+          '${pyStem(got)}${taken.millisecond % 10}${pySuffix(got)}',
+          python,
+          reason: '$c',
+        );
       }
+      expect(withMilliseconds, 255);
     });
 
     test('outputPathFor and the conversion names', () {
@@ -425,6 +441,76 @@ void main() {
           reason: '$source $resolution',
         );
       }
+    });
+
+    test('two files of a run with one name: the later one numbered', () {
+      const args = NamingArgs(color: 'default');
+      TargetPath Function(String) run(
+        NamingArgs args,
+        FakeFiles files,
+        UniquePaths unique,
+      ) =>
+          (source) => resolveTargetPath(
+            target: '/out/20260905_143000.jpg',
+            source: source,
+            args: args,
+            unique: unique,
+            sameFile: files.sameFile,
+          );
+
+      // Neither skip nor overwrite.
+      var files = FakeFiles(const [], ignoreCase: ignoreCase);
+      var next = run(args, files, UniquePaths(files.exists));
+      expect(next('/raw/a.jpg').path, '/out/20260905_143000.jpg');
+      expect(next('/raw/b.jpg').path, '/out/20260905_143000_1.jpg');
+      expect(next('/raw/c.jpg').path, '/out/20260905_143000_2.jpg');
+
+      // Overwrite: an earlier run's files are written over, each by its
+      // own photo, and the first photo's is not written over by the
+      // second.
+      files = FakeFiles(const [
+        '/out/20260905_143000.jpg',
+      ], ignoreCase: ignoreCase);
+      next = run(
+        const NamingArgs(color: 'default', overwrite: true),
+        files,
+        UniquePaths(files.exists),
+      );
+      expect(next('/raw/a.jpg'), (
+        path: '/out/20260905_143000.jpg',
+        skipped: false,
+        overwrites: true,
+      ));
+      expect(next('/raw/b.jpg'), (
+        path: '/out/20260905_143000_1.jpg',
+        skipped: false,
+        overwrites: false,
+      ));
+
+      // Skip: the first is there and is skipped, the second is not there
+      // and is written; with both there both are skipped.
+      next = run(
+        const NamingArgs(color: 'default', noOverwrite: true),
+        files,
+        UniquePaths(files.exists),
+      );
+      expect(next('/raw/a.jpg').skipped, isTrue);
+      expect(next('/raw/b.jpg'), (
+        path: '/out/20260905_143000_1.jpg',
+        skipped: false,
+        overwrites: false,
+      ));
+      files = FakeFiles(const [
+        '/out/20260905_143000.jpg',
+        '/out/20260905_143000_1.jpg',
+      ], ignoreCase: ignoreCase);
+      next = run(
+        const NamingArgs(color: 'default', noOverwrite: true),
+        files,
+        UniquePaths(files.exists),
+      );
+      expect(next('/raw/a.jpg').skipped, isTrue);
+      expect(next('/raw/b.jpg').skipped, isTrue);
     });
 
     test('UniquePaths', () {

@@ -27,6 +27,7 @@ import 'package:uwmedia_app/core/naming/output_naming.dart';
 import 'package:uwmedia_app/core/units/units.dart';
 import 'package:uwmedia_app/core/util/py_strftime.dart';
 import 'package:uwmedia_app/engine/desktop/color_batch.dart';
+import 'package:uwmedia_app/engine/desktop/free_space.dart';
 import 'package:uwmedia_app/engine/file_picks.dart' as fs;
 import 'package:uwmedia_app/engine/keep_awake.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
@@ -368,6 +369,7 @@ Future<ColorController> defaultColorSetup(AppServices services) async {
     templateBytes: templateFileBytes,
     relistTemplates: list,
     watermarkStore: services.watermarks,
+    freeSpace: freeBytes,
   );
 }
 
@@ -674,6 +676,30 @@ class _ColorPageState extends State<ColorPage> {
             ),
         ],
       ),
+      // The room the results take, and when the disk has not got it
+      // (spec §10.96).
+      if (c.spaceText.isNotEmpty)
+        c.spaceShort
+            ? Row(
+                spacing: 6,
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    size: 16,
+                    color: partlyMatchedColor,
+                  ),
+                  Expanded(
+                    child: Text(
+                      c.spaceText,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: partlyMatchedColor,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : MutedText(c.spaceText),
       DiveMatchButton(
         matches: matches,
         pending: c.diveMatchesPending,
@@ -1484,7 +1510,7 @@ class _ColorPageState extends State<ColorPage> {
               ..._progressLines(),
               StartStopButton(
                 running: c.isRunning,
-                onStartStop: c.startOrStop,
+                onStartStop: _startOrStop,
                 busyElsewhere: _busyElsewhere,
               ),
             ],
@@ -1493,22 +1519,70 @@ class _ColorPageState extends State<ColorPage> {
     );
   }
 
-  // The run's bars while it goes, then how long it took, where it is and
-  // what it said.
+  // Start asks first when the results will not fit on the disk, as far
+  // as the page can tell (spec §10.96); Stop goes straight on.
+  Future<void> _startOrStop() async {
+    final c = controller!;
+    if (!c.isRunning && c.spaceShort) {
+      final go = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('The disk may fill up'),
+          content: Text(
+            '${c.spaceText}.\n\nThe run stops when the disk is full. '
+            'Free some space or choose another folder for the results.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Start anyway'),
+            ),
+          ],
+        ),
+      );
+      if (go != true) {
+        return;
+      }
+    }
+    await c.startOrStop();
+  }
+
+  // While a run goes: the whole run first (its bar, the files done and
+  // the time left), then the one file in progress (owner, 2026-11-22: a
+  // line naming every file worked on did not read well). After it, how
+  // long it took, where it is and what it said.
   List<Widget> _progressLines({bool status = true}) {
     final c = controller!;
+    final current = c.currentFile;
+    final others = c.activeFiles.length - 1;
+    final fileFraction = c.currentFileFraction;
     return [
       if (c.isRunning) ...[
-        _bar('Current', c.currentFraction),
-        _bar('Overall', c.overallFraction),
+        _bar('Total', c.currentFraction),
         MutedText(
-          '${c.filesDone} of ${c.filesTotal} files'
-          '${c.activeFiles.isEmpty ? '' : ' · working on ${c.activeFiles.join(', ')}'}',
+          [
+            '${c.filesDone} of ${c.filesTotal} files',
+            if (c.timingText.isNotEmpty) c.timingText,
+          ].join(' · '),
           size: 11,
         ),
-      ],
-      if (c.timingText.isNotEmpty) MutedText(c.timingText, size: 11),
-      if (status)
+        if (current != null) ...[
+          // One file is the whole run: its bar is the one above.
+          if (c.filesTotal > 1 && fileFraction != null)
+            _bar('Now', fileFraction),
+          MutedText(
+            'Now: $current${others > 0 ? ' and $others more' : ''}',
+            size: 11,
+          ),
+        ],
+      ] else if (c.timingText.isNotEmpty)
+        MutedText(c.timingText, size: 11),
+      // The count is in the lines above while the run goes.
+      if (status && !(c.isRunning && c.statusText.startsWith('Processing')))
         SelectableText(
           c.statusText,
           style: const TextStyle(color: mutedText, fontSize: 12),

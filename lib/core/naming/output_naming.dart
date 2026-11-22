@@ -203,9 +203,11 @@ final _hudWithSeparator = RegExp(r'[_\- ]?\{hud\}');
 /// another folder, the date taken as `%Y%m%d_%H%M%S`. Extensions are
 /// lower-cased. A pattern that can't be used gives the source's name.
 ///
-/// A photo whose date has a fraction of a second gets its milliseconds
-/// appended (`_123`), which keeps date-named photos of one second apart;
-/// not when the name is the source's own or was given.
+/// A photo whose date has a fraction of a second gets its hundredths of
+/// a second appended (`_12` for .123; Python appended the milliseconds,
+/// `_123`; spec §10.95), which keeps date-named photos of one second
+/// apart; not when the name is the source's own or was given. Two that
+/// still get one name are numbered by [resolveTargetPath].
 String outputFilename({
   required String source,
   required String outputDir,
@@ -277,8 +279,11 @@ String outputFilename({
       args.keepFilename || (args.filenameFormat ?? '').contains('{filename}');
   final fraction = creationDate.millisecond > 0 || creationDate.microsecond > 0;
   if (!args.renderVideoLog && !forced && !keepsName && !isVideo && fraction) {
-    final ms = creationDate.millisecond.toString().padLeft(3, '0');
-    filename = '${pyStem(filename)}_$ms${pySuffix(filename)}';
+    final hundredths = (creationDate.millisecond ~/ 10).toString().padLeft(
+      2,
+      '0',
+    );
+    filename = '${pyStem(filename)}_$hundredths${pySuffix(filename)}';
   }
   return filename;
 }
@@ -311,6 +316,27 @@ class UniquePaths {
     _reserved.add(candidate.toLowerCase());
     return candidate;
   }
+
+  /// [path], or with `_1`, `_2` … before the extension when this object
+  /// has handed that name out already; the disk is not looked at. For the
+  /// second file of a run that gets the name of the first (two photos of
+  /// one second).
+  String numbered(String path) {
+    final suffix = pySuffix(path);
+    final base = path.substring(0, path.length - suffix.length);
+    var candidate = path;
+    for (
+      var counter = 1;
+      _reserved.contains(candidate.toLowerCase());
+      counter++
+    ) {
+      candidate = '${base}_$counter$suffix';
+    }
+    return candidate;
+  }
+
+  /// Marks [path] as handed out, when it was given without [unique].
+  void reserve(String path) => _reserved.add(path.toLowerCase());
 }
 
 /// Where a file goes and whether it is skipped.
@@ -318,6 +344,8 @@ typedef TargetPath = ({String path, bool skipped, bool overwrites});
 
 /// Applies "skip if the target exists" and "overwrite" to [target]. An
 /// existing file otherwise gets `_1`, `_2` … appended by [unique].
+/// So does a name [unique] handed out earlier in the run, whatever the
+/// settings.
 ///
 /// The source itself is never written over (same folder and same name),
 /// even with overwrite on: it is still being read. It isn't an earlier
@@ -331,14 +359,21 @@ TargetPath resolveTargetPath({
   required UniquePaths unique,
   required bool Function(String a, String b) sameFile,
 }) {
-  final taken = unique.exists(target);
-  final writesOverSource = taken && sameFile(target, source);
+  // A name this run has given to another file already is that file's:
+  // this one is numbered, and skip and overwrite hold for its own name
+  // (else the second photo of a second was skipped, or written over the
+  // first).
+  final numbered = unique.numbered(target);
+  final taken = unique.exists(numbered);
+  final writesOverSource = taken && sameFile(numbered, source);
   final own = args.namesOutput && !writesOverSource;
   if (own && args.noOverwrite && taken) {
-    return (path: target, skipped: true, overwrites: false);
+    unique.reserve(numbered);
+    return (path: numbered, skipped: true, overwrites: false);
   }
   if (own && args.overwrite) {
-    return (path: target, skipped: false, overwrites: taken);
+    unique.reserve(numbered);
+    return (path: numbered, skipped: false, overwrites: taken);
   }
   return (path: unique.unique(target), skipped: false, overwrites: false);
 }
