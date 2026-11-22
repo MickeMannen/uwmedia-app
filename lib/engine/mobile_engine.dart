@@ -88,7 +88,14 @@ class EncodeJob {
     this.layers = const [],
     this.toneMap = false,
     this.part,
+    this.compare,
   });
+
+  /// A comparison (spec §10.94): the picture files of its mask (white
+  /// where the corrected picture shows, the original elsewhere) and of
+  /// its divider line, both of the frame the layers lie on. Only the
+  /// Apple engine reads them (the feature is the desktop's).
+  final ({String mask, String line})? compare;
 
   /// The part of the video written; `null` for all of it. The times of
   /// [luts] and of the [layers]' pictures count from its start.
@@ -142,6 +149,10 @@ class EncodeJob {
     'bitrate': bitrate,
     if (part != null) ...{'start': part!.start, 'end': part!.end},
     'toneMap': toneMap,
+    if (compare != null) ...{
+      'compareMask': compare!.mask,
+      'compareLine': compare!.line,
+    },
     'lutSize': lutSize,
     'lutFade': lutFade,
     'luts': [

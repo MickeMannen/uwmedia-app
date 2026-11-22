@@ -501,9 +501,17 @@ final class MediaEngine {
     private var cubes: [Int: [Float]] = [:]
     private var pictureShown: [Int]
     private var pictures: [CIImage?]
+    // A comparison: the pictures of its mask (white where the corrected
+    // picture shows) and of its divider line, of the frame's size.
+    let compareMaskPath: String?
+    let compareLinePath: String?
+    private var compareMask: CIImage?
+    private var compareLine: CIImage?
 
     init(_ args: [String: Any], hdr: Bool) {
       self.hdr = hdr
+      compareMaskPath = args["compareMask"] as? String
+      compareLinePath = args["compareLine"] as? String
       lutSize = args["lutSize"] as? Int ?? 0
       luts = (args["luts"] as? [[String: Any]] ?? []).compactMap {
         guard let lut = $0["lut"] as? FlutterStandardTypedData else { return nil }
@@ -627,9 +635,31 @@ final class MediaEngine {
       image = image.transformed(
         by: CGAffineTransform(translationX: -image.extent.minX, y: -image.extent.minY))
       let work = image.extent.size
+      let original = image
       if !luts.isEmpty, let filter = filter(at: seconds, space) {
         filter.setValue(image, forKey: kCIInputImageKey)
         image = filter.outputImage ?? image
+      }
+      if !luts.isEmpty, let maskPath = compareMaskPath {
+        // The original where the mask is black, the corrected picture
+        // where it is white; the mask's greys taken as they are.
+        if compareMask == nil {
+          compareMask = CIImage(
+            contentsOf: URL(fileURLWithPath: maskPath), options: [.colorSpace: NSNull()])
+        }
+        if let mask = compareMask, let blend = CIFilter(name: "CIBlendWithMask") {
+          blend.setValue(image, forKey: kCIInputImageKey)
+          blend.setValue(original, forKey: kCIInputBackgroundImageKey)
+          blend.setValue(mask, forKey: kCIInputMaskImageKey)
+          image = blend.outputImage ?? image
+        }
+        if compareLine == nil, let linePath = compareLinePath {
+          compareLine = CIImage(
+            contentsOf: URL(fileURLWithPath: linePath), options: [.colorSpace: space])
+        }
+        if let line = compareLine {
+          image = line.composited(over: image)
+        }
       }
       for (number, layer) in layers.enumerated() where !layer.pictures.isEmpty {
         let index = Effects.index(layer.pictures.map(\.seconds), at: seconds)

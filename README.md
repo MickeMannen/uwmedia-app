@@ -67,24 +67,25 @@ with the desktop builds are separate programs under their own licences
 
 ## Code signing policy
 
-Free code signing provided by [SignPath.io](https://about.signpath.io),
-certificate by [SignPath Foundation](https://signpath.org).
-
-- What is signed: the Windows builds of this project only, `uwmedia.exe`,
-  the DLLs the same build compiles from source (the Flutter plugins'
-  native parts) and the installer, built from this repository by the
-  "Release Build" workflow on GitHub-hosted runners
-  ([.signpath/](.signpath/README.md)). Files from third parties shipped
-  with the app (the Flutter engine's `flutter_windows.dll`, ffmpeg,
-  ffprobe, exiftool) are never signed with this certificate.
-- Committers and reviewers: [Mikael Christersson](https://github.com/MickeMannen)
-- Approvers: [Mikael Christersson](https://github.com/MickeMannen); every
-  signing request is approved by hand.
+- macOS: the download is signed with the author's Apple Developer ID
+  (Mikael Christersson) and notarised by Apple, built from this
+  repository by the "Release Build" workflow on GitHub-hosted runners.
+- Windows and Linux: the downloads are not signed yet. Windows shows
+  "unknown publisher" when the installer is started; "More info" and
+  "Run anyway" start it. Compare the file with the one on the
+  [releases page](https://github.com/MickeMannen/uwmedia-app/releases)
+  if it came from anywhere else.
+- Files from third parties shipped with the app (the Flutter engine,
+  ffmpeg, ffprobe, exiftool) are theirs; on macOS they are signed as
+  part of the app, as notarising requires.
+- Committers, reviewers and approvers:
+  [Mikael Christersson](https://github.com/MickeMannen); every release is
+  started by hand.
 - [Privacy policy](PRIVACY.md): this program will not transfer any
   information to other networked systems unless specifically requested by
-  the user or the person installing or operating it. (The one request it makes, the
-  update check on the About page, is sent only when that button is
-  pressed.)
+  the user or the person installing or operating it. (The one request it
+  makes, the update check on the About page, is sent only when that
+  button is pressed.)
 
 ## Development
 

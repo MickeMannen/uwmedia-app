@@ -351,6 +351,7 @@ Future<ColorController> defaultColorSetup(AppServices services) async {
     gate: services.batches,
     home: services.home,
     keptLogsDir: services.logStore.folder.path,
+    compareOffered: services.capabilities.desktop,
     engine: () => engine ??= services
         .desktopTools()
         .then<ColorPageEngine>(
@@ -1413,6 +1414,36 @@ class _ColorPageState extends State<ColorPage> {
               ),
           ],
         ),
+        if (c.compareOffered)
+          SectionCard(
+            title: 'Before and after',
+            children: [
+              DropdownButton<String>(
+                key: const ValueKey('compare'),
+                isExpanded: true,
+                value: c.compare,
+                items: [
+                  for (final label in c.compareList)
+                    DropdownMenuItem(value: label, child: Text(label)),
+                ],
+                onChanged: running || !c.canCompare
+                    ? null
+                    : (v) => c.compare = v!,
+              ),
+              MutedText(
+                !c.canCompare
+                    ? 'With one photo or one video and the color correction '
+                          'on: the original and the corrected picture in one.'
+                    : c.compare == compareOffLabel
+                    ? 'The original and the corrected picture in one, with '
+                          'the overlays on both.'
+                    : 'Written as "… compare". A video is the part chosen '
+                          'under the preview, ten seconds at most; a wipe '
+                          'video of a photo is four seconds.',
+                size: 11,
+              ),
+            ],
+          ),
         if (!widget.phone)
           SectionCard(
             title: 'Source & output',

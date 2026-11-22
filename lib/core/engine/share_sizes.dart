@@ -399,6 +399,21 @@ class OutputSize {
 
   String get label => share?.label ?? resolution ?? 'As the original';
 
+  /// The longer and the shorter side a picture is to fit in; `null` for
+  /// the pictures' own size (a photo's wipe video, spec §10.94).
+  (int, int)? get box {
+    final copy = share;
+    if (copy != null) {
+      return (copy.size.long, copy.size.short);
+    }
+    for (final (name, width, height, _) in convertResolutions) {
+      if (name == resolution) {
+        return (width, height);
+      }
+    }
+    return null;
+  }
+
   /// The picture of a [sourceW] by [sourceH] video; `null` when the
   /// video is left as it is (a resolution it does not reach, nothing cut
   /// out). [sourceBitrate] is the video's own, for a part of the picture

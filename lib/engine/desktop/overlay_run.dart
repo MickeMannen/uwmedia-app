@@ -10,6 +10,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/ffmpeg_commands.dart';
 import 'package:uwmedia_app/core/engine/hud_layers.dart';
 import 'package:uwmedia_app/core/engine/progress.dart';
@@ -17,6 +18,7 @@ import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/units/units.dart';
+import 'package:uwmedia_app/engine/compare_pictures.dart';
 import 'package:uwmedia_app/engine/desktop/color_run.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
@@ -57,6 +59,10 @@ class OverlayRun {
   /// samples nothing is drawn. [onProgress] gets the percentage of the
   /// whole run; [control] stops it. Throws an [EngineException] when
   /// ffmpeg fails and [RunStopped] when stopped.
+  ///
+  /// With [compare] (and the colour correction) the video shows the
+  /// original on one side of an edge and the corrected picture on the
+  /// other, the layers over both (spec §10.94).
   Future<OverlayRunStats> processVideo({
     required String input,
     required String output,
@@ -67,6 +73,7 @@ class OverlayRun {
     int? tzOffsetMins,
     bool colorCorrect = true,
     OutputSize? size,
+    Compare? compare,
     void Function(double percent)? onProgress,
     RunControl? control,
   }) async {
@@ -140,6 +147,15 @@ class OverlayRun {
         )).$1;
       }
       checkStopped();
+      // A comparison: the mask and the line as pictures of the frame the
+      // layers lie on.
+      List<String> pictures = const [];
+      if (compare != null && colorVf != null) {
+        pictures = await writeComparePictures(
+          CompareEdge.split(compare.kind, frameW, frameH),
+          workDir,
+        );
+      }
 
       // The layers: without a matched dive only those that need none (a
       // watermark), each one picture for the whole clip.
@@ -213,12 +229,20 @@ class OverlayRun {
         overlayCommandArgs(
           input: input,
           layers: streams,
-          colorVf: colorVf,
+          colorVf: pictures.isEmpty
+              ? colorVf
+              : compareLink(
+                  colorVf: colorVf!,
+                  maskInput: streams.length + 1,
+                  lineInput: streams.length + 2,
+                  tenBit: clip.tenBit,
+                ),
           tenBit: clip.tenBit,
           inputArgs: shared.input,
           outputArgs: shared.output,
           before: frame == null ? null : cropFilter(frame),
           after: frame == null ? null : fitFilter(frame, shownW, shownH),
+          pictures: pictures,
         ),
         progress: EncodeProgress(
           duration: duration,

@@ -17,6 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uwmedia_app/core/color/color_engine.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
+import 'package:uwmedia_app/engine/compare_pictures.dart';
 import 'package:uwmedia_app/engine/media_file_dates.dart';
 import 'package:uwmedia_app/engine/mobile_engine.dart';
 import 'package:uwmedia_app/engine/mobile_video_run.dart';
@@ -274,6 +276,71 @@ void main() {
     }
     debugPrint('crop: $agree of ${points.length} agree');
     expect(agree, greaterThanOrEqualTo(points.length - 1));
+  });
+
+  testWidgets('a comparison: the original left, the LUT right, a line', (
+    tester,
+  ) async {
+    // Spec §10.94; only the Apple engine reads the mask.
+    if (!Platform.isMacOS && !Platform.isIOS) {
+      return;
+    }
+    final clipFile = await _clipPath(tester);
+    final tmp = (await getTemporaryDirectory()).path;
+    final clip = await engine.probe(clipFile);
+    final pictures = await writeComparePictures(
+      CompareEdge.split(CompareKind.vertical, clip.width, clip.height),
+      Directory(tmp),
+    );
+    final output = '$tmp/compared.mp4';
+    await engine.encode(
+      EncodeJob(
+        input: clipFile,
+        output: output,
+        frameWidth: clip.width,
+        frameHeight: clip.height,
+        bitrate: 8000000,
+        luts: [(seconds: 0.0, lut: _redStepLut(lutSize))],
+        compare: (mask: pictures[0], line: pictures[1]),
+      ),
+    );
+    final w = clip.width ~/ 2;
+    final h = clip.height ~/ 2;
+    Future<RgbImage> frame(String path) async => (await engine.frameAt(
+      path,
+      1,
+      maxWidth: w,
+      maxHeight: h,
+      exact: true,
+    ))!;
+    final got = await frame(output);
+    final source = await frame(clipFile);
+    var same = 0;
+    var stepped = 0;
+    const rows = 5;
+    for (var n = 1; n <= rows; n++) {
+      final y = h * n ~/ (rows + 1);
+      // Left of the edge the source as it is.
+      final a = _pixel(got, w ~/ 4, y);
+      final b = _pixel(source, w ~/ 4, y);
+      if ((a.$1 - b.$1).abs() < 40 &&
+          (a.$2 - b.$2).abs() < 40 &&
+          (a.$3 - b.$3).abs() < 40) {
+        same++;
+      }
+      // Right of it the LUT's black or white.
+      final (r, g, bl) = _pixel(got, w * 3 ~/ 4, y);
+      if ((r - g).abs() < 30 && (g - bl).abs() < 30 && (r < 60 || r > 195)) {
+        stepped++;
+      }
+    }
+    debugPrint('compare: $same of $rows as the source, $stepped of $rows LUT');
+    expect(same, greaterThanOrEqualTo(rows - 1));
+    expect(stepped, greaterThanOrEqualTo(rows - 1));
+    // The line on the edge is white whatever the LUT made beside it.
+    final line = _pixel(got, w ~/ 2, h ~/ 2);
+    debugPrint('compare: the line $line');
+    expect([line.$1, line.$2, line.$3], everyElement(greaterThan(150)));
   });
 
   testWidgets('probe, frames, and every kind of encode', (tester) async {

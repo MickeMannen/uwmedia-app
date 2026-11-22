@@ -16,6 +16,7 @@ import 'dart:ui' as ui;
 
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/core/color/color_engine.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/overlay_canvas.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/hud_ops.dart';
@@ -196,23 +197,12 @@ class PhotoRun {
     );
   }
 
-  /// The photo in [sourceBytes] colour-corrected (with an [engine] and
-  /// [colorCorrect]) and with [layers] laid over it in order for the dive
-  /// sample at [matchDate] (the moment it was taken, on the dive
-  /// computer's clock), as a file of [format]. Without a [dive], or with
-  /// no sample for that moment, only the layers that need none are drawn. Throws an
-  /// [EngineException] for a file that is no picture. With a [cut] only
-  /// its window of the picture is kept, at its own pixels, and the
-  /// layers lie on that (as for a video, spec §10.75).
-  Future<Uint8List> process(
-    Uint8List sourceBytes, {
-    required PhotoFormat format,
-    bool colorCorrect = true,
-    List<HudLayerSource> layers = const [],
-    Dive? dive,
-    DateTime? matchDate,
+  // The photo in [sourceBytes] upright as RGBA pixels, only the window
+  // of [cut] kept.
+  static Future<({Uint8List rgba, int width, int height})> _read(
+    Uint8List sourceBytes,
     PictureCut? cut,
-  }) async {
+  ) async {
     final ui.Image decoded;
     try {
       decoded = await _decode(sourceBytes);
@@ -234,37 +224,137 @@ class PhotoRun {
       width = crop.width;
       height = crop.height;
     }
+    return (rgba: rgba, width: width, height: height);
+  }
 
+  // [rgba] colour-corrected by [colour], as a picture of its own.
+  static Future<Uint8List> _corrected(
+    ColorEngine colour,
+    Uint8List rgba,
+    int width,
+    int height,
+  ) async {
+    final frame = RgbImage(width, height, _rgbOf(rgba));
+    final corrected = await _correctedOffThread(colour, frame);
+    final out = Uint8List(rgba.length);
+    var o = 0;
+    for (var i = 0; i < out.length; i += 4) {
+      out[i] = corrected[o++];
+      out[i + 1] = corrected[o++];
+      out[i + 2] = corrected[o++];
+      out[i + 3] = 255;
+    }
+    return out;
+  }
+
+  // [rgba] with the [layers] a run draws laid over it for the dive
+  // sample at [matchDate]. Without a dive only the layers that need none
+  // (a watermark); a photo taken away from the dive's samples shows "--"
+  // (spec §10.10).
+  Future<Uint8List> _withLayers(
+    Uint8List rgba,
+    int width,
+    int height,
+    List<HudLayerSource> layers,
+    Dive? dive,
+    DateTime? matchDate,
+  ) async {
+    final matched = dive != null && matchDate != null;
+    final wanted = layersToDraw(layers, matched: matched);
+    if (wanted.isEmpty) {
+      return rgba;
+    }
+    final base = await hudSkinImage(rgba, width, height);
+    final composed = await overlaid(
+      base,
+      wanted,
+      matched ? dive.getWaypointNear(matchDate) : null,
+      dive?.waypoints,
+    );
+    base.dispose();
+    final out = await _rgbaOf(composed);
+    composed.dispose();
+    return out;
+  }
+
+  /// The photo in [sourceBytes] colour-corrected (with an [engine] and
+  /// [colorCorrect]) and with [layers] laid over it in order for the dive
+  /// sample at [matchDate] (the moment it was taken, on the dive
+  /// computer's clock), as a file of [format]. Without a [dive], or with
+  /// no sample for that moment, only the layers that need none are drawn. Throws an
+  /// [EngineException] for a file that is no picture. With a [cut] only
+  /// its window of the picture is kept, at its own pixels, and the
+  /// layers lie on that (as for a video, spec §10.75). With [compare]
+  /// (and the colour correction) the original shows on one side of an
+  /// edge and the corrected picture on the other, the layers over both
+  /// (spec §10.94).
+  Future<Uint8List> process(
+    Uint8List sourceBytes, {
+    required PhotoFormat format,
+    bool colorCorrect = true,
+    List<HudLayerSource> layers = const [],
+    Dive? dive,
+    DateTime? matchDate,
+    PictureCut? cut,
+    Compare? compare,
+  }) async {
+    final read = await _read(sourceBytes, cut);
+    final (width, height) = (read.width, read.height);
+    var rgba = read.rgba;
     final colour = engine;
     if (colorCorrect && colour != null) {
-      final frame = RgbImage(width, height, _rgbOf(rgba));
-      final corrected = await _correctedOffThread(colour, frame);
-      var o = 0;
-      for (var i = 0; i < rgba.length; i += 4) {
-        rgba[i] = corrected[o++];
-        rgba[i + 1] = corrected[o++];
-        rgba[i + 2] = corrected[o++];
-        rgba[i + 3] = 255;
-      }
+      final corrected = await _corrected(colour, rgba, width, height);
+      rgba = compare == null
+          ? corrected
+          : compareMix(
+              rgba,
+              corrected,
+              CompareEdge.split(compare.kind, width, height),
+            );
     }
-
-    final matched = dive != null && matchDate != null;
-    // Without a dive only the layers that need none (a watermark); a
-    // photo taken away from the dive's samples shows "--" (spec §10.10).
-    final wanted = layersToDraw(layers, matched: matched);
-    if (wanted.isNotEmpty) {
-      final base = await hudSkinImage(rgba, width, height);
-      final composed = await overlaid(
-        base,
-        wanted,
-        matched ? dive.getWaypointNear(matchDate) : null,
-        dive?.waypoints,
-      );
-      base.dispose();
-      rgba = await _rgbaOf(composed);
-      composed.dispose();
-    }
+    rgba = await _withLayers(rgba, width, height, layers, dive, matchDate);
     return _encode(rgba, width, height, format, sourceBytes);
+  }
+
+  /// The photo in [sourceBytes] twice, as RGBA pictures of the same
+  /// size: as it is and colour-corrected by the [engine], each with
+  /// [layers] laid over it as [process] lays them (the two pictures of a
+  /// wipe video, spec §10.94). Throws an [EngineException] for a file
+  /// that is no picture, and without an [engine].
+  Future<({Uint8List before, Uint8List after, int width, int height})> pair(
+    Uint8List sourceBytes, {
+    List<HudLayerSource> layers = const [],
+    Dive? dive,
+    DateTime? matchDate,
+    PictureCut? cut,
+  }) async {
+    final colour = engine;
+    if (colour == null) {
+      throw const EngineException('No colour correction to compare with');
+    }
+    final read = await _read(sourceBytes, cut);
+    final (width, height) = (read.width, read.height);
+    final corrected = await _corrected(colour, read.rgba, width, height);
+    return (
+      before: await _withLayers(
+        read.rgba,
+        width,
+        height,
+        layers,
+        dive,
+        matchDate,
+      ),
+      after: await _withLayers(
+        corrected,
+        width,
+        height,
+        layers,
+        dive,
+        matchDate,
+      ),
+      width: width,
+      height: height,
+    );
   }
 
   /// [base] with [layers] drawn over it in order for [waypoint] (each
@@ -394,6 +484,7 @@ class PhotoRun {
     int? forcedTzMinutes,
     List<String>? customTags,
     PictureCut? cut,
+    Compare? compare,
   }) async {
     final format = photoFormatOf(target);
     if (format == null) {
@@ -409,6 +500,7 @@ class PhotoRun {
       dive: dive,
       matchDate: matchDate,
       cut: cut,
+      compare: compare,
     );
     File(target).writeAsBytesSync(bytes, flush: true);
     if (exiftool == null) {

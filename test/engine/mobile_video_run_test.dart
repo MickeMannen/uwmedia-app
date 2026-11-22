@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/color/color_profiles.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
+import 'package:uwmedia_app/core/engine/ffmpeg_commands.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/dummy_telemetry.dart';
 import 'package:uwmedia_app/core/hud/hud_fonts.dart';
@@ -23,9 +25,11 @@ import 'package:uwmedia_app/core/hud/ttf_font.dart';
 import 'package:uwmedia_app/core/naming/output_naming.dart';
 import 'package:uwmedia_app/core/rules/hud_rules_engine.dart';
 import 'package:uwmedia_app/core/util/naive_time.dart';
+import 'package:uwmedia_app/engine/compare_pictures.dart';
 import 'package:uwmedia_app/engine/desktop/color_batch.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
+import 'package:uwmedia_app/engine/desktop/wipe_run.dart';
 import 'package:uwmedia_app/engine/media_file_dates.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
 import 'package:uwmedia_app/engine/mobile_color_batch.dart';
@@ -433,6 +437,90 @@ void main() {
     );
     expect((engine.jobs.last.fit, engine.jobs.last.bitrate), (null, 9000000));
   });
+
+  test('a comparison: the mask and the line of the frame', () async {
+    // Spec §10.94.
+    final tmp = _tmp();
+    final engine = FakeEngine(
+      const ClipInfo(
+        width: 320,
+        height: 240,
+        durationSeconds: 2,
+        frames: 50,
+        fps: 25,
+        bitrate: 4000000,
+      ),
+    );
+    final run = MobileVideoRun(engine: engine, tempDir: _tempDirIn(tmp));
+    final color = ColorEngine(ColorProfile.fromMap(const {}));
+    await run.process(
+      input: _video,
+      output: p.join(tmp.path, 'both.mp4'),
+      color: color,
+      compare: const Compare(CompareKind.diagonal),
+    );
+    final job = engine.jobs.single;
+    expect(p.basename(job.compare!.mask), compareMaskFileName);
+    expect(p.basename(job.compare!.line), compareLineFileName);
+    expect(job.toMap()['compareMask'], job.compare!.mask);
+    expect(job.toMap()['compareLine'], job.compare!.line);
+    expect(job.luts, isNotEmpty);
+    // Without the colour correction there is nothing to compare.
+    await run.process(
+      input: _video,
+      output: p.join(tmp.path, 'plain.mp4'),
+      compare: const Compare(CompareKind.diagonal),
+    );
+    expect(engine.jobs.last.compare, isNull);
+    expect(engine.jobs.last.toMap().containsKey('compareMask'), isFalse);
+  });
+
+  test(
+    'a wipe video through the engine: its frames, still at both ends',
+    () async {
+      final tmp = _tmp();
+      final engine = FakeEngine(
+        const ClipInfo(
+          width: 2,
+          height: 2,
+          durationSeconds: 1,
+          frames: 1,
+          fps: 1,
+        ),
+      );
+      Uint8List plain(int value) =>
+          Uint8List.fromList(List.filled(64 * 48 * 4, value));
+      final output = p.join(tmp.path, 'wipe.mp4');
+      final size =
+          await WipeRun(
+            tools: FfmpegTools(
+              ffmpeg: 'none',
+              ffprobe: null,
+              os: EngineOs.macos,
+            ),
+            native: engine,
+          ).write(
+            before: plain(10),
+            after: plain(200),
+            width: 64,
+            height: 48,
+            kind: CompareKind.vertical,
+            output: output,
+          );
+      expect(size, (64, 48));
+      expect(engine.framesOpened.single.output, output);
+      expect(
+        (engine.framesOpened.single.width, engine.framesOpened.single.height),
+        (64, 48),
+      );
+      expect(engine.framesOpened.single.prores, isFalse);
+      expect(engine.framesAdded.first, 16);
+      expect(engine.framesAdded.last, 30);
+      expect(engine.framesAdded.fold(0, (sum, n) => sum + n), 120);
+      expect(engine.framesClosed, 1);
+      expect(File(output).existsSync(), isTrue);
+    },
+  );
 
   test('an HDR source is tone mapped when a LUT is applied', () async {
     final tmp = _tmp();

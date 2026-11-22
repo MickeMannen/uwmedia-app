@@ -42,8 +42,16 @@ const _media = String.fromEnvironment('MEDIA');
 const _log = String.fromEnvironment('LOG');
 const _out = String.fromEnvironment('OUT');
 
-// 'computer' or 'phones' for only that half; both when empty.
+// 'computer' or 'phones' for only that half of the website's pictures;
+// both when empty. 'store' for the Mac App Store's screenshots instead:
+// five pages of the store's app (no ffmpeg, no exiftool; run it with
+// --dart-define=UWMEDIA_STORE=true too) in a window of 1280 x 800 points,
+// which gives the 2560 x 1600 pixels the store takes.
+// 'photo' for a photo before and after the colour correction instead:
+// PHOTO as shot, corrected, and the two halves side by side in one
+// picture of 2560 x 1600 (the store's size).
 const _part = String.fromEnvironment('PART');
+const _photo = String.fromEnvironment('PHOTO');
 
 final _shot = GlobalKey();
 
@@ -127,6 +135,81 @@ Future<void> _picture(ui.Image image, String name, {int width = 1600}) async {
   small.dispose();
 }
 
+// The left half of [before] and the right half of [after] in one picture
+// of [width] by [height], each filling it, with a line between them and
+// what each half is said in its lower corner.
+Future<void> _halves(
+  ui.Image before,
+  ui.Image after,
+  String name, {
+  int width = 2560,
+  int height = 1600,
+}) async {
+  final size = Size(width.toDouble(), height.toDouble());
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  void fill(ui.Image image, Rect part) {
+    // The middle of the picture, in the shape of the whole.
+    final scale = [
+      size.width / image.width,
+      size.height / image.height,
+    ].reduce((a, b) => a > b ? a : b);
+    final shown = Size(size.width / scale, size.height / scale);
+    final from = Offset(
+      (image.width - shown.width) / 2,
+      (image.height - shown.height) / 2,
+    );
+    canvas
+      ..save()
+      ..clipRect(part)
+      ..drawImageRect(
+        image,
+        from & shown,
+        Offset.zero & size,
+        Paint()..filterQuality = FilterQuality.high,
+      )
+      ..restore();
+  }
+
+  final half = size.width / 2;
+  fill(before, Rect.fromLTWH(0, 0, half, size.height));
+  fill(after, Rect.fromLTWH(half, 0, half, size.height));
+  canvas.drawRect(
+    Rect.fromLTWH(half - 3, 0, 6, size.height),
+    Paint()..color = Colors.white,
+  );
+  void label(String text, {required bool left}) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 44,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    const pad = 28.0;
+    final box = Size(painter.width + pad * 2, painter.height + pad);
+    final at = Offset(
+      left ? 60 : size.width - 60 - box.width,
+      size.height - 60 - box.height,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(at & box, const Radius.circular(18)),
+      Paint()..color = const Color(0xB3000000),
+    );
+    painter.paint(canvas, at + const Offset(pad, pad / 2));
+  }
+
+  label('As shot', left: true);
+  label('Colour corrected', left: false);
+  final image = await recorder.endRecording().toImage(width, height);
+  await _png(image, name);
+  image.dispose();
+}
+
 Future<void> _wait(WidgetTester tester, bool Function() done) async {
   for (var i = 0; i < 300 && !done(); i++) {
     await tester.pump(const Duration(milliseconds: 100));
@@ -177,12 +260,20 @@ void main() {
     final logs = Directory(p.join(tmp.path, 'Dive logs'))..createSync();
     final log = File(_log).copySync(p.join(logs.path, p.basename(_log))).path;
 
-    AppServices services(String name, {required bool desktop}) {
+    AppServices services(
+      String name, {
+      required bool desktop,
+      bool store = false,
+    }) {
       // The app's own folders, where a Mac has them.
       final root = p.join(tmp.path, 'Library', 'Application Support', name);
       final made = AppServices(
         capabilities: desktop
-            ? const Capabilities(desktop: true, nativeVideo: true)
+            ? Capabilities(
+                desktop: true,
+                nativeVideo: true,
+                externalTools: !store,
+              )
             : const Capabilities(
                 desktop: false,
                 mobileEngine: true,
@@ -292,7 +383,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
     }
 
-    if (_part != 'phones') {
+    if (_part.isEmpty || _part == 'computer') {
       // -- the computer: the frame with an overlay ------------------------
       const window = Size(1280, 860);
       final computer = services('computer', desktop: true);
@@ -364,9 +455,105 @@ void main() {
       await _screen(tester, 'desktop-overlay-designer-garmin-mk3i.png');
     }
 
+    // -- the Mac App Store: five screenshots ----------------------------
+    if (_part == 'store') {
+      final mac = services('store', desktop: true, store: true);
+      await nameTanks(mac);
+      await show(mac, const Size(1280, 800));
+      final c = await color(tester);
+      c.colorChecked = true;
+      await _wait(tester, () => c.previewImage != null);
+      await _settle(tester);
+      await overlay(c, 'garmin', 'x50i');
+      await _screen(tester, 'mac-store-1-color.png');
+
+      mac.pageAsked.value = 'Overlay Generator';
+      final generator = await _controller<OverlayGeneratorController>(
+        tester,
+        OverlayGeneratorPage,
+      );
+      generator
+        ..setSource(source.path)
+        ..setOutput(p.join(tmp.path, 'Overlays'));
+      for (final (brand, model) in [
+        ('garmin', 'x50i'),
+        ('shearwater', 'perdix_3'),
+      ]) {
+        generator.selectBrand(brand);
+        generator.picker
+          ..selectComputer(model)
+          ..selectPage('main')
+          ..selectVariant('sidemount');
+        await generator.addOverlay();
+      }
+      await _settle(tester);
+      await _screen(tester, 'mac-store-2-overlay-generator.png');
+
+      mac.pageAsked.value = 'Overlay Designer';
+      final designer = await _controller<DesignerController>(
+        tester,
+        OverlayDesignerPage,
+      );
+      await designer.selectBrand('garmin');
+      await designer.selectComputer('mk3i');
+      await designer.selectPage('main');
+      await _wait(tester, () => designer.hasDocument);
+      await _settle(tester, seconds: 3);
+      await _screen(tester, 'mac-store-3-overlay-designer.png');
+
+      mac.pageAsked.value = 'Log Viewer';
+      final viewer = await _controller<LogViewerController>(
+        tester,
+        LogViewerPage,
+      );
+      await viewer.addFiles([log]);
+      await _wait(tester, () => viewer.diveCount > 0);
+      viewer.select(0);
+      await _wait(tester, () => viewer.selected != null);
+      await _settle(tester);
+      await _screen(tester, 'mac-store-4-log-viewer.png', hide: [...serials]);
+
+      mac.pageAsked.value = 'Resize';
+      final resize = await _controller<ConvertionController>(
+        tester,
+        ConvertionPage,
+      );
+      await resize.chooseSource(video).timeout(_patience);
+      resize
+        ..setChecked(resize.resolutionNames.first, true)
+        ..setShareChecked(shareKeys.first, true);
+      await _settle(tester);
+      await _screen(tester, 'mac-store-5-resize.png');
+      await tester.pumpWidget(const SizedBox());
+    }
+
+    // -- a photo before and after the colour correction ------------------
+    if (_part == 'photo') {
+      final photos = Directory(p.join(tmp.path, 'Dive photos'))..createSync();
+      Link(p.join(photos.path, p.basename(_photo))).createSync(_photo);
+      final mac = services('photo', desktop: true);
+      await show(mac, const Size(1280, 800));
+      final c = await _controller<ColorController>(tester, ColorPage);
+      await c.setSource(photos.path);
+      await _wait(tester, () => c.previewImage != null);
+      await _settle(tester);
+      final before = c.originalImage!.clone();
+      c.colorChecked = true;
+      await _wait(tester, () => c.previewImage != null);
+      await _settle(tester, seconds: 3);
+      final after = c.previewImage!.clone();
+      await _picture(before, 'photo-original.png');
+      await _picture(after, 'photo-corrected.png');
+      await _halves(before, after, 'photo-before-after.png');
+      debugPrint('photo: ${before.width} x ${before.height}');
+      before.dispose();
+      after.dispose();
+      await tester.pumpWidget(const SizedBox());
+    }
+
     // -- the phones -----------------------------------------------------
     for (final (name, platform, size, insets) in [
-      if (_part != 'computer') ...[
+      if (_part.isEmpty || _part == 'phones') ...[
         (
           'iphone',
           TargetPlatform.iOS,

@@ -18,6 +18,7 @@ import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/config/tank_config.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/hud/layouts.dart';
@@ -32,6 +33,7 @@ import 'package:uwmedia_app/engine/desktop/exiftool.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/overlay_run.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
+import 'package:uwmedia_app/engine/desktop/wipe_run.dart';
 import 'package:uwmedia_app/engine/mobile_engine.dart';
 import 'package:uwmedia_app/engine/mobile_video_run.dart';
 import 'package:uwmedia_app/engine/photo_run.dart';
@@ -96,7 +98,13 @@ class ColorBatchSettings {
     this.watermarks = const [],
     this.outputSize,
     this.parts = const {},
+    this.compare,
   });
+
+  /// Before and after the colour correction in one picture (spec
+  /// §10.94): a split photo or video, or a photo's wipe video; `null`
+  /// for the corrected picture alone. Only with a colour profile.
+  final Compare? compare;
 
   /// A file, or a folder of them.
   final String source;
@@ -572,6 +580,10 @@ class ColorBatch {
         // The run itself says what is wrong with the file.
       }
     }
+    // A comparison (spec §10.94) only of a colour correction; a video is
+    // always split, a photo split or made a wipe video.
+    final compare = settings.colorCorrect ? settings.compare : null;
+    final wipe = compare != null && compare.wipe && !isVideoPath(source);
     var filename = outputFilename(
       source: source,
       outputDir: outputDir,
@@ -583,6 +595,9 @@ class ColorBatch {
     if (size != null && size.h264) {
       // A copy for sharing is an MP4 whatever the source is.
       filename = p.setExtension(filename, '.mp4');
+    }
+    if (compare != null) {
+      filename = compareFilename(filename, video: wipe);
     }
     final target = resolveTargetPath(
       target: p.join(outputDir, filename),
@@ -619,7 +634,11 @@ class ColorBatch {
     final colorCorrect = settings.colorCorrect;
     // A part of the video (spec §10.71, §10.75) is written anew even
     // when nothing else is changed.
-    final part = isVideoPath(source) ? partOf(settings, source) : null;
+    // A comparison is ten seconds of the video at most.
+    final ownPart = isVideoPath(source) ? partOf(settings, source) : null;
+    final part = compare != null && isVideoPath(source)
+        ? compareClipPart(ownPart)
+        : ownPart;
     final drawn = layersToDraw(layers, matched: dive != null);
     final overlays = layers.isNotEmpty;
     final control = RunControl();
@@ -662,6 +681,7 @@ class ColorBatch {
                 matchDate: matchDate,
                 size: size,
                 part: part,
+                compare: compare,
                 onProgress: progress,
                 control: control,
               );
@@ -673,7 +693,7 @@ class ColorBatch {
         }
         await _copyMetadata(source, targetPath, listener);
       } else if (isVideoPath(source)) {
-        if (colorCorrect && !overlays && size == null) {
+        if (colorCorrect && !overlays && size == null && compare == null) {
           await _colorRun(settings, part).processVideoLut(
             input: source,
             output: targetPath,
@@ -703,6 +723,7 @@ class ColorBatch {
             tzOffsetMins: tzOffsetMins,
             colorCorrect: colorCorrect,
             size: size,
+            compare: compare,
             onProgress: progress,
             control: control,
           );
@@ -742,6 +763,58 @@ class ColorBatch {
           await _warnOfLostFrames(source, targetPath, listener);
         }
         await _copyMetadata(source, targetPath, listener);
+      } else if (wipe) {
+        // A photo's wipe video: its two pictures, then the frames.
+        final pair =
+            await PhotoRun(
+              renderer: renderer,
+              painter: painter,
+              engine: ColorEngine(settings.colorProfile!),
+              units: units,
+            ).pair(
+              File(source).readAsBytesSync(),
+              layers: drawn,
+              dive: dive,
+              matchDate: matchDate,
+              cut: photoCut,
+            );
+        if (control.stopped) {
+          throw const RunStopped();
+        }
+        Future<void> write() =>
+            WipeRun(
+              tools: tools.ffmpeg,
+              native: native,
+              hwAccel: settings.hwAccel,
+            ).write(
+              before: pair.before,
+              after: pair.after,
+              width: pair.width,
+              height: pair.height,
+              kind: compare.kind,
+              output: targetPath,
+              box: settings.outputSize?.box,
+              onProgress: progress,
+              control: control,
+            );
+        if (native == null) {
+          await write();
+        } else {
+          // The engine writes one video at a time: this one in its turn.
+          final before = _nativeTurn;
+          final turn = Completer<void>();
+          _nativeTurn = turn.future;
+          try {
+            await before;
+            if (control.stopped) {
+              throw const RunStopped();
+            }
+            await write();
+          } finally {
+            turn.complete();
+          }
+        }
+        await _copyMetadata(source, targetPath, listener);
       } else if (colorCorrect || overlays || photoCut != null) {
         final profile = settings.colorProfile;
         try {
@@ -760,6 +833,7 @@ class ColorBatch {
                 matchDate: matchDate,
                 exiftool: exiftool,
                 cut: photoCut,
+                compare: compare,
               )) {
             listener.message('$name: $line');
           }

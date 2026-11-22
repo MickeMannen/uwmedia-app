@@ -18,6 +18,7 @@ import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/core/color/color_engine.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/ffmpeg_commands.dart';
 import 'package:uwmedia_app/core/engine/hud_layers.dart';
 import 'package:uwmedia_app/core/engine/progress.dart';
@@ -27,6 +28,7 @@ import 'package:uwmedia_app/core/metadata/media_dates.dart';
 import 'package:uwmedia_app/core/metadata/mp4_dates.dart';
 import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/units/units.dart';
+import 'package:uwmedia_app/engine/compare_pictures.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
 import 'package:uwmedia_app/engine/media_file_dates.dart';
@@ -199,7 +201,10 @@ class MobileVideoRun {
   /// clock). [onProgress] hears the percent of the whole run, [onRestart]
   /// that the encode started again from the beginning (the screen locked);
   /// [control] stops it. Gives the lines worth showing. Throws an [EngineException]
-  /// when the video cannot be read or written, and [RunStopped].
+  /// when the video cannot be read or written, and [RunStopped]. With
+  /// [compare] (and [color]) the original shows on one side of an edge
+  /// and the corrected picture on the other (spec §10.94; the Apple
+  /// engine).
   Future<List<String>> process({
     required String input,
     required String output,
@@ -209,6 +214,7 @@ class MobileVideoRun {
     DateTime? matchDate,
     OutputSize? size,
     ClipPart? part,
+    Compare? compare,
     void Function(double percent)? onProgress,
     void Function()? onRestart,
     RunControl? control,
@@ -330,6 +336,14 @@ class MobileVideoRun {
       if (stopped()) {
         throw const RunStopped();
       }
+      ({String mask, String line})? pictures;
+      if (compare != null && luts.isNotEmpty) {
+        final written = await writeComparePictures(
+          CompareEdge.split(compare.kind, frameW, frameH),
+          workDir,
+        );
+        pictures = (mask: written[0], line: written[1]);
+      }
       await _encode(
         EncodeJob(
           input: input,
@@ -346,6 +360,7 @@ class MobileVideoRun {
           layers: drawn,
           toneMap: clip.hdr && (luts.isNotEmpty || drawn.isNotEmpty),
           part: kept,
+          compare: pictures,
         ),
         control,
         (percent) =>

@@ -20,6 +20,7 @@ import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/color/color_shader.dart';
 import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/hud/image_size.dart';
@@ -60,6 +61,18 @@ const previewWorkingWidth = 1920;
 /// The seconds of a video shown before and after the part on the
 /// part's slider.
 const partMargin = 5.0;
+
+/// The comparisons as the page names them (spec §10.94): none, the
+/// original beside the corrected picture, and a photo's wipe video.
+const compareOffLabel = 'Off';
+const compareChoices = {
+  'Split, left and right': Compare(CompareKind.vertical),
+  'Split, above and below': Compare(CompareKind.horizontal),
+  'Split, diagonal': Compare(CompareKind.diagonal),
+  'Wipe video, left to right': Compare(CompareKind.vertical, wipe: true),
+  'Wipe video, top to bottom': Compare(CompareKind.horizontal, wipe: true),
+  'Wipe video, diagonal': Compare(CompareKind.diagonal, wipe: true),
+};
 
 /// The output sizes as the page names them (spec §10.51).
 const originalSizeLabel = 'As the original';
@@ -261,6 +274,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     this.relistTemplates,
     this.watermarkStore,
     this.keptLogsDir,
+    this.compareOffered = false,
     double Function()? clock,
     DateTime Function()? now,
     Future<RgbImage> Function((ColorProfile, RgbImage) job)? correct,
@@ -1284,6 +1298,76 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
         : 'The whole video';
   }
 
+  // -- before and after in one picture (spec §10.94) ----------------------
+
+  /// Whether the page has the comparison at all: on a computer.
+  final bool compareOffered;
+
+  String _compare = compareOffLabel;
+
+  /// Whether a comparison can be chosen now: with one photo or one video
+  /// and the colour correction on (there is nothing to compare without).
+  bool get canCompare => compareOffered && _sourceCount == 1 && _color;
+
+  /// The comparisons to choose from: the splits, and for a photo its
+  /// wipe videos.
+  List<String> get compareList => [
+    compareOffLabel,
+    for (final MapEntry(key: label, value: compare) in compareChoices.entries)
+      if (!compare.wipe || _videoPath == null) label,
+  ];
+
+  /// The comparison chosen, by its name on the page ([compareOffLabel]
+  /// for none). For this session only.
+  String get compare =>
+      canCompare && compareList.contains(_compare) ? _compare : compareOffLabel;
+
+  set compare(String value) {
+    if (value == _compare || !compareList.contains(value)) {
+      return;
+    }
+    _compare = value;
+    notifyListeners();
+    unawaited(_compose());
+  }
+
+  /// The comparison the run writes; `null` for the corrected picture
+  /// alone.
+  Compare? get compareChoice => compareChoices[compare];
+
+  // [original] and [corrected] in one picture as the run splits them,
+  // for the preview.
+  Future<ui.Image> _split(
+    ui.Image original,
+    ui.Image corrected,
+    CompareKind kind,
+  ) async {
+    final edge = CompareEdge.split(kind, original.width, original.height);
+    final corners = edge.farCorners;
+    final far = ui.Path()
+      ..addPolygon([for (final (x, y) in corners) ui.Offset(x, y)], true);
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder)
+      ..drawImage(original, ui.Offset.zero, ui.Paint())
+      ..save()
+      ..clipPath(far)
+      ..drawImage(corrected, ui.Offset.zero, ui.Paint())
+      ..restore()
+      ..drawLine(
+        ui.Offset(corners.first.$1, corners.first.$2),
+        ui.Offset(corners.last.$1, corners.last.$2),
+        ui.Paint()
+          ..color = const ui.Color(0xFFFFFFFF)
+          ..strokeWidth = edge.lineWidth.toDouble(),
+      );
+    final picture = recorder.endRecording();
+    try {
+      return await picture.toImage(original.width, original.height);
+    } finally {
+      picture.dispose();
+    }
+  }
+
   // -- output size (spec §10.51) and the part of the picture kept ------
   // -- (spec §10.75) -----------------------------------------------------
 
@@ -1735,8 +1819,9 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
       notifyListeners();
       return;
     }
-    // A copy of its own: a scrub may replace the frame meanwhile.
+    // Copies of its own: a scrub may replace the frame meanwhile.
     final plain = frame.clone();
+    final original = frame.clone();
     ui.Image base;
     try {
       base = await _coloured(frame, plain);
@@ -1746,6 +1831,19 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     } finally {
       plain.dispose();
     }
+    // A comparison: the original on one side, as the run writes it (a
+    // wipe is shown as it stands half way).
+    final compared = compareChoice;
+    if (compared != null) {
+      try {
+        final split = await _split(original, base, compared.kind);
+        base.dispose();
+        base = split;
+      } on Object {
+        // Shown without the split.
+      }
+    }
+    original.dispose();
     ui.Image composed;
     try {
       final layers = _layers();
@@ -2197,6 +2295,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
           overlays: [for (final o in overlays) o.instance],
           watermarks: _watermarkLayers(),
           outputSize: outputSizeChoice,
+          compare: compareChoice,
           parts: {
             if ((_part, _videoPath) case (final part?, final video?))
               video: part,

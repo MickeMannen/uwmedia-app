@@ -20,6 +20,7 @@ import 'package:uwmedia_app/app/theme.dart';
 import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/color/color_profiles.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/engine/compare.dart';
 import 'package:uwmedia_app/core/engine/share_sizes.dart';
 import 'package:uwmedia_app/core/hud/template_tree.dart';
 import 'package:uwmedia_app/core/metadata/media_dates.dart';
@@ -170,7 +171,9 @@ void main() {
   ColorController controller({
     Future<RgbImage> Function((ColorProfile, RgbImage) job)? correct,
     WatermarkStore? watermarks,
+    bool compareOffered = false,
   }) => ColorController(
+    compareOffered: compareOffered,
     correct: correct,
     watermarkStore: watermarks,
     config: config,
@@ -532,6 +535,47 @@ void main() {
     expect(c.outputCropped, isFalse);
     expect(c.outputSizeChoice, isNull);
     expect(c.previewLoading, isFalse);
+    c.dispose();
+  });
+
+  test('before and after: on a computer, one file, with the color', () async {
+    // Spec §10.94.
+    final phone = controller(correct: (job) async => job.$2);
+    expect(phone.compareOffered, isFalse);
+    expect(phone.canCompare, isFalse);
+    expect(phone.compareChoice, isNull);
+    phone.dispose();
+
+    final c = controller(correct: (job) async => job.$2, compareOffered: true);
+    await c.setSource(clip);
+    c.colorChecked = true;
+    expect(c.canCompare, isTrue);
+    expect(c.compare, compareOffLabel);
+    expect(c.compareChoice, isNull);
+    // A video is split; the wipe videos are a photo's.
+    expect(c.compareList, [
+      compareOffLabel,
+      'Split, left and right',
+      'Split, above and below',
+      'Split, diagonal',
+    ]);
+    c.compare = 'Wipe video, diagonal';
+    expect(c.compare, compareOffLabel);
+    c.compare = 'Split, diagonal';
+    await pumpEventQueue();
+    expect(c.compareChoice, const Compare(CompareKind.diagonal));
+    expect(c.previewImage, isNotNull);
+    // Nothing to compare without the correction.
+    c.colorChecked = false;
+    expect(c.canCompare, isFalse);
+    expect(c.compare, compareOffLabel);
+    expect(c.compareChoice, isNull);
+    c.colorChecked = true;
+    expect(c.compareChoice, const Compare(CompareKind.diagonal));
+    // Several files: each is written as it is.
+    await c.setSource(media);
+    expect(c.canCompare, isFalse);
+    expect(c.compareChoice, isNull);
     c.dispose();
   });
 

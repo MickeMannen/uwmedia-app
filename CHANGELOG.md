@@ -4,6 +4,18 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [0.1.2] - 2026-11-22
+
+### Added
+
+- Color, on a computer: "Before and after" writes the original and the
+  color corrected picture in one, split left and right, above and below
+  or diagonally, with the overlays on both sides. A video's comparison
+  is ten seconds at most; the file is named "… compare".
+- Color, on a computer: a photo can be written as a four-second wipe
+  video in which an edge moves across the still photo and uncovers the
+  color corrected picture.
+
 ## [0.1.1] - 2026-11-21
 
 ### Changed

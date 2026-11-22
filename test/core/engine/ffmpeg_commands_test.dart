@@ -501,6 +501,49 @@ void main() {
     ]);
   });
 
+  test('a comparison: the picture twice, merged by the mask, the line', () {
+    // Spec §10.94: the mask and the line are read after the layers.
+    final args = overlayCommandArgs(
+      input: 'in.mp4',
+      layers: const [('/w/hud0.ffconcat', 16, 603)],
+      colorVf: compareLink(
+        colorVf: "lut3d=file='/w/lut_0000.cube':interp=trilinear",
+        maskInput: 2,
+        lineInput: 3,
+      ),
+      tenBit: false,
+      inputArgs: const ['-y'],
+      outputArgs: const ['out.mp4'],
+      before: 'crop=608:1080:656:0',
+      pictures: const ['/w/compare_mask.png', '/w/compare_line.png'],
+    );
+    expect(args, [
+      '-y', '-i', 'in.mp4', //
+      '-f', 'concat', '-safe', '0', '-i', '/w/hud0.ffconcat',
+      '-i', '/w/compare_mask.png', '-i', '/w/compare_line.png',
+      '-filter_complex',
+      '[0:v]crop=608:1080:656:0,split[cmo][cmc];'
+          "[cmc]lut3d=file='/w/lut_0000.cube':interp=trilinear,"
+          'format=gbrp[cmd];'
+          '[cmo]format=gbrp[cme];[2:v]format=gbrp[cmm];'
+          '[cme][cmd][cmm]maskedmerge[cmx];'
+          '[3:v]format=rgba[cml];[cmx][cml]overlay=eof_action=repeat[v0];'
+          '[1:v]format=rgba[h1];'
+          '[v0][h1]overlay=x=16:y=603:eof_action=repeat[v1]',
+      '-map', '[v1]', '-map', '0:a?', 'out.mp4',
+    ]);
+    // A 10-bit source is merged and blended in 10 bits.
+    final deep = compareLink(
+      colorVf: 'lut3d=x',
+      maskInput: 1,
+      lineInput: 2,
+      tenBit: true,
+    );
+    expect(deep, contains('[cmc]lut3d=x,format=gbrp10le[cmd]'));
+    expect(deep, contains('[1:v]format=gbrp10le[cmm]'));
+    expect(deep, endsWith('overlay=eof_action=repeat:format=yuv420p10'));
+  });
+
   test('the frame sink of a telemetry-only video', () {
     final cases = jsonObjects(reference['sinks']);
     expect(cases.length, 29);

@@ -1,5 +1,11 @@
 # Code signing with SignPath
 
+**Not in use.** SignPath Foundation declined the project's application on
+2026-11-22 (too little public visibility yet; a new application is
+welcome later). The Windows downloads are unsigned, the workflow's
+SignPath steps are switched off, and the README's signing policy says
+so. What follows is kept for a later application.
+
 The Windows releases are signed through SignPath Foundation (the README's
 "Code signing policy"; roadmap E12). These files are the project's record
 of what is signed; SignPath keeps its own copy of each configuration,

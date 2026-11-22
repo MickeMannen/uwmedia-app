@@ -913,9 +913,34 @@ List<String> lutCommandArgs({
   return (parts.join(';'), '[vout]');
 }
 
+/// The colour correction [colorVf] as the link of a comparison (spec
+/// §10.94): the picture twice, one of them corrected, and the two merged
+/// by a mask picture (input [maskInput]: white where the corrected one
+/// shows), with the divider line (input [lineInput]) laid over the edge.
+/// Both pictures are merged as planar RGB, where one grey mask serves
+/// every channel, in 10 bits for a [tenBit] source. Takes [colorVf]'s
+/// place in [overlayFilterComplex], so the overlays lie on both sides.
+String compareLink({
+  required String colorVf,
+  required int maskInput,
+  required int lineInput,
+  bool tenBit = false,
+}) {
+  final planes = tenBit ? 'gbrp10le' : 'gbrp';
+  final blend = tenBit ? ':format=yuv420p10' : '';
+  return 'split[cmo][cmc];'
+      '[cmc]$colorVf,format=$planes[cmd];'
+      '[cmo]format=$planes[cme];'
+      '[$maskInput:v]format=$planes[cmm];'
+      '[cme][cmd][cmm]maskedmerge[cmx];'
+      '[$lineInput:v]format=rgba[cml];'
+      '[cmx][cml]overlay=eof_action=repeat$blend';
+}
+
 /// The overlay command (Python `ColorCorrectionEngine.process_video`):
 /// the source, then one concat list per layer, composed by
-/// [overlayFilterComplex].
+/// [overlayFilterComplex]. [pictures] are single pictures read after the
+/// layers (a comparison's mask and line, [compareLink]).
 List<String> overlayCommandArgs({
   required String input,
   required List<(String concatPath, int x, int y)> layers,
@@ -925,6 +950,7 @@ List<String> overlayCommandArgs({
   required List<String> outputArgs,
   String? before,
   String? after,
+  List<String> pictures = const [],
 }) {
   final (graph, label) = overlayFilterComplex(
     colorVf,
@@ -945,6 +971,7 @@ List<String> overlayCommandArgs({
       '-i',
       path,
     ],
+    for (final picture in pictures) ...['-i', picture],
     '-filter_complex',
     graph,
     '-map',
