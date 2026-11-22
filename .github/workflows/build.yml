@@ -8,8 +8,9 @@
 # tip of the selected branch. Leaving "Attach to the GitHub Release"
 # unchecked only uploads workflow artifacts (useful for test builds).
 #
-# What is built today: a macOS .app (zipped), signed with the Developer ID
-# and notarised by Apple unless "Sign and notarise" is unchecked; a
+# What is built today: a macOS disk image (.dmg) with the app, both signed
+# with the Developer ID and notarised by Apple unless "Sign and notarise"
+# is unchecked; a
 # Windows installer (Inno Setup), signed through SignPath Foundation
 # when "Sign the Windows build" is checked; and a Linux bundle
 # (tar.gz). A Linux package and the mobile store builds are
@@ -302,10 +303,9 @@ jobs:
         run: tool/bundle_tools.sh ${{ matrix.platform }}
 
       # Apple checks the signed app and answers with a ticket, which is
-      # stapled to the app so that it opens without a connection too. The
-      # zip sent is only the form Apple takes; the Package step below zips
-      # the stapled app.
-      - name: Notarise and staple (macOS)
+      # stapled to the app so that it opens without a connection too
+      # (tool/notarise_mac.sh).
+      - name: Notarise and staple the app (macOS)
         if: matrix.platform == 'macos' && inputs.sign_macos
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -314,28 +314,30 @@ jobs:
         run: |
           set -euo pipefail
           APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
-          ZIP="$RUNNER_TEMP/notarise.zip"
-          RESULT="$RUNNER_TEMP/notarise.json"
-          CREDENTIALS=(--apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD")
-          ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+          tool/notarise_mac.sh "$APP"
 
-          # notarytool can end with 0 for a refused app: the status decides
-          xcrun notarytool submit "$ZIP" "${CREDENTIALS[@]}" --wait --timeout 45m \
-            --output-format json > "$RESULT" || true
-          cat "$RESULT"; echo
-          ID=$(plutil -extract id raw -o - "$RESULT" 2>/dev/null || true)
-          STATUS=$(plutil -extract status raw -o - "$RESULT" 2>/dev/null || true)
-          if [ "$STATUS" != "Accepted" ]; then
-            if [ -n "$ID" ]; then
-              xcrun notarytool log "$ID" "${CREDENTIALS[@]}" || true
-            fi
-            echo "::error::Apple did not notarise the app (status: ${STATUS:-none}); its log is above."
-            exit 1
-          fi
+      # The Mac download is a disk image with the app and a link to
+      # /Applications (tool/make_dmg.sh), signed with the same identity
+      # when UWMEDIA_SIGN_IDENTITY is set by the import step above.
+      - name: Disk image (macOS)
+        if: matrix.platform == 'macos'
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
+          tool/make_dmg.sh "$APP" "dist/UWMedia-macos-${VERSION}.dmg"
 
-          xcrun stapler staple "$APP"
-          xcrun stapler validate "$APP"
-          spctl --assess --type execute -vv "$APP"
+      # The image is notarised and stapled as well, so that Gatekeeper
+      # passes it as downloaded, before the app inside is looked at.
+      - name: Notarise and staple the disk image (macOS)
+        if: matrix.platform == 'macos' && inputs.sign_macos
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: tool/notarise_mac.sh "dist/UWMedia-macos-${VERSION}.dmg"
 
       - name: Remove the signing keychain (macOS)
         if: always() && matrix.platform == 'macos' && inputs.sign_macos
@@ -352,8 +354,7 @@ jobs:
           mkdir -p dist
           case "${{ matrix.platform }}" in
             macos)
-              APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
-              ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/UWMedia-macos-${VERSION}.zip"
+              # made by the "Disk image" step above
               ;;
             linux)
               tar -C build/linux/x64/release/bundle -czf "dist/UWMedia-linux-x64-${VERSION}.tar.gz" .
@@ -419,11 +420,15 @@ jobs:
             if ($signature.Status -ne 'Valid') { Write-Error "$($file.Name) is not signed"; exit 1 }
           }
 
+      # The one file of the system as it is, not zipped (upload-artifact 7,
+      # `archive: false`): a run's download is the disk image, the
+      # installer or the archive itself, under the file's own name.
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: uwmedia-${{ matrix.platform }}
           path: dist/*
+          archive: false
+          if-no-files-found: error
 
   release:
     name: Attach to release
@@ -436,10 +441,14 @@ jobs:
       # The builds only: the "unsigned-*" artifacts of the Windows signing
       # stay out of the release.
       - name: Download the builds
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          pattern: uwmedia-*
+          pattern: UWMedia-*
           path: artifacts
+          merge-multiple: true
+
+      - name: What was downloaded
+        run: find artifacts -type f -exec ls -l {} +
 
       # The release and its notes exist already (the /release skill); with
       # no body given this only attaches the files.
@@ -447,6 +456,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.tag }}
-          files: artifacts/*/*
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.exe
+            artifacts/**/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

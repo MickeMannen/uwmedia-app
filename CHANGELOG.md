@@ -4,6 +4,14 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [Unreleased]
+
+### Changed
+
+- macOS: the download is a disk image (.dmg) instead of a zip: open it
+  and drag UWMedia to Applications. The image is signed and notarised
+  as the app is.
+
 ## [0.1.2] - 2026-11-22
 
 ### Added
