@@ -26,6 +26,7 @@ import 'package:uwmedia_app/engine/desktop/convert_run.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/overlay_run.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
+import 'package:uwmedia_app/engine/keep_awake.dart';
 import 'package:uwmedia_app/engine/mobile_engine.dart';
 import 'package:uwmedia_app/engine/mobile_video_run.dart';
 import 'package:uwmedia_app/engine/watermark_store.dart';
@@ -149,47 +150,49 @@ class DesktopConvertionEngine implements ConvertionEngine {
     List<HudLayerSource> watermarks = const [],
     void Function(ConvertStep step)? onStep,
     void Function(double percent)? onProgress,
-  }) async {
-    final temp = tempDir;
-    final drawing = watermarks.isEmpty || temp == null
-        ? null
-        : await kit?.call();
-    final engine = temp == null ? null : native?.call();
-    return ConvertRun(
-      ffmpeg: tools.ffmpeg,
-      exiftool: tools.exiftool,
-      native: engine == null
-          ? null
-          : MobileVideoRun(
-              engine: engine,
-              tempDir: temp!,
-              renderer: drawing?.renderer,
-              painter: drawing?.painter,
-            ),
-      marker: drawing == null
-          ? null
-          : (hw) => OverlayRun(
-              color: ColorRun(
-                tools: tools.ffmpeg,
-                engine: ColorEngine(ColorProfile.fromMap(const {})),
-                tempDir: temp!,
-                hwAccel: hw,
-              ),
-              renderer: drawing.renderer,
-              painter: drawing.painter,
-            ),
-    ).convert(
-      source: source,
-      outputDir: outputDir,
-      resolutions: resolutions,
-      shares: shares,
-      watermarks: watermarks,
-      hwAccel: hwAccel,
-      control: control,
-      onStep: onStep,
-      onProgress: onProgress,
-    );
-  }
+  }) =>
+      // On a Mac: not slowed behind other windows (spec §10.98).
+      withScreenOn(() async {
+        final temp = tempDir;
+        final drawing = watermarks.isEmpty || temp == null
+            ? null
+            : await kit?.call();
+        final engine = temp == null ? null : native?.call();
+        return ConvertRun(
+          ffmpeg: tools.ffmpeg,
+          exiftool: tools.exiftool,
+          native: engine == null
+              ? null
+              : MobileVideoRun(
+                  engine: engine,
+                  tempDir: temp!,
+                  renderer: drawing?.renderer,
+                  painter: drawing?.painter,
+                ),
+          marker: drawing == null
+              ? null
+              : (hw) => OverlayRun(
+                  color: ColorRun(
+                    tools: tools.ffmpeg,
+                    engine: ColorEngine(ColorProfile.fromMap(const {})),
+                    tempDir: temp!,
+                    hwAccel: hw,
+                  ),
+                  renderer: drawing.renderer,
+                  painter: drawing.painter,
+                ),
+        ).convert(
+          source: source,
+          outputDir: outputDir,
+          resolutions: resolutions,
+          shares: shares,
+          watermarks: watermarks,
+          hwAccel: hwAccel,
+          control: control,
+          onStep: onStep,
+          onProgress: onProgress,
+        );
+      });
 }
 
 class ConvertionController extends ChangeNotifier {

@@ -5,9 +5,11 @@
 #
 # Runners (owner, 2026-11-15): `linux-docker` (Docker mode; the job runs in
 # the Flutter image), `macos-host` and `windows-host` (host mode: the job
-# runs straight on the machine, which needs Flutter and git on PATH; the
-# Mac also ffmpeg, ffprobe and exiftool for the media tests, which skip
-# without them, while the Linux and the Windows job fetch their own).
+# runs straight on the machine, which needs Flutter and git on PATH).
+# The media tests run the ffmpeg, ffprobe and exiftool the apps ship
+# with on every runner (owner, 2026-11-23): tool/run_tests.sh puts them
+# first on the PATH (tool/own_tools.sh), where the Mac had Homebrew's and
+# the Windows job fetched gyan.dev's build.
 #
 # The private test data is on a read-only SMB share on the LAN (never in
 # git, never in Gitea), kept the same as the development machine's
@@ -123,6 +125,12 @@ jobs:
         if: github.event_name == 'schedule'
         run: tool/run_tests.sh 4
 
+      # Last, so that the tests have run: a run whose data tests skipped
+      # because the variables are gone is not green.
+      - name: Test data was set up
+        if: ${{ !cancelled() }}
+        run: tool/ci_test_data.sh check
+
   macos:
     name: Tests (macOS)
     runs-on: macos-host
@@ -150,6 +158,13 @@ jobs:
 
   # The runner's service has no bash on its PATH, so the steps find the one
   # that comes with Git for Windows, next to the git that Flutter uses.
+
+      # Last, so that the tests have run: a run whose data tests skipped
+      # because the variables are gone is not green.
+      - name: Test data was set up
+        if: ${{ !cancelled() }}
+        run: tool/ci_test_data.sh check
+
   windows:
     name: Tests (Windows)
     runs-on: windows-host
@@ -158,42 +173,9 @@ jobs:
     # After the Linux job, whatever its result.
     needs: linux
     if: ${{ !cancelled() }}
-    env:
-      # The versions the development Mac has.
-      FFMPEG_VERSION: '9.0.2'
-      EXIFTOOL_VERSION: '13.55'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # What the media tests run (without them those tests skip
-      # themselves): fetched once into the runner's own folder and kept
-      # there, and put on the PATH of the steps that follow.
-      - name: ffmpeg and exiftool
-        run: |
-          $tools = Join-Path $env:USERPROFILE '.cache\uwmedia_tools'
-          New-Item -ItemType Directory -Force $tools | Out-Null
-          $ffmpeg = Join-Path $tools "ffmpeg-$env:FFMPEG_VERSION-essentials_build\bin"
-          if (-not (Test-Path (Join-Path $ffmpeg 'ffmpeg.exe'))) {
-            curl.exe -fsSL -o "$tools\ffmpeg.zip" "https://github.com/GyanD/codexffmpeg/releases/download/$env:FFMPEG_VERSION/ffmpeg-$env:FFMPEG_VERSION-essentials_build.zip"
-            if ($LASTEXITCODE -ne 0) { exit 1 }
-            Expand-Archive -Force "$tools\ffmpeg.zip" $tools
-            Remove-Item "$tools\ffmpeg.zip"
-          }
-          $exiftool = Join-Path $tools "exiftool-$($env:EXIFTOOL_VERSION)_64"
-          if (-not (Test-Path (Join-Path $exiftool 'exiftool.exe'))) {
-            curl.exe -fsSL -o "$tools\exiftool.zip" "https://sourceforge.net/projects/exiftool/files/exiftool-$($env:EXIFTOOL_VERSION)_64.zip/download"
-            if ($LASTEXITCODE -ne 0) { exit 1 }
-            Expand-Archive -Force "$tools\exiftool.zip" $tools
-            Remove-Item "$tools\exiftool.zip"
-            # The zip's program waits for a key when it is done; under
-            # this name it does not.
-            Rename-Item -LiteralPath (Join-Path $exiftool 'exiftool(-k).exe') 'exiftool.exe'
-          }
-          Add-Content -Path $env:GITHUB_PATH -Value $ffmpeg
-          Add-Content -Path $env:GITHUB_PATH -Value $exiftool
-          & (Join-Path $ffmpeg 'ffmpeg.exe') -version | Select-Object -First 1
-          & (Join-Path $exiftool 'exiftool.exe') -ver
 
       - name: Get dependencies
         run: flutter pub get
@@ -230,3 +212,13 @@ jobs:
           $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
           & $bash tool/run_tests.sh 4
           exit $LASTEXITCODE
+
+      # Last, so that the tests have run: a run whose data tests skipped
+      # because the variables are gone is not green.
+      - name: Test data was set up
+        if: ${{ !cancelled() }}
+        run: |
+          if ($env:TEST_DATA_PASSWORD -and (-not $env:TEST_DATA_SHARE -or -not $env:TEST_DATA_USER)) {
+            echo "::error::The secret TEST_DATA_PASSWORD is set, but the Actions variable TEST_DATA_SHARE or TEST_DATA_USER is empty: the tests that need the private test data were SKIPPED in this run. Add the variables in Gitea (the repo's Settings, Actions, Variables)."
+            exit 1
+          }

@@ -4,6 +4,20 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [0.1.4] - 2026-11-23
+
+### Fixed
+
+- Windows: Color and Resize no longer fail with
+  "FFmpeg Error" when Windows cannot give ffmpeg its older video
+  decoder, as on a PC where a second user is logged in. A run that
+  fails with the graphics card's decoder is now tried once more without
+  it, and Color is a little faster on H.264 video.
+- Mac: a run no longer slows down when UWMedia is behind other windows.
+  Color with overlays and the Overlay Generator took up to five times as
+  long there as with the app in front; the Mac also stays awake until a
+  run of Color, Resize or the Overlay Generator has ended.
+
 ## [0.1.3] - 2026-11-22
 
 ### Added

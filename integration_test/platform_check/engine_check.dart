@@ -25,6 +25,7 @@ import 'package:uwmedia_app/engine/desktop/overlay_run.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
 import 'package:uwmedia_app/engine/desktop/telemetry_run.dart';
 import 'package:uwmedia_app/engine/desktop/tool_finder.dart';
+import 'package:uwmedia_app/engine/keep_awake.dart';
 import 'package:uwmedia_app/engine/mobile_engine.dart';
 import 'package:uwmedia_app/engine/mobile_video_run.dart';
 import 'package:uwmedia_app/hud/hud_layer_stream.dart';
@@ -727,7 +728,9 @@ Future<void> _perfChecks({
         for (var i = 0; i < repeats; i++) {
           _removeOutputs(stem);
           final watch = Stopwatch();
-          done = await doRun(run, clipPath, stem, watch);
+          // As the pages run it: on a Mac not slowed behind other
+          // windows (spec §10.98).
+          done = await withScreenOn(() => doRun(run, clipPath, stem, watch));
           times.add(watch.elapsedMilliseconds);
         }
         final out = await outputFacts(run, done.output);

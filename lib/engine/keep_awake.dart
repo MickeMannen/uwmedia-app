@@ -1,5 +1,11 @@
 /// The screen kept on while a run goes on a phone: a lock ends an export
 /// on iOS at once, and the app must stay in the foreground (spec §9.2).
+///
+/// On a Mac the same call tells the system that a run is going on (spec
+/// §10.98): an app behind other windows is slowed by it (App Nap), which
+/// made the app's own share of a run, the overlay pictures it draws and
+/// the files it writes, take up to five times as long; and the Mac does
+/// not go to sleep in the middle of a run.
 library;
 
 import 'package:flutter/services.dart';
@@ -52,7 +58,7 @@ Future<void> _keepAwake(bool on) async {
   try {
     await _channel.invokeMethod<void>('keepAwake', on);
   } on MissingPluginException {
-    // No runner that does it (a test, the desktop).
+    // No runner that does it (a test, Windows, Linux).
   } on PlatformException {
     // The run goes on without it.
   }

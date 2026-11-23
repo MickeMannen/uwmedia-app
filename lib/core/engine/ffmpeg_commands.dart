@@ -262,10 +262,7 @@ List<String> frameGrabArgs(
   '-nostdin',
   '-loglevel',
   'error',
-  if (hwAccel != null) ...[
-    '-hwaccel',
-    hwAccel == EngineOs.macos ? 'videotoolbox' : 'auto',
-  ],
+  ..._hwDecodeArgs(hwAccel),
   '-ss',
   pyFormatFixed(seconds, 6),
   '-i',
@@ -435,10 +432,29 @@ bool hwDecodable(String? output, {EngineOs? os, String? brand}) {
       !const ['yuv420p', 'yuvj420p', 'nv12'].contains(info['pix_fmt']));
 }
 
+/// The hardware decoder ffmpeg is asked for on [os]. Windows is asked
+/// for Direct3D 11 by name: with `auto` ffmpeg tries Direct3D 9 first,
+/// and ffmpeg 9.0.2 crashes when Windows has no Direct3D 9 device to give
+/// (a second user logged in beside the first; spec §10.99).
+String hwAccelName(EngineOs os) => switch (os) {
+  EngineOs.macos => 'videotoolbox',
+  EngineOs.windows => 'd3d11va',
+  EngineOs.linux => 'auto',
+};
+
 // The arguments that have the source decoded by [os]'s hardware.
-List<String> _hwDecodeArgs(EngineOs? os) => os == null
-    ? const []
-    : ['-hwaccel', os == EngineOs.macos ? 'videotoolbox' : 'auto'];
+List<String> _hwDecodeArgs(EngineOs? os) =>
+    os == null ? const [] : ['-hwaccel', hwAccelName(os)];
+
+/// [args] without the hardware decoding they ask for, for a second try of
+/// a run that failed with it (spec §10.99); `null` when they ask for none.
+List<String>? withoutHwDecode(List<String> args) {
+  final at = args.indexOf('-hwaccel');
+  if (at == -1 || at + 1 >= args.length) {
+    return null;
+  }
+  return [...args.sublist(0, at), ...args.sublist(at + 2)];
+}
 
 /// Whether a pixel format has more than 8 bits, so that the run keeps 10
 /// bits (output `p010le`, the overlay blended in `yuv420p10`).
@@ -786,14 +802,15 @@ lut3dFilter({
   final share = '65535*mod(N,$step)/$step';
   return (
     luts: luts,
-    // The picture, packed; the tables, a step each, and the same a table
+    // The picture, packed; the tables (turned to 16 bits once each, before
+    // they are held: 0.3 ms a frame less), a step each, and the same a table
     // ahead; the grey; the two mixed, kept to the end, at the clip's
     // times; the table put on the picture.
     vf:
         'format=rgb24|rgb48le[lm];'
         'movie=filename=${file(lutTablesFileName)}:f=rawvideo:'
         "format_opts='video_size=${side}x$side\\:pixel_format=rgb24"
-        "\\:framerate=1',fps=$step,format=gbrp16le,split[la][lb];"
+        "\\:framerate=1',format=gbrp16le,fps=$step,split[la][lb];"
         '[lb]trim=start_frame=$step,setpts=PTS-STARTPTS[ld];'
         'color=s=16x16:r=$step,format=gbrp16le,'
         "geq=r='$share':g='$share':b='$share',"
@@ -807,7 +824,10 @@ lut3dFilter({
 
 /// The arguments before the source of a colour or overlay run: quiet
 /// unless [debug], and the source decoded by hardware when the run uses
-/// it and the decoder can take the source ([hwDecodable]).
+/// it and the decoder can take the source ([hwDecodable]). Never by
+/// hardware on Windows: every frame goes to the processor for the colour
+/// table or the overlay anyway, and ffmpeg's own decoders were as fast
+/// or faster there (spec §10.99).
 List<String> colorInputArgs({
   required bool debug,
   required bool hwAccel,
@@ -816,10 +836,8 @@ List<String> colorInputArgs({
 }) => [
   '-y',
   if (!debug) ...['-nostats', '-loglevel', 'error'],
-  if (hwAccel && sourceHwDecodable) ...[
-    '-hwaccel',
-    os == EngineOs.macos ? 'videotoolbox' : 'auto',
-  ],
+  if (hwAccel && sourceHwDecodable && os != EngineOs.windows)
+    ..._hwDecodeArgs(os),
 ];
 
 /// The arguments before a source of which only the part from [start] to

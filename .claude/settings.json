@@ -26,7 +26,7 @@
       "Edit(~/development/app_web/src/assets/uwmedia/**)",
       "Bash(git add*)",
       "Bash(git commit*)",
-      "Bash(git push gitea development*)"
+      "Bash(git push gitea v0.1*)"
     ],
     "ask": [
       "Bash(git push)",

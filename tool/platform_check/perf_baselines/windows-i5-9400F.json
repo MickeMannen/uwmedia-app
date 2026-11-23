@@ -1,0 +1,41 @@
+{
+  "format": "uwmedia-perf-baseline/1",
+  "about": "The platform check timed runs on this machine, the times a release is held to (tool/platform_check/perf_gate.dart). Written by --update; not edited by hand.",
+  "machine": {
+    "os": "windows",
+    "os_version": "\"Windows 10 Home\" 10.0 (Build 26300)",
+    "device": "i5-9400F",
+    "processors": 6
+  },
+  "build_mode": "debug",
+  "app": {
+    "name": "UWMedia",
+    "version": "0.1.3",
+    "build": "5"
+  },
+  "commit": "bb5e259",
+  "recorded": "2026-11-23T05:52:21.380511Z",
+  "repeats": 3,
+  "runs": {
+    "engine/perf/color": {
+      "ms": 14589.0,
+      "encoder": "hevc_nvenc"
+    },
+    "engine/perf/color_overlay": {
+      "ms": 14810.0,
+      "encoder": "hevc_nvenc"
+    },
+    "engine/perf/overlay/prores": {
+      "ms": 2488.0,
+      "encoder": "prores_ks"
+    },
+    "engine/perf/overlay/png": {
+      "ms": 674.0,
+      "encoder": "png"
+    },
+    "engine/perf/overlay/hevc": {
+      "ms": 648.0,
+      "encoder": "hevc_nvenc"
+    }
+  }
+}

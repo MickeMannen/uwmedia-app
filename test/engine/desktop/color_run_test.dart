@@ -60,7 +60,11 @@ void main() {
       hw(EngineOs.macos).join(' '),
       contains('error -hwaccel videotoolbox -ss'),
     );
-    expect(hw(EngineOs.windows).join(' '), contains('error -hwaccel auto -ss'));
+    expect(
+      hw(EngineOs.windows).join(' '),
+      contains('error -hwaccel d3d11va -ss'),
+    );
+    expect(hw(EngineOs.linux).join(' '), contains('error -hwaccel auto -ss'));
   });
 
   group('with ffmpeg', () {

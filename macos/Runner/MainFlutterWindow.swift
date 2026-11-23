@@ -86,6 +86,20 @@ class MainFlutterWindow: NSWindow {
       MediaEngine.shared.handle(call, result: result)
     }
 
+    // A run of the app (lib/engine/keep_awake.dart, the channel the
+    // phones keep their screen on by): see RunActivity.
+    let screen = FlutterMethodChannel(
+      name: "uwmedia/screen",
+      binaryMessenger: flutterViewController.engine.binaryMessenger)
+    screen.setMethodCallHandler { call, result in
+      guard call.method == "keepAwake" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      RunActivity.hold(call.arguments as? Bool ?? false)
+      result(nil)
+    }
+
     super.awakeFromNib()
   }
 
@@ -94,6 +108,28 @@ class MainFlutterWindow: NSWindow {
   override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
     super.order(place, relativeTo: otherWin)
     hiddenWindowAtLaunch()
+  }
+}
+
+/// A run going on in the app (spec §10.98). A Mac slows an app that is
+/// behind other windows (App Nap): the app's own share of a run, the
+/// overlay pictures it draws and the files it writes, then took up to
+/// five times as long. While a run is held the app is not slowed and the
+/// Mac does not go to sleep of itself. Counted, so that a run that ends
+/// does not let go of another's.
+enum RunActivity {
+  private static var held: NSObjectProtocol?
+  private static var runs = 0
+
+  static func hold(_ on: Bool) {
+    runs = max(0, runs + (on ? 1 : -1))
+    if runs > 0, held == nil {
+      held = ProcessInfo.processInfo.beginActivity(
+        options: [.userInitiated, .idleSystemSleepDisabled], reason: "A run in UWMedia")
+    } else if runs == 0, let activity = held {
+      ProcessInfo.processInfo.endActivity(activity)
+      held = nil
+    }
   }
 }
 

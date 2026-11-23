@@ -21,6 +21,9 @@ echo -e "${CYAN}====================================================${NC}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.." || exit 1
 
+# The ffmpeg, ffprobe and exiftool the apps ship with, not the system's.
+. tool/own_tools.sh
+
 choice_arg="$1"
 
 if [ -z "$choice_arg" ]; then

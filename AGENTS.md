@@ -20,7 +20,7 @@ These rules apply to any coding agent working in this repo.
 
 ## Git
 - Never commit unless the owner asks for that specific commit. Exception
-  (owner, 2026-11-12): on `development`, a commit per round of work after
+  (owner, 2026-11-12): on `v0.1`, a commit per round of work after
   the default suite passes, pushed to `gitea`.
 - Never add dive-log files (FIT, UDDF, SSRF, XML or CSV exports) to git.
   They contain device serial numbers and personal IDs.
@@ -29,21 +29,22 @@ These rules apply to any coding agent working in this repo.
 - Two remotes, kept apart: `gitea` (the owner's server) and `github`
   (the public repo). A push or a release goes to the remote the owner
   names, never to both by default.
-- `development` is where the work and its whole history live. It is on
+- `v0.1` is where the work and its whole history live. (It took the
+  place of `development`, a name too general: owner, 2026-11-22.) It is on
   Gitea only and never goes to GitHub (owner, 2026-11-21), nor does any
   other development branch.
 - `main` holds releases only, with a history of its own, the same on
   both remotes: it starts as one commit of the tree of the first release,
   and each release after it is one more commit whose tree is
-  `development`'s at that release (`git read-tree -u --reset
-  development` on `main`, then the commit; the `/release` skill does
-  this). `main` and `development` share no history, so nothing is ever
+  `v0.1`'s at that release (`git read-tree -u --reset
+  v0.1` on `main`, then the commit; the `/release` skill does
+  this). `main` and `v0.1` share no history, so nothing is ever
   merged between them.
 - The temporary branch `move_github` (branched from `main`, on GitHub)
   is where the GitHub workflows (builds, signing) are made to work
   without a string of fix-up releases on `main`. When they work, its
   changes are squashed into one commit on `main`, the same changes are
-  applied to `development` as a commit of their own (a patch, not a
+  applied to `v0.1` as a commit of their own (a patch, not a
   merge), and the branch is deleted.
 - The GitHub hold of 2026-10-17 was lifted on 2026-11-21 (owner); a
   push to GitHub still needs the owner's word each time.

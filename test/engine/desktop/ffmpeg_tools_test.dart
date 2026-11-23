@@ -160,6 +160,40 @@ void main() {
       expect(seen.last, 100.0);
     });
 
+    test('on Windows a run that fails with hardware decoding is run once '
+        'more without it', () async {
+      // A decoder ffmpeg does not have stands for one the machine cannot
+      // give (spec §10.99).
+      List<String> args(String out) => [
+        '-y', '-loglevel', 'error', '-hwaccel', 'none_such', '-i', clip, //
+        '-an', '-c:v', 'libx264', out,
+      ];
+      FfmpegTools on(EngineOs os) =>
+          FfmpegTools(ffmpeg: tools.ffmpeg, ffprobe: tools.ffprobe, os: os);
+      final out = p.join(tmp.path, 'second_try.mp4');
+      await on(EngineOs.windows).run(args(out));
+      expect(await tools.frameCount(out), 50);
+      // Elsewhere the error stands, and on Windows too when the run fails
+      // without the hardware as well.
+      await expectLater(
+        on(EngineOs.macos).run(args(p.join(tmp.path, 'no_try.mp4'))),
+        throwsA(isA<EngineException>()),
+      );
+      await expectLater(
+        on(EngineOs.windows).run([
+          '-y', '-loglevel', 'error', '-hwaccel', 'none_such', //
+          '-i', p.join(tmp.path, 'missing.mp4'), out,
+        ]),
+        throwsA(
+          isA<EngineException>().having(
+            (e) => e.output,
+            'output',
+            contains('missing.mp4'),
+          ),
+        ),
+      );
+    }, skip: skip);
+
     test('an error says what ffmpeg wrote', () async {
       await expectLater(
         tools.run(['-i', p.join(tmp.path, 'missing.mp4'), '-f', 'null', '-']),

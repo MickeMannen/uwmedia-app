@@ -8,21 +8,21 @@ description: The owner's "prepare a release" workflow for the UWMedia app - pick
 
 Run only when the owner asks ("prepare a release", "prepare for release
 0.1.1 on GitHub"). The work is checked and the release prepared on
-`development`; `main` then gets the release as one commit (AGENTS.md,
+`v0.1`; `main` then gets the release as one commit (AGENTS.md,
 Git: `main` has a history of its own and nothing is merged between the
 two). Stop before anything the owner did not ask for.
 
 **The target.** A release goes to one remote, the one the owner names:
 `gitea` (the owner's server, for releases kept in-house) or `github`
 (the public repo). Never both unless the owner says both. When the
-request does not name one, ask before step 1. Gitea's "Dev release" builds of `development` are not releases and
+request does not name one, ask before step 1. Gitea's "Dev release" builds of `v0.1` are not releases and
 are not made here.
 
 Refuse and say why if any of these holds: the tree is dirty; the
 Everything suite (`tool/run_tests.sh 4`) has not passed in this session;
 the speed check (`tool/perf_check.sh`, on this desktop) has not passed in
 this session; the version already exists as a tag (`git tag --list 'v*'`,
-and `git ls-remote --tags <target>`); the branch is not `development`.
+and `git ls-remote --tags <target>`); the branch is not `v0.1`.
 
 The speed check holds the platform check's timed runs (colour, colour +
 overlay, overlay-only per format, on the 20 s perf clip) to this
@@ -48,24 +48,24 @@ baseline is not changed. From v0.2.0 on the rule above holds again.
    `pubspec.yaml` set `version: <version>+<build>` where build is the
    previous build number plus one. Show the changelog section to the
    owner before going on.
-3. **On `development`**: commit those two files with the message
-   `Release <version>` and push it: `git push gitea development`.
-4. **On `main`**: one commit whose tree is `development`'s, then the tag,
+3. **On `v0.1`**: commit those two files with the message
+   `Release <version>` and push it: `git push gitea v0.1`.
+4. **On `main`**: one commit whose tree is `v0.1`'s, then the tag,
    then the push to the target only. These are the commits the no-commit
    rule allows for a release.
    - A later release:
      ```
      git checkout main
-     git read-tree -u --reset development
+     git read-tree -u --reset v0.1
      git commit -m "UWMedia <version>"
      git tag v<version>
      git push <target> main v<version>
-     git checkout development
+     git checkout v0.1
      ```
    - The first release (2026-11): `main` still holds the old scaffold
      commit and is started again, with no parent:
      ```
-     git checkout --orphan release-root development
+     git checkout --orphan release-root v0.1
      git commit -m "UWMedia <version>"
      git branch -f main release-root && git checkout main && git branch -D release-root
      git tag v<version>

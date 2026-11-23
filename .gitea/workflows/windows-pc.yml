@@ -1,0 +1,93 @@
+# The tests on the owner's Windows PC, started by hand: Actions ->
+# "Windows PC" -> Run workflow (owner, 2026-11-23). Never on a push or a
+# schedule: the PC is not always on, and a run started while it is off
+# waits in Gitea until it is.
+#
+# What the PC has that the Windows VM of tests.yml has not is hardware: a
+# graphics card (NVENC, hardware decode) and real speed. Its runner
+# (label `windows-pc`) runs in the desktop session of the user `ci`, not
+# as a service: a service has no graphics device, and the platform check
+# then cannot draw an overlay or decode by hardware (run 315).
+#
+# The steps are those of tests.yml's Windows job, then the platform check
+# and the speed check (tool/perf_check.sh).
+
+name: Windows PC
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: windows-pc
+  cancel-in-progress: false
+
+env:
+  TEST_DATA_SHARE: ${{ vars.TEST_DATA_SHARE }}
+  TEST_DATA_USER: ${{ vars.TEST_DATA_USER }}
+  TEST_DATA_PASSWORD: ${{ secrets.TEST_DATA_PASSWORD }}
+
+jobs:
+  windows:
+    name: Windows PC
+    runs-on: windows-pc
+    timeout-minutes: 120
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: The machine
+        run: |
+          whoami
+          (Get-CimInstance Win32_Processor).Name
+          (Get-CimInstance Win32_VideoController).Name
+          flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Test data
+        run: |
+          if (-not $env:TEST_DATA_PASSWORD -or -not $env:TEST_DATA_SHARE) {
+            echo "No TEST_DATA_SHARE or TEST_DATA_PASSWORD: the tests that need the data will skip."
+            exit 0
+          }
+          $share = $env:TEST_DATA_SHARE.Replace('/', '\')
+          # Connecting again what is connected already is no error.
+          net use $share $env:TEST_DATA_PASSWORD /user:$env:TEST_DATA_USER /persistent:no
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Add-Content -Path $env:GITHUB_ENV -Value "UWMEDIA_TEST_DATA=$env:TEST_DATA_SHARE"
+
+      - name: Default suite
+        run: |
+          $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
+          & $bash tool/run_tests.sh 1
+          exit $LASTEXITCODE
+
+      # The fonts draw as on the Mac (roadmap E1, 2026-11-21).
+      - name: Compare overlay golden images
+        run: |
+          flutter test --tags golden
+          exit $LASTEXITCODE
+
+      # The platform check with its timed runs done three times, held to
+      # the machine's speed baseline
+      # (tool/platform_check/perf_baselines/windows-i5-9400F.json); the
+      # report is printed whatever the outcome.
+      - name: Platform and speed check
+        if: ${{ !cancelled() }}
+        run: |
+          $bash = Join-Path (Split-Path (Split-Path (Get-Command git).Source)) 'bin\bash.exe'
+          & $bash tool/perf_check.sh
+          $code = $LASTEXITCODE
+          Get-ChildItem build\platform_check -Filter 'windows-*.json' | ForEach-Object { Get-Content $_.FullName }
+          exit $code
+
+      # Last, so that the tests have run: a run whose data tests skipped
+      # because the variables are gone is not green.
+      - name: Test data was set up
+        if: ${{ !cancelled() }}
+        run: |
+          if ($env:TEST_DATA_PASSWORD -and (-not $env:TEST_DATA_SHARE -or -not $env:TEST_DATA_USER)) {
+            echo "::error::The secret TEST_DATA_PASSWORD is set, but the Actions variable TEST_DATA_SHARE or TEST_DATA_USER is empty: the tests that need the private test data were SKIPPED in this run. Add the variables in Gitea (the repo's Settings, Actions, Variables)."
+            exit 1
+          }

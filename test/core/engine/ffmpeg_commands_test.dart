@@ -211,10 +211,19 @@ void main() {
       '-i',
       'in.mp4',
     ]);
+    // Windows is asked for Direct3D 11 by name, never `auto` (spec
+    // §10.99); Linux as before.
     expect(convert(EngineOs.windows, size: (1920, 1080)).sublist(1, 3), [
+      '-hwaccel',
+      'd3d11va',
+    ]);
+    expect(convert(EngineOs.linux, size: (1920, 1080)).sublist(1, 3), [
       '-hwaccel',
       'auto',
     ]);
+    expect(hwAccelName(EngineOs.macos), 'videotoolbox');
+    expect(withoutHwDecode(mac), ['-y', ...mac.sublist(3)]);
+    expect(withoutHwDecode(convert(null, size: (1920, 1080))), isNull);
     expect(convert(null, size: (1920, 1080)), isNot(contains('-hwaccel')));
     expect(convert(EngineOs.macos), isNot(contains('-hwaccel')));
     final share = shareVideoArgs(
@@ -268,7 +277,7 @@ void main() {
         'format=rgb24|rgb48le[lm];'
         "movie=filename='$dir/lut_tables.raw':f=rawvideo:"
         r"format_opts='video_size=512x512\:pixel_format=rgb24\:framerate=1',"
-        'fps=$step,format=gbrp16le,split[la][lb];'
+        'format=gbrp16le,fps=$step,split[la][lb];'
         '[lb]trim=start_frame=$step,setpts=PTS-STARTPTS[ld];'
         'color=s=16x16:r=$step,format=gbrp16le,'
         "geq=r='65535*mod(N,$step)/$step':g='65535*mod(N,$step)/$step':"
@@ -383,6 +392,7 @@ void main() {
   test('input and output arguments of the colour runs', () {
     final cases = jsonObjects(reference['color_args']);
     expect(cases.length, 112);
+    var windowsCases = 0;
     for (final c in cases) {
       final got = c['what'] == 'input'
           ? colorInputArgs(
@@ -399,8 +409,20 @@ void main() {
               sourceBitrate: c['source_bitrate'] as int?,
               tzOffsetMins: c['tz'] as int?,
             );
-      expect(got, c['args'], reason: '$c');
+      // Python has Windows decode by hardware (`-hwaccel auto`); here a
+      // colour or overlay run on Windows never does (spec §10.99).
+      final want = (c['args'] as List<dynamic>).cast<String>();
+      final windowsHw =
+          c['what'] == 'input' &&
+          want.contains('-hwaccel') &&
+          osOf(c['os']) == EngineOs.windows;
+      if (windowsHw) {
+        windowsCases++;
+        expect(want.sublist(want.indexOf('-hwaccel')), ['-hwaccel', 'auto']);
+      }
+      expect(got, windowsHw ? withoutHwDecode(want) : want, reason: '$c');
     }
+    expect(windowsCases, 4);
   });
 
   test('the overlay filter graph', () {
@@ -417,6 +439,7 @@ void main() {
   test('the whole colour and overlay commands', () {
     final cases = jsonObjects(reference['full_commands']);
     expect(cases.length, 24);
+    var windowsHw = 0;
     for (final c in cases) {
       final method = c['method'] as String;
       final tenBit = isTenBit(c['pix_fmt'] as String);
@@ -473,12 +496,22 @@ void main() {
         expect(ran['args'].toString(), contains(pythonVf));
         expect(lut.vf, contains("'/WORK/$lutTablesFileName'"));
       }
-      expect(args, want, reason: '$method ${c['os']} ${c['pix_fmt']}');
+      // Python's `-hwaccel auto` on Windows is not asked for here (spec
+      // §10.99).
+      final plain = osOf(c['os']) == EngineOs.windows
+          ? withoutHwDecode(want)
+          : null;
+      if (plain != null) {
+        windowsHw++;
+        expect(want, containsAllInOrder(['-hwaccel', 'auto', '-i']));
+      }
+      expect(args, plain ?? want, reason: '$method ${c['os']} ${c['pix_fmt']}');
       expect(ran['range'], [
         method == 'process_video_lut' ? analysisProgressEnd : hudProgressEnd,
         100.0,
       ]);
     }
+    expect(windowsHw, 12);
     // With layers: one concat input and one overlay each.
     final args = overlayCommandArgs(
       input: 'in.mp4',

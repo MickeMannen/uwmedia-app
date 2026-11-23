@@ -4,9 +4,11 @@
 # is on a read-only SMB share on the LAN (tool/test_data_sync.sh keeps it
 # the same as the development machine's test_data/). Never in git.
 #
-# Usage: tool/ci_test_data.sh [release]
+# Usage: tool/ci_test_data.sh [release | check]
 #   release: the full-size media of the release tests too (the nightly
 #   run); only the Linux job, which copies the data, makes a difference.
+#   check: connects nothing; fails when the data is set up by half (see
+#   below). The last step of each job.
 #
 # TEST_DATA_SHARE (//host/share) and TEST_DATA_USER come from the repo's
 # Actions variables, TEST_DATA_PASSWORD from its secret of that name.
@@ -22,6 +24,21 @@ set -euo pipefail
 release="${1:-}"
 share="${TEST_DATA_SHARE:-}"
 user="${TEST_DATA_USER:-}"
+
+# Set up by half (the password is there, the share or the user is not):
+# the tests that need the data would skip and the run still be green, so
+# the job's last step (`tool/ci_test_data.sh check`) fails it.
+half=0
+if [ -n "${TEST_DATA_PASSWORD:-}" ] && { [ -z "$share" ] || [ -z "$user" ]; }; then
+    half=1
+fi
+if [ "$release" = check ]; then
+    if [ "$half" = 1 ]; then
+        echo "::error::The secret TEST_DATA_PASSWORD is set, but the Actions variable TEST_DATA_SHARE or TEST_DATA_USER is empty: the tests that need the private test data were SKIPPED in this run. Add the variables in Gitea (the repo's Settings, Actions, Variables)." >&2
+        exit 1
+    fi
+    exit 0
+fi
 
 if [ -z "${TEST_DATA_PASSWORD:-}" ] || [ -z "$share" ] || [ -z "$user" ]; then
     echo "No TEST_DATA_SHARE, TEST_DATA_USER or TEST_DATA_PASSWORD: the tests that need the data will skip."

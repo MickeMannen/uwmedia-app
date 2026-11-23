@@ -17,6 +17,7 @@ import 'package:uwmedia_app/core/units/units.dart';
 import 'package:uwmedia_app/engine/desktop/color_batch.dart';
 import 'package:uwmedia_app/engine/desktop/overlay_batch.dart';
 import 'package:uwmedia_app/engine/file_picks.dart' as fs;
+import 'package:uwmedia_app/engine/keep_awake.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
 import 'package:uwmedia_app/engine/result_folder.dart';
 import 'package:uwmedia_app/pages/overlay_generator/overlay_generator_controller.dart';
@@ -53,7 +54,9 @@ class DesktopOverlayGeneratorEngine implements OverlayGeneratorEngine {
   Future<List<FileResult>> runFolder(
     OverlayFolderSettings settings,
     ColorBatchListener listener,
-  ) => _fresh().runFolder(settings, listener);
+  ) =>
+      // On a Mac: not slowed behind other windows (spec §10.98).
+      withScreenOn(() => _fresh().runFolder(settings, listener));
 
   @override
   Future<String> runLog({
@@ -64,14 +67,16 @@ class DesktopOverlayGeneratorEngine implements OverlayGeneratorEngine {
     bool hwAccel = true,
     void Function(double percent)? onProgress,
     void Function(String line)? onMessage,
-  }) => _fresh().runLog(
-    logPath: logPath,
-    output: output,
-    layoutPath: layoutPath,
-    look: look,
-    hwAccel: hwAccel,
-    onProgress: onProgress,
-    onMessage: onMessage,
+  }) => withScreenOn(
+    () => _fresh().runLog(
+      logPath: logPath,
+      output: output,
+      layoutPath: layoutPath,
+      look: look,
+      hwAccel: hwAccel,
+      onProgress: onProgress,
+      onMessage: onMessage,
+    ),
   );
 
   @override

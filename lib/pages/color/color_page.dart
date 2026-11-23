@@ -117,7 +117,8 @@ class DesktopColorPageEngine implements ColorPageEngine {
       native: services.nativeVideoEngine,
     );
     try {
-      return await batch.run(settings, listener);
+      // On a Mac: not slowed behind other windows (spec §10.98).
+      return await withScreenOn(() => batch.run(settings, listener));
     } finally {
       // A later Stop is not for this batch.
       _batch = null;

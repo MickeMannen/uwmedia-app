@@ -122,6 +122,38 @@ Future<String?> _firstLine(String executable, List<String> args) async {
   }
 }
 
+/// A PC has no model as a Mac has; its processor's stands in, as short as
+/// it is told apart by: "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz" is
+/// "i5-9400F", "AMD Ryzen 7 5800X 8-Core Processor" is "Ryzen-7-5800X".
+Future<String?> _windowsProcessor() async {
+  try {
+    final result = await Process.run('reg', [
+      'query',
+      r'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0',
+      '/v',
+      'ProcessorNameString',
+    ]);
+    final name = RegExp(r'REG_SZ\s+(.+)').firstMatch('${result.stdout}');
+    if (result.exitCode != 0 || name == null) {
+      return null;
+    }
+    final short = name[1]!
+        .replaceAll(RegExp(r'\((R|TM)\)|@.*$', caseSensitive: false), ' ')
+        .replaceAll(
+          RegExp(
+            r'\b(Intel|AMD|Core|CPU|Processor|\d+-Core|with .*)\b',
+            caseSensitive: false,
+          ),
+          ' ',
+        )
+        .trim()
+        .replaceAll(RegExp(r'\s+'), '-');
+    return short.isEmpty ? null : short;
+  } on Object {
+    return null;
+  }
+}
+
 typedef _SysctlC = Int32 Function(
   Pointer<Uint8>,
   Pointer<Uint8>,
@@ -186,6 +218,8 @@ Future<Map<String, Object?>> _platform() async {
   var simulator = false;
   if (Platform.isMacOS) {
     model = await _firstLine('/usr/sbin/sysctl', ['-n', 'hw.model']);
+  } else if (Platform.isWindows) {
+    model = await _windowsProcessor();
   } else if (Platform.isLinux) {
     try {
       model = File('/sys/devices/virtual/dmi/id/product_name')

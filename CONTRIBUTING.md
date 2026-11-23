@@ -6,7 +6,13 @@ Flutter 3.47 or newer on the stable channel (Dart 3.13.5 or newer, see
 `environment.sdk` in `pubspec.yaml`). Desktop targets need the platform
 toolchain `flutter doctor` lists; the desktop engines also need ffmpeg,
 ffprobe and exiftool on `PATH` once they exist (the packaged app bundles
-them).
+them). The tests and the speed check run the tools the apps ship with,
+on every desktop (owner, 2026-11-23): `tool/run_tests.sh` and
+`tool/perf_check.sh` fetch them once into `build/own_tools`
+(`tool/own_tools.sh`, from the repo's deps release) and put them first on
+the `PATH`, ahead of Homebrew's or a distribution's. A `flutter test` or
+`flutter drive` started by hand takes whatever the `PATH` has; put
+`build/own_tools` first on it for a result that counts.
 
 ```bash
 flutter pub get
@@ -315,7 +321,7 @@ Library.
 
 ## Branches
 
-Development happens on `development`, on the owner's own Git server,
+Development happens on `v0.1`, on the owner's own Git server,
 and stays there. `main` holds the releases, one commit each, and is the
 branch the public repository has; while the GitHub workflows are being
 set up, the temporary branch `move_github` is there too.

@@ -41,6 +41,9 @@ if [ "$device" != windows ] && [ "${PERF_IGNORE_LOAD:-0}" != 1 ]; then
     fi
 fi
 
+# Timed with the ffmpeg the apps ship with, not the system's.
+. tool/own_tools.sh
+
 marker=$(mktemp)
 trap 'rm -f "$marker"' EXIT
 engine_args=()

@@ -2,7 +2,7 @@
 # testing only, made when asked: Actions -> "Dev release" -> Run workflow
 # (owner, 2026-11-20). Never on a push or a schedule.
 #
-# The apps are built from the head of `development`, whatever branch the
+# The apps are built from the head of `v0.1`, whatever branch the
 # run was started from, on the three runners of tests.yml: Windows in
 # its VM, macOS on the owner's Mac (unsigned: the first start on another
 # Mac needs right-click -> Open), Linux in the Flutter image. The release is named by the date and time of the build in the
@@ -47,10 +47,10 @@ jobs:
       stamp: ${{ steps.draft.outputs.stamp }}
       id: ${{ steps.draft.outputs.id }}
     steps:
-      - name: Checkout development
+      - name: Checkout v0.1
         uses: actions/checkout@v4
         with:
-          ref: development
+          ref: v0.1
           fetch-depth: 0
 
       - name: Draft the release
@@ -70,7 +70,7 @@ jobs:
           last=$(git tag --list 'dev-*' --sort=-creatordate | head -1)
           if [ -n "$last" ]; then range="$last..$sha"; else range="-20 $sha"; fi
           {
-            echo "Development build of \`development\` at ${sha:0:7}, for internal testing."
+            echo "Development build of \`v0.1\` at ${sha:0:7}, for internal testing."
             echo
             echo "Unsigned. macOS: the first start needs right-click -> Open."
             echo

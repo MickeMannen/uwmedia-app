@@ -232,12 +232,36 @@ class FfmpegTools {
   /// [onProgress] gets; [onStarted] hands out the run, for Stop. Throws
   /// an [EngineException] with what ffmpeg wrote when it ends with an
   /// error, and [RunStopped] when it was stopped.
+  ///
+  /// On Windows a run that asked for hardware decoding and failed is run
+  /// once more without it (spec §10.99): the decoder is one of several
+  /// kinds of graphics card's, and a run that ffmpeg's own decoder can do
+  /// should not fail on it. The error of the second run is the one given.
   Future<void> run(
     List<String> args, {
     EncodeProgress? progress,
     void Function(double percent)? onProgress,
     void Function(ToolRun run)? onStarted,
   }) async {
+    final plain = os == EngineOs.windows ? withoutHwDecode(args) : null;
+    if (plain == null) {
+      return _whole(args, progress, onProgress, onStarted);
+    }
+    try {
+      await _whole(args, progress, onProgress, onStarted);
+    } on EngineException {
+      await _whole(plain, progress, onProgress, onStarted);
+    }
+  }
+
+  // One run of [args], its filters from files when the command is too
+  // long.
+  Future<void> _whole(
+    List<String> args,
+    EncodeProgress? progress,
+    void Function(double percent)? onProgress,
+    void Function(ToolRun run)? onStarted,
+  ) async {
     var command = [...args, ...progressArgs];
     Directory? scripts;
     if (commandChars(command) > maxCommandChars) {
