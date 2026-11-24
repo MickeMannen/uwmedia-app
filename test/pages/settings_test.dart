@@ -63,7 +63,7 @@ void main() {
     c.units = UnitSystem.imperial;
     expect(told, 1);
 
-    expect(c.profiles, containsAll(['default', 'vivid', 'subtle']));
+    expect(c.profiles, containsAll(['default', 'vivid', 'punchy']));
     expect(c.profile, c.profiles.first);
     c.profile = 'vivid';
     expect(config.fields()[colorProfileField], 'vivid');

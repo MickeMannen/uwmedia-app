@@ -4,7 +4,7 @@
 // through the Color page's batch with a real ffmpeg and exiftool:
 // - the capture dates read from the files;
 // - colour on the 4K clip (hardware encoder where the machine has one),
-//   every photo, and the vivid and subtle profiles;
+//   every photo, and the vivid and punchy profiles;
 // - colour with an overlay on the DJI clip and on photos, matched to the
 //   Garmin and Subsurface logs: the dive is found, and the overlay is
 //   really drawn (its box differs from the colour-only output, the rest
@@ -373,7 +373,7 @@ void main() {
           );
         }
 
-        for (final name in ['vivid', 'subtle']) {
+        for (final name in ['vivid', 'punchy']) {
           final profile = ColorProfile.fromMap(profiles[name]!);
           await run(
             p.join(media, _photo),

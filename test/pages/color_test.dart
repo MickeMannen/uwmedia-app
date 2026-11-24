@@ -550,6 +550,12 @@ void main() {
       expect(engine.drawn.length, greaterThan(drawnBefore));
       await c.release();
 
+      // It started at the watch's own size beside the other computers
+      // (spec §10.100): 62 mm where a Perdix's 81 mm are a quarter of the
+      // frame, on a picture 692 wide drawn at the template's 0.5.
+      final start = overlay.scale;
+      expect(start, closeTo(62 * 0.25 / 81 * 1920 / (692 * 0.5), 1e-9));
+
       // The bottom-right handle: twice as far from the top left.
       final box = c.boxOf(overlay)!;
       c.pressAt(box.$3.toDouble(), box.$4.toDouble(), 16);
@@ -557,14 +563,14 @@ void main() {
         box.$1 + 2.0 * (box.$3 - box.$1),
         box.$2 + 2.0 * (box.$4 - box.$2),
       );
-      expect(overlay.scale, closeTo(2, 0.01));
+      expect(overlay.scale, closeTo(2 * start, 0.01));
       expect(overlay.x, closeTo(box.$1 / 1920, 1e-9));
       await c.release();
 
       // Kept and restored by the next page.
       final next = controller();
       expect(next.overlays.single.layoutPath, overlay.layoutPath);
-      expect(next.overlays.single.scale, closeTo(2, 0.01));
+      expect(next.overlays.single.scale, closeTo(2 * start, 0.01));
 
       // "Add Overlay" opens on the page added last, in the next page too
       // (spec §10.62); what is no longer there gives way to the first.

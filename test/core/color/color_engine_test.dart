@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uwmedia_app/core/color/color_engine.dart';
+import 'package:uwmedia_app/core/color/color_profiles.dart';
 
 final Map<String, dynamic> _reference = jsonDecode(
   utf8.decode(
@@ -94,26 +95,90 @@ void main() {
       c as Map<String, dynamic>,
   ];
 
-  test(
-    'assets/color.yaml is the Python app\'s, with the fixture\'s profiles',
-    () {
-      final text = File('assets/color.yaml').readAsStringSync();
-      for (final name in ['default', 'vivid', 'subtle']) {
-        expect(
-          text,
-          contains('\n$name:\n'.substring(name == 'default' ? 1 : 0)),
-        );
-        final profile =
-            (_reference['profiles'] as Map<String, dynamic>)[name]
-                as Map<String, dynamic>;
-        // Every value of the profile stands in the file under its name.
-        final block = text.substring(text.indexOf('$name:\n'));
-        for (final e in profile.entries) {
-          expect(block, contains('  ${e.key}: ${e.value}\n'), reason: e.key);
-        }
+  test('assets/color.yaml has the Python app\'s default and vivid as the '
+      'fixture has them, and punchy (spec §10.101)', () {
+    final text = File('assets/color.yaml').readAsStringSync();
+    // Python's third profile, subtle, is not bundled (owner, 2026-11-24).
+    expect(text, isNot(contains('subtle:')));
+    // punchy: default with vivid's red restore and the look.
+    final bundled = mergedColorProfiles(text, null);
+    expect(bundled.keys, ['default', 'vivid', 'punchy']);
+    expect(bundled['punchy'], {
+      ...bundled['default']!,
+      'red_threshold': bundled['vivid']!['red_threshold'],
+      'red_scale': bundled['vivid']!['red_scale'],
+      'vibrance': 0.7,
+      'contrast': 0.3,
+    });
+    for (final name in ['default', 'vivid']) {
+      // Neither has the look, so both correct as the Python app does.
+      expect(bundled[name]!.keys, isNot(contains('vibrance')));
+      expect(bundled[name]!.keys, isNot(contains('contrast')));
+      expect(text, contains('\n$name:\n'.substring(name == 'default' ? 1 : 0)));
+      final profile =
+          (_reference['profiles'] as Map<String, dynamic>)[name]
+              as Map<String, dynamic>;
+      // Every value of the profile stands in the file under its name.
+      final block = text.substring(text.indexOf('$name:\n'));
+      for (final e in profile.entries) {
+        expect(block, contains('  ${e.key}: ${e.value}\n'), reason: e.key);
       }
-    },
-  );
+    }
+  });
+
+  test('the look: vibrance and contrast (spec §10.101)', () {
+    // A filter that changes nothing, so that only the look is seen.
+    final filter = Float32List.fromList([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0.67]);
+    Uint8List through(ColorProfile profile, List<int> rgb) =>
+        ColorEngine(profile).correct(Uint8List.fromList(rgb), filter);
+    int spread(List<int> c) =>
+        c.reduce((a, b) => a > b ? a : b) - c.reduce((a, b) => a < b ? a : b);
+    const plain = ColorProfile();
+    const vibrant = ColorProfile(vibrance: 1.0);
+    const dull = [150, 120, 100]; // a weak warm colour
+    const water = [90, 130, 170]; // a weak blue
+    const strong = [255, 40, 0]; // as much colour as there is
+    // Greys stay grey, and none of it without the parameters.
+    for (final grey in [0, 60, 128, 200, 255]) {
+      expect(
+        through(vibrant, [grey, grey, grey]),
+        through(plain, [grey, grey, grey]),
+      );
+    }
+    // A weak warm colour gains most, the water's hue less, a full colour
+    // nothing; none leaves the byte range by being cut (the hue's order
+    // of channels stays).
+    final warmGain =
+        spread(through(vibrant, dull)) - spread(through(plain, dull));
+    final waterGain =
+        spread(through(vibrant, water)) - spread(through(plain, water));
+    expect(warmGain, greaterThan(20));
+    expect(waterGain, greaterThan(0));
+    expect(waterGain, lessThan(warmGain));
+    expect(through(vibrant, strong), through(plain, strong));
+    final more = through(const ColorProfile(vibrance: 2.0), dull);
+    expect(more[0], greaterThan(more[1]));
+    expect(more[1], greaterThan(more[2]));
+    expect(spread(more), greaterThan(spread(through(vibrant, dull))));
+    // The contrast: darks darker, lights lighter, the ends where they were.
+    const contrasty = ColorProfile(contrast: 1.0);
+    expect(
+      through(contrasty, [60, 60, 60])[0],
+      lessThan(through(plain, [60, 60, 60])[0]),
+    );
+    expect(
+      through(contrasty, [220, 220, 220])[0],
+      greaterThan(through(plain, [220, 220, 220])[0]),
+    );
+    expect(through(contrasty, [0, 0, 0]), [0, 0, 0]);
+    expect(through(contrasty, [255, 255, 255]), [255, 255, 255]);
+    // Both are read from a profile and written back.
+    final read = ColorProfile.fromMap(const {'vibrance': 0.7, 'contrast': 0.3});
+    expect(read.vibrance, 0.7);
+    expect(read.toMap()['contrast'], 0.3);
+    expect(plain.vibrance, 0.0);
+    expect(plain.contrast, 0.0);
+  });
 
   test('a profile leaves out what it likes', () {
     const d = ColorProfile();

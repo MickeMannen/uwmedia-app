@@ -178,6 +178,15 @@ void main() {
     await c.addOverlay();
     expect(c.overlays.single.label, 'garmin mk3i main single tank');
     expect(File(c.overlays.single.layoutPath).existsSync(), isTrue);
+    // The copy is drawn at the watch's real size beside the other
+    // computers (spec §10.100): its picture, 692 wide, is 62 mm where a
+    // Perdix's 81 mm are a quarter of a 1920 frame. The bundled template
+    // keeps its 0.5.
+    final copy = jsonDecode(
+      File(c.overlays.single.layoutPath).readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final scale = (copy['hud_skin'] as Map<String, dynamic>)['scale'] as num;
+    expect(692 * scale, closeTo(480 * 62 / 81, 1e-6));
     // The picker of the next start is on the overlay added last.
     final next = controller();
     expect(next.picker.selectedBrand, 'garmin');

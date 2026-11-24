@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -15,7 +16,9 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/hud/image_size.dart';
 import 'package:uwmedia_app/core/hud/layouts.dart';
+import 'package:uwmedia_app/core/hud/true_size.dart';
 import 'package:uwmedia_app/core/metadata/media_dates.dart';
 import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/model/dive_manager.dart';
@@ -473,6 +476,7 @@ class OverlayGeneratorController extends ChangeNotifier
         return;
       }
       _remember(hudOverlayChoiceField, picker.choice);
+      _toTrueSize(picked);
       overlays.add((
         label: p
             .basenameWithoutExtension(picked.layoutPath)
@@ -481,6 +485,35 @@ class OverlayGeneratorController extends ChangeNotifier
       ));
     }
     notifyListeners();
+  }
+
+  /// The working copy of a picked template drawn at its computer's real
+  /// size beside the others (spec §10.100): its skin's scale is set in
+  /// the copy, which the overlay-only video takes its size from. A
+  /// template without a known width, or one drawn as a shape, is left.
+  void _toTrueSize(PickedLayout picked) {
+    final skin = picked.layout['hud_skin'];
+    final skinPath = skin is Map ? skin['path'] : null;
+    (int, int)? skinSize;
+    if (skinPath is String && skinPath.isNotEmpty) {
+      final file = File(
+        p.isAbsolute(skinPath)
+            ? skinPath
+            : p.join(p.dirname(picked.layoutPath), skinPath),
+      );
+      if (file.existsSync()) {
+        skinSize = imageSize(file.readAsBytesSync());
+      }
+    }
+    final sized = trueSizedLayout(
+      picked.layout,
+      widthMm: pictureWidthMm(picked.brand, picked.computer, picked.manifest),
+      skinSize: skinSize,
+    );
+    if (!identical(sized, picked.layout)) {
+      File(picked.layoutPath)
+          .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(sized));
+    }
   }
 
   void removeOverlayAt(int index) {

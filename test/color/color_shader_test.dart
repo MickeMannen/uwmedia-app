@@ -71,7 +71,7 @@ void main() {
         await rootBundle.loadString('assets/color.yaml'),
         null,
       );
-      expect(profiles.keys, containsAll(['default', 'vivid', 'subtle']));
+      expect(profiles.keys, containsAll(['default', 'vivid', 'punchy']));
       for (final MapEntry(key: name, value: values) in profiles.entries) {
         final profile = ColorProfile.fromMap(values.cast<String, dynamic>());
         final engine = ColorEngine(profile);

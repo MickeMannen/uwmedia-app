@@ -89,7 +89,22 @@ baseline is not changed. From v0.2.0 on the rule above holds again.
    - **Gitea:** the owner creates the release from the tag in Gitea's web
      page (Releases, New release) with the notes file's text, unless they
      gave a token for this session; never make a token.
-6. **Report the release URL (or the notes file) and stop.** The builds
-   are the owner's to start. GitHub: the "Release Build" workflow from the
-   tag (Actions, "Run workflow", "Use workflow from" set to the tag,
-   "Attach to the GitHub Release" checked). Claude does not trigger it.
+6. **The desktop builds, on GitHub** (owner, 2026-11-23: when a new tag
+   is pushed to GitHub, start the Release Build for that tag and attach
+   it to the release). After the release exists (step 5), start the
+   workflow once, from the tag:
+   ```
+   gh workflow run "Release Build" --repo MickeMannen/uwmedia-app --ref v<version> -f create_release=true
+   ```
+   The other inputs keep their defaults (all three desktop apps, macOS
+   signed and notarised, Windows not signed). First look that no run for
+   the tag is going already (`gh run list --workflow "Release Build"`):
+   two runs attach the same files twice. Follow the run to its end
+   (`gh run watch <id> --exit-status`), then check the release's files
+   (`gh release view v<version> --json assets`): one download each for
+   macOS, Windows and Linux. A failed job is reported with its log, not
+   started again without the owner's word. This is for a new release
+   tag on GitHub only: not for a push of `main` alone, not for Gitea,
+   and nothing is started for the phones.
+7. **Report the release URL, the run and the files on the release (or,
+   for Gitea, the notes file) and stop.**

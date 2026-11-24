@@ -22,6 +22,11 @@ uniform float uExposure;
 uniform float uHueShift;
 // How much of the correction is mixed in.
 uniform float uCif;
+// The profile's vibrance, contrast and reference water hue (the look,
+// spec §10.101).
+uniform float uVibrance;
+uniform float uContrast;
+uniform float uWaterHue;
 uniform sampler2D uImage;
 
 out vec4 fragColor;
@@ -83,6 +88,44 @@ vec3 toRgb(vec3 lch) {
     dot(vec3(-0.0041960863, -0.7034186147, 1.7076147010), lms));
 }
 
+bool inGamut(vec3 lch) {
+  vec3 c = toRgb(lch);
+  return all(greaterThanEqual(c, vec3(-0.0005))) && all(lessThanEqual(c, vec3(1.0005)));
+}
+
+// The profile's contrast and vibrance on an OKLCH colour, as
+// ColorEngine._look: an S-curve on the lightness; the chroma scaled, most
+// for weak colours and least in the water's hues, and brought back along
+// the chroma when the colour leaves sRGB.
+vec3 look(vec3 lch) {
+  if (uContrast != 0.0) {
+    float l = clamp(lch.x, 0.0, 1.0);
+    lch.x = l + uContrast * (l * l * (3.0 - 2.0 * l) - l);
+  }
+  if (uVibrance == 0.0) {
+    return lch;
+  }
+  float before = lch.y;
+  float room = 1.0 - clamp(before / 0.3, 0.0, 1.0);
+  float away = clamp((abs(lch.z - uWaterHue) - 0.07) / 0.10, 0.0, 1.0);
+  float weight = 0.35 + 0.65 * away * away * (3.0 - 2.0 * away);
+  float wanted = before * (1.0 + uVibrance * weight * room);
+  if (inGamut(vec3(lch.x, wanted, lch.z))) {
+    return vec3(lch.x, wanted, lch.z);
+  }
+  float low = before;
+  float high = wanted;
+  for (int i = 0; i < 6; i++) {
+    float mid = (low + high) / 2.0;
+    if (inGamut(vec3(lch.x, mid, lch.z))) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+  return vec3(lch.x, low, lch.z);
+}
+
 void main() {
   // No flip on OpenGL ES: a picture given by setImageSampler comes the
   // right way up there too (tried on Windows, 2026-11-20; flipped, the
@@ -121,7 +164,11 @@ void main() {
   if (hue < 0.0) {
     hue += 1.0;
   }
-  v = clamp(toRgb(vec3(lch.xy, hue)), 0.0, 1.0);
+  lch.z = hue;
+  if (uVibrance != 0.0 || uContrast != 0.0) {
+    lch = look(lch);
+  }
+  v = clamp(toRgb(lch), 0.0, 1.0);
   if (uCif != 1.0) {
     // Mixed with the uncorrected pixel.
     v = v * uCif + original * (1.0 - uCif);

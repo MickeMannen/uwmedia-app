@@ -243,8 +243,17 @@ void main() {
   group('color.yaml, parity with Python', () {
     final color = reference['color'] as Map<String, dynamic>;
 
-    test('the bundled file is the Python app\'s', () {
-      expect(File('assets/color.yaml').readAsStringSync(), color['bundled']);
+    test('the bundled file is the Python app\'s as far as subtle, which '
+        'punchy stands in for (spec §10.101)', () {
+      final ours = File('assets/color.yaml').readAsStringSync();
+      final pythons = color['bundled'] as String;
+      // default and vivid, to the letter.
+      expect(pythons, contains('\nsubtle:\n'));
+      expect(
+        ours.substring(0, ours.indexOf('\npunchy:\n')),
+        pythons.substring(0, pythons.indexOf('\nsubtle:\n')),
+      );
+      expect(ours, isNot(contains('subtle')));
     });
 
     test('bundled and user profiles merged', () {

@@ -1,7 +1,8 @@
 /// The colour engine's tuning parameters as the Color Tuning page offers
 /// them (Python `utils/color_params.py` `PARAM_GROUPS`): the groups, and
 /// per parameter its `color.yaml` key, label, range, default and whether it
-/// is a whole number.
+/// is a whole number. The last group, [lookGroupTitle], is this app's own
+/// (spec §10.101).
 library;
 
 import 'package:uwmedia_app/core/util/py_round.dart';
@@ -15,6 +16,10 @@ typedef ColorParam = ({
   double defaultValue,
   bool isInt,
 });
+
+/// The title of the group that is not Python's: the vibrance and the
+/// contrast (spec §10.101).
+const lookGroupTitle = 'Vibrance & Contrast';
 
 /// The sliders' groups in the page's order.
 const List<(String, List<ColorParam>)> colorParamGroups = [
@@ -261,6 +266,27 @@ const List<(String, List<ColorParam>)> colorParamGroups = [
       ),
     ],
   ),
+  (
+    lookGroupTitle,
+    [
+      (
+        key: 'vibrance',
+        label: 'Vibrance',
+        min: 0.0,
+        max: 2.0,
+        defaultValue: 0.0,
+        isInt: false,
+      ),
+      (
+        key: 'contrast',
+        label: 'Contrast',
+        min: 0.0,
+        max: 1.0,
+        defaultValue: 0.0,
+        isInt: false,
+      ),
+    ],
+  ),
 ];
 
 /// Every parameter by its key.
@@ -344,5 +370,7 @@ final List<LiteSlider> liteSliders = [
   _direct('dehaze_min', 'De-haze'),
   _direct('exposure_max', 'Exposure'),
   _direct('darkness', 'Darkness'),
+  _direct('vibrance', 'Vibrance'),
+  _direct('contrast', 'Contrast'),
   _direct('sharpness', 'Sharpness', photosOnly: true),
 ];

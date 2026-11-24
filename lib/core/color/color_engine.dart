@@ -125,6 +125,8 @@ class ColorProfile {
     this.bhFallback = 0.67,
     this.sharpness = 0.0,
     this.darkness = 0.0,
+    this.vibrance = 0.0,
+    this.contrast = 0.0,
   });
 
   /// From a profile of `color.yaml` (keys as there).
@@ -164,6 +166,8 @@ class ColorProfile {
       bhFallback: number('bh_fallback', d.bhFallback),
       sharpness: number('sharpness', d.sharpness),
       darkness: number('darkness', d.darkness),
+      vibrance: number('vibrance', d.vibrance),
+      contrast: number('contrast', d.contrast),
     );
   }
 
@@ -196,6 +200,8 @@ class ColorProfile {
     'bh_fallback': bhFallback,
     'sharpness': sharpness,
     'darkness': darkness,
+    'vibrance': vibrance,
+    'contrast': contrast,
   };
 
   /// How much of the correction is mixed in (1 = all of it).
@@ -227,6 +233,15 @@ class ColorProfile {
   /// The strength of the unsharp mask (0 = none).
   final double sharpness;
   final double darkness;
+
+  /// More colour, most where there is little of it and least in the
+  /// water's own hues (0 = none; the OKLCH chroma times up to
+  /// 1 + vibrance). Not in the Python app (spec §10.101).
+  final double vibrance;
+
+  /// An S-curve on the OKLab lightness (0 = none, 1 = a full smoothstep).
+  /// Not in the Python app (spec §10.101).
+  final double contrast;
 }
 
 /// The six results of the analysis, before they are packed into the eleven
@@ -855,6 +870,62 @@ class ColorEngine {
     out[2] = mix(-0.0041960863, -0.7034186147, 1.7076147010);
   }
 
+  /// The profile's contrast and vibrance on an OKLCH colour, in place
+  /// (spec §6 and §10.101). [scratch] is working room of three numbers.
+  ///
+  /// The contrast is an S-curve on the lightness. The vibrance scales the
+  /// chroma, most for weak colours and not at all from [_vibranceFull] up;
+  /// a colour pushed out of sRGB is brought back along its chroma, so its
+  /// hue and lightness stay. `shaders/color_correct.frag` does the same.
+  void _look(List<double> lch, List<double> scratch) {
+    final contrast = profile.contrast;
+    if (contrast != 0.0) {
+      final l = _clamp01(lch[0]);
+      final curved = l * l * (3.0 - 2.0 * l);
+      lch[0] = l + contrast * (curved - l);
+    }
+    final vibrance = profile.vibrance;
+    if (vibrance == 0.0) {
+      return;
+    }
+    final before = lch[1];
+    final room = 1.0 - _clamp01(before / _vibranceFull);
+    // The water's own hues get a third of it: the reef and the fish are to
+    // stand out from the water, not the water to turn neon.
+    final fromWater = (lch[2] - profile.bhFallback).abs();
+    final away = _clamp01((fromWater - 0.07) / 0.10);
+    final weight = 0.35 + 0.65 * away * away * (3.0 - 2.0 * away);
+    final wanted = before * (1.0 + vibrance * weight * room);
+    bool inGamut(double chroma) {
+      lch[1] = chroma;
+      _toRgb(lch, scratch);
+      for (var c = 0; c < 3; c++) {
+        if (scratch[c] < -0.0005 || scratch[c] > 1.0005) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (inGamut(wanted)) {
+      return;
+    }
+    var low = before;
+    var high = wanted;
+    for (var i = 0; i < 6; i++) {
+      final mid = (low + high) / 2.0;
+      if (inGamut(mid)) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    lch[1] = low;
+  }
+
+  /// The OKLCH chroma from which the vibrance adds nothing.
+  static const double _vibranceFull = 0.3;
+
   /// [rgb] (three bytes a pixel) corrected by [filter], without the
   /// sharpening.
   Uint8List correct(Uint8List rgb, Float32List filter) {
@@ -923,6 +994,9 @@ class ColorEngine {
         hue = _f(hue + 1.0);
       }
       lch[2] = hue;
+      if (profile.vibrance != 0.0 || profile.contrast != 0.0) {
+        _look(lch, v);
+      }
       _toRgb(lch, v);
       for (var c = 0; c < 3; c++) {
         v[c] = _clamp01(v[c]);

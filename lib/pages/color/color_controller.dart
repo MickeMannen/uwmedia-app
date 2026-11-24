@@ -27,6 +27,7 @@ import 'package:uwmedia_app/core/hud/hud_renderer.dart';
 import 'package:uwmedia_app/core/hud/image_size.dart';
 import 'package:uwmedia_app/core/hud/layouts.dart';
 import 'package:uwmedia_app/core/hud/template_tree.dart';
+import 'package:uwmedia_app/core/hud/true_size.dart';
 import 'package:uwmedia_app/core/metadata/media_dates.dart';
 import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/model/dive_manager.dart';
@@ -2211,18 +2212,25 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
     _remember(overlayChoiceField, picker.choice);
     final layoutPath = picked.layoutPath;
     _layouts.remove(layoutPath);
-    // Seeded at the bottom left; dragged from there.
+    // Seeded at the bottom left; dragged from there. Its size is the
+    // computer's own beside the others' (spec §10.100).
+    final manifest = picked.manifest;
+    final skinSize = _layout(layoutPath)?.skinSize;
+    final scale = trueSizeScale(
+      widthMm: pictureWidthMm(picked.brand, picked.computer, manifest),
+      layout: picked.layout,
+      skinSize: skinSize,
+    );
     final box = overlayPixelBox(
       picked.layout,
       0,
       0,
-      1,
+      scale,
       _viewW.toInt(),
       _viewH.toInt(),
-      skinSize: _layout(layoutPath)?.skinSize,
+      skinSize: skinSize,
     );
     final seedH = _viewH == 0 ? 0.0 : (box.$4 - box.$2) / _viewH.toInt();
-    final manifest = picked.manifest;
     overlays.add(
       PlacedOverlay(
         id: _nextId++,
@@ -2231,6 +2239,7 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
             '${manifest['manufacturer'] ?? picked.brand} '
             '${manifest['model'] ?? picked.computer} - ${picked.page['name']}',
         y: math.max(0, 1 - seedH),
+        scale: scale,
       ),
     );
     _persistOverlays();

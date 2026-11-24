@@ -114,6 +114,29 @@ const templateDifferences = <String, Map<String, Map<String, (num, num)>>>{
   'garmin/x50i/cc': {
     'primary_tank_pressure_icon': {'rel_y': (0.3092, 0.31409)},
   },
+  // §10.102: the Perdix 2's and Perdix 3's Main with tanks, where texts
+  // stood on each other or too close.
+  'shearwater/perdix_2/main/sidemount': {
+    'label_gtr': {'rel_x': (0.3878, 0.3748)},
+    'label_sm': {'rel_x': (0.3878, 0.3748)},
+    'label_sac': {'rel_x': (0.3878, 0.3748)},
+    'primary_tank_pressure': {'font_size': (118, 128), 'box_pad': (0.02, 0.04)},
+    'secondary_tank_pressure': {
+      'font_size': (118, 128),
+      'box_pad': (0.02, 0.04),
+    },
+  },
+  'shearwater/perdix_3/main/sidemount': {
+    'label_max': {'rel_y': (0.4603, 0.4471), 'font_size': (60, 70)},
+    'label_gtr': {'rel_x': (0.3746, 0.3638)},
+    'label_sm': {'rel_x': (0.3746, 0.3638)},
+    'label_sac': {'rel_x': (0.3746, 0.3638)},
+    'gtr': {'rel_x': (0.5318, 0.5447)},
+    'sac': {'rel_x': (0.5318, 0.5447), 'max_width': (62, 80)},
+  },
+  'shearwater/perdix_3/main/single_tank': {
+    'label_slot_t1': {'rel_y': (0.4603, 0.4471), 'font_size': (60, 70)},
+  },
 };
 
 /// [layout] of the bundled [template] with Python's values in the places
@@ -160,10 +183,13 @@ String asPythonText(String path, String text) {
           (name, port, python),
     };
     for (final (name, port, python) in values) {
-      if (!text.contains('"$name": $port,')) {
+      // The value as a whole: followed by the next key or the element's
+      // end.
+      final place = RegExp('"$name": ${RegExp.escape('$port')}(?=[,}\\s])');
+      if (!place.hasMatch(text)) {
         throw StateError('$template: no $name of $port');
       }
-      text = text.replaceAll('"$name": $port,', '"$name": $python,');
+      text = text.replaceAll(place, '"$name": $python');
     }
   }
   return text;

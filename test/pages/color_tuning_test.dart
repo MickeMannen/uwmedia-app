@@ -53,7 +53,7 @@ void main() {
     await tester.runAsync(() async {
       final c = controller();
       expect(c.statusText, noImageText);
-      expect(c.profileList, containsAll(['default', 'vivid', 'subtle']));
+      expect(c.profileList, containsAll(['default', 'vivid', 'punchy']));
       expect(c.currentProfile, 'default');
       expect(c.textOf('gw_blur_radius'), '9');
       expect(c.textOf('cifval'), '1.000');
@@ -271,6 +271,8 @@ void main() {
       'dehaze_min',
       'exposure_max',
       'darkness',
+      'vibrance',
+      'contrast',
       'sharpness',
     ]);
     // The default profile's red and blue pairs read as half strength.

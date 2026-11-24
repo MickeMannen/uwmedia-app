@@ -585,7 +585,9 @@ void main() {
           ..pictureShape = ShareShape.portraitCropped
           ..setCrop(at: 0.28);
         await _settle(tester);
-        await overlay(c, 'garmin', 'x50i', size: 2.2);
+        // 2.2 times the template's own size, as before the overlay
+        // started at its true size (spec §10.100): 2.2 / 1.2316.
+        await overlay(c, 'garmin', 'x50i', size: 1.786);
         // The preview at the top of the screen, the whole picture seen.
         await Scrollable.ensureVisible(
           tester.element(find.text('Live preview')),

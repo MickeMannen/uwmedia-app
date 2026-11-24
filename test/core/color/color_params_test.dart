@@ -10,17 +10,31 @@ import '../../helpers/python_reference.dart';
 void main() {
   final reference = pythonReference('color/color_params_cases.json');
 
-  test('the groups and parameters are Python\'s', () {
+  test('the groups and parameters are Python\'s, then the look', () {
     expect([
       for (final (title, params) in colorParamGroups)
-        {
-          'title': title,
-          'params': [
-            for (final p in params)
-              [p.key, p.label, p.min, p.max, p.defaultValue, p.isInt],
-          ],
-        },
+        if (title != lookGroupTitle)
+          {
+            'title': title,
+            'params': [
+              for (final p in params)
+                [p.key, p.label, p.min, p.max, p.defaultValue, p.isInt],
+            ],
+          },
     ], reference['groups']);
+    // The app's own group comes last (spec §10.101).
+    final (title, look) = colorParamGroups.last;
+    expect(title, lookGroupTitle);
+    expect(
+      [
+        for (final p in look)
+          [p.key, p.label, p.min, p.max, p.defaultValue, p.isInt],
+      ],
+      [
+        ['vibrance', 'Vibrance', 0.0, 2.0, 0.0, false],
+        ['contrast', 'Contrast', 0.0, 1.0, 0.0, false],
+      ],
+    );
     expect(colorSliderScale, reference['slider_scale']);
     expect(newProfileNameMax, reference['name_max']);
   });
@@ -39,6 +53,6 @@ void main() {
     final fromTable = ColorProfile.fromMap(values);
     const builtIn = ColorProfile();
     expect(fromTable.toMap(), builtIn.toMap());
-    expect(colorParamsByKey.length, 26);
+    expect(colorParamsByKey.length, 28);
   });
 }

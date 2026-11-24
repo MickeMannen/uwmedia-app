@@ -5,9 +5,9 @@
       "id": "label_max",
       "field": "custom:MAX",
       "rel_x": 0.6224,
-      "rel_y": 0.4471,
+      "rel_y": 0.4603,
       "color": "#00ADED",
-      "font_size": 70,
+      "font_size": 60,
       "scale": 1.0,
       "font_family": "Roboto Condensed",
       "valign": "bottom",
@@ -80,7 +80,7 @@
     {
       "id": "label_gtr",
       "field": "custom:GTR",
-      "rel_x": 0.3638,
+      "rel_x": 0.3746,
       "rel_y": 0.6574,
       "color": "#00ADED",
       "font_size": 48,
@@ -91,7 +91,7 @@
     {
       "id": "gtr",
       "field": "air_remaining",
-      "rel_x": 0.5447,
+      "rel_x": 0.5318,
       "rel_y": 0.6574,
       "color": "#FFFFFF",
       "font_size": 48,
@@ -103,7 +103,7 @@
     {
       "id": "label_sm",
       "field": "custom:SM",
-      "rel_x": 0.3638,
+      "rel_x": 0.3746,
       "rel_y": 0.7354,
       "color": "#808080",
       "font_size": 48,
@@ -114,7 +114,7 @@
     {
       "id": "label_sac",
       "field": "custom:SAC",
-      "rel_x": 0.3638,
+      "rel_x": 0.3746,
       "rel_y": 0.8135,
       "color": "#00ADED",
       "font_size": 48,
@@ -125,7 +125,7 @@
     {
       "id": "sac",
       "field": "pressure_sac",
-      "rel_x": 0.5447,
+      "rel_x": 0.5318,
       "rel_y": 0.8135,
       "color": "#FFFFFF",
       "font_size": 48,
@@ -133,7 +133,7 @@
       "font_family": "Roboto Condensed",
       "valign": "bottom",
       "align": "right",
-      "max_width": 80
+      "max_width": 62
     },
     {
       "id": "label_t2",

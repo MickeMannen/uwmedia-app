@@ -53,12 +53,6 @@ On a computer the app does all of it, with FFmpeg and ExifTool included
 in the download. On a phone it does Color, Resize, Color Tuning, the dive
 logs and a simple tag editor, with the phone's own video engine.
 
-## Status
-
-The first release, v0.1.0, is in the works
-([roadmap](docs/roadmap_v0.1.0.md)). Until then the Python desktop app,
-[UWMedia](https://github.com/MickeMannen/UWMedia), is the one to download.
-
 ## License
 
 MIT, see [LICENSE](LICENSE). The ffmpeg, ffprobe and exiftool shipped

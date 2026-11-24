@@ -10,6 +10,7 @@ import 'package:uwmedia_app/core/hud/layouts.dart';
 import 'package:uwmedia_app/core/hud/template_tree.dart';
 
 import '../../helpers/python_reference.dart';
+import '../../helpers/renderer_reference.dart';
 
 const _assets = 'assets/overlays/templates';
 
@@ -18,8 +19,9 @@ const _assets = 'assets/overlays/templates';
 const _ownTemplates = 'generic/simple/';
 
 /// The bundled templates as the fixture names them: root "bundled".
-/// [asPython] leaves out the app's own, for comparing with the Python
-/// app's tree.
+/// [asPython] leaves out the app's own and puts Python's values back
+/// where a bundled template differs on purpose ([templateDifferences]),
+/// for comparing with the Python app's tree.
 TemplateFolder bundledFolder({bool asPython = false}) {
   final files = [
     for (final file in Directory(
@@ -27,11 +29,10 @@ TemplateFolder bundledFolder({bool asPython = false}) {
     ).listSync(recursive: true).whereType<File>())
       file.path.substring(_assets.length + 1).replaceAll(r'\', '/'),
   ].where((file) => !asPython || !file.startsWith(_ownTemplates)).toList();
-  return ListedTemplateFolder(
-    'bundled',
-    files,
-    (path) => File('$_assets/$path').readAsStringSync(),
-  );
+  return ListedTemplateFolder('bundled', files, (path) {
+    final text = File('$_assets/$path').readAsStringSync();
+    return asPython ? asPythonText('$_assets/$path', text) : text;
+  });
 }
 
 TemplateFolder userFolder(Map<String, String> files) =>

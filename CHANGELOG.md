@@ -4,6 +4,42 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [0.1.5] - 2026-11-24
+
+### Added
+
+- Color: a new profile, "punchy", for pictures with more colour and
+  contrast, closer to what is posted on Instagram and Facebook. The
+  reef, corals and fish get warmer and stronger colours while the water
+  stays as blue as with "default". It works for photos and videos.
+- Color Tuning: two new sliders, Vibrance and Contrast, to set how much
+  colour and contrast a profile of your own adds.
+
+### Changed
+
+- Color: the "subtle" profile is no longer bundled; the choices are
+  "default", "vivid" and "punchy". A "subtle" profile you saved yourself
+  stays.
+- Color: an overlay you add starts at its dive computer's real size
+  beside the others. A Descent X50i is now wider than a Perdix, as on
+  the arm, where it was drawn a third narrower; the Shearwater handsets
+  start a third smaller than before and the Garmin and Suunto ones
+  larger. Overlays already placed keep their size, and any overlay can
+  still be dragged larger or smaller.
+- Overlay Generator: the overlay videos and pictures follow the same
+  real sizes, so an X50i overlay is larger than before and a Perdix one
+  smaller. An overlay made earlier has the old size; make it again if
+  you mix old and new ones in one edit.
+
+### Fixed
+
+- Overlays, Shearwater Perdix 3 (Main with one tank or sidemount): the
+  "T1" or "MAX" label is no longer written over the safety stop's time.
+  With sidemount the GTR and SAC numbers stand clear of "T2".
+- Overlays, Shearwater Perdix 2 (Main with sidemount): "GTR" stands
+  clear of the tank picture beside T1, and the yellow box of a low tank
+  pressure no longer reaches up into the tank picture.
+
 ## [0.1.4] - 2026-11-23
 
 ### Fixed

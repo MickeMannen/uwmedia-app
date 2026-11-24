@@ -58,6 +58,9 @@ class ColorShader {
       ..setFloat(11, derived[0])
       ..setFloat(12, derived[1])
       ..setFloat(13, derived[2])
+      ..setFloat(14, profile.vibrance)
+      ..setFloat(15, profile.contrast)
+      ..setFloat(16, profile.bhFallback)
       ..setImageSampler(0, source);
     final corrected = _drawn(correct, source.width, source.height);
     correct.dispose();
