@@ -12,6 +12,7 @@ import 'dart:ui' show AppExitResponse;
 import 'package:flutter/widgets.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:uwmedia_app/core/window/window_placement.dart';
+import 'package:uwmedia_app/engine/app_log.dart';
 import 'package:uwmedia_app/engine/app_window.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -90,6 +91,7 @@ class DesktopWindowHost with WindowListener implements WindowHost {
     // app (Cmd+Q on the Mac) asks the app instead.
     _lifecycle = AppLifecycleListener(
       onExitRequested: () async {
+        AppLog.note('App', 'Asked to quit');
         await _saveQuietly();
         return AppExitResponse.exit;
       },
@@ -105,10 +107,29 @@ class DesktopWindowHost with WindowListener implements WindowHost {
     }
   }
 
+  // The close button: the window's state is saved, the window is taken
+  // off the screen and the app is told to end. Hidden first, because
+  // the runners keep the window until the engine has shut down, which
+  // took more than ten seconds on Windows (spec §10.109); the log says
+  // how long each step took.
   @override
   void onWindowClose() {
     unawaited(() async {
+      final clock = Stopwatch()..start();
       await _saveQuietly();
+      final saved = clock.elapsedMilliseconds;
+      try {
+        await windowManager.hide();
+      } on Object catch (e) {
+        debugPrint('Window not hidden: $e');
+      }
+      final going = AppLog.underWay();
+      AppLog.note(
+        'App',
+        'Closing: the window\'s state saved after $saved ms, the window '
+            'hidden after ${clock.elapsedMilliseconds} ms. '
+            '${going.isEmpty ? 'Nothing under way' : 'Still under way: ${going.join('; ')}'}',
+      );
       _lifecycle?.dispose();
       await windowManager.destroy();
     }());
@@ -152,6 +173,7 @@ Future<void> startDesktopWindow(File stateFile) async {
 }
 
 Future<void> _startDesktopWindow(File stateFile) async {
+  final clock = Stopwatch()..start();
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow();
   final keeper = WindowKeeper(
@@ -175,4 +197,8 @@ Future<void> _startDesktopWindow(File stateFile) async {
     },
   );
   await keeper.start();
+  AppLog.note(
+    'App',
+    'The window placed and shown after ${clock.elapsedMilliseconds} ms',
+  );
 }

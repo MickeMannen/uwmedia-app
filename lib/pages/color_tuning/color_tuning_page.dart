@@ -160,15 +160,32 @@ class _PinnedPicture extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(_PinnedPicture old) => true;
 }
 
+/// What the Save dialog says under a new name that is a bundled
+/// profile's.
+String takenProfileNameText(String name) =>
+    '"$name" is a profile that comes with the app. Choose another name.';
+
 /// What the Save dialog answered: over the profile, or as a new one of
 /// [newName].
 typedef _SaveAnswer = ({String? newName});
 
 class _SaveProfileDialog extends StatefulWidget {
-  const _SaveProfileDialog({required this.profile, required this.newName});
+  const _SaveProfileDialog({
+    required this.profile,
+    required this.bundled,
+    required this.newName,
+    this.bundledNames = const {},
+  });
 
   final String profile;
+
+  /// Whether [profile] came with the app: then it is not saved over.
+  final bool bundled;
   final String newName;
+
+  /// The names of the profiles that come with the app: none of them can
+  /// be the new profile's (spec §10.103), which the field says at once.
+  final Set<String> bundledNames;
 
   @override
   State<_SaveProfileDialog> createState() => _SaveProfileDialogState();
@@ -176,6 +193,8 @@ class _SaveProfileDialog extends StatefulWidget {
 
 class _SaveProfileDialogState extends State<_SaveProfileDialog> {
   late final _name = TextEditingController(text: widget.newName);
+
+  bool get _taken => widget.bundledNames.contains(_name.text.trim());
 
   @override
   void dispose() {
@@ -191,23 +210,40 @@ class _SaveProfileDialogState extends State<_SaveProfileDialog> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop((newName: null)),
-          child: Text('Overwrite "${widget.profile}"'),
-        ),
-        const MutedText('Or as a new profile:'),
-        TextField(
-          controller: _name,
-          maxLength: newProfileNameMax,
-          decoration: const InputDecoration(
-            isDense: true,
-            hintText: 'New profile name',
+        if (widget.bundled)
+          MutedText(
+            '"${widget.profile}" comes with the app and stays as it is. '
+            'Save the sliders as a profile of your own:',
+          )
+        else ...[
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop((newName: null)),
+            child: Text('Overwrite "${widget.profile}"'),
+          ),
+          const MutedText('Or as a new profile:'),
+        ],
+        // A name of the app's own is said in the field and cannot be
+        // saved (owner, 2026-11-26: the page's status line alone was
+        // "no real warning that it wasn't saved").
+        ListenableBuilder(
+          listenable: _name,
+          builder: (context, _) => TextField(
+            controller: _name,
+            maxLength: newProfileNameMax,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'New profile name',
+              errorMaxLines: 3,
+              errorText: _taken
+                  ? takenProfileNameText(_name.text.trim())
+                  : null,
+            ),
           ),
         ),
         ListenableBuilder(
           listenable: _name,
           builder: (context, _) => OutlinedButton(
-            onPressed: _name.text.trim().isEmpty
+            onPressed: _name.text.trim().isEmpty || _taken
                 ? null
                 : () => Navigator.of(context).pop((newName: _name.text)),
             child: const Text('Save As New'),
@@ -386,7 +422,9 @@ class _ColorTuningPageState extends State<ColorTuningPage> {
       context: context,
       builder: (context) => _SaveProfileDialog(
         profile: c.currentProfile,
+        bundled: c.currentIsBundled,
         newName: c.newProfileName,
+        bundledNames: c.bundledProfiles,
       ),
     );
     if (answer == null) {
@@ -599,9 +637,15 @@ class _ColorTuningPageState extends State<ColorTuningPage> {
                       ],
                       onChanged: (v) => c.currentProfile = v!,
                     ),
-                    OutlinedButton(
-                      onPressed: c.saveProfile,
-                      child: const Text('Save Profile'),
+                    // A bundled profile is not saved over (spec §10.103).
+                    Tooltip(
+                      message: c.currentIsBundled
+                          ? bundledProfileText(c.currentProfile)
+                          : 'Save the sliders as "${c.currentProfile}"',
+                      child: OutlinedButton(
+                        onPressed: c.currentIsBundled ? null : c.saveProfile,
+                        child: const Text('Save Profile'),
+                      ),
                     ),
                     SizedBox(
                       width: 200,

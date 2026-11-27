@@ -81,7 +81,8 @@ void main() {
     expect(store.tankConfig().tanks.tanks, {'12345': 'Left', '67890': 'Right'});
   });
 
-  test('colour profiles: the user\'s over the bundled ones', () {
+  test('colour profiles: the bundled ones as shipped, the user\'s '
+      'beside them (spec §10.103)', () {
     const bundled = 'default:\n  cifval: 1.0\ndeep:\n  cifval: 2.0\n';
     expect(store.colorProfiles(bundled).keys, ['default', 'deep']);
     store.saveUserProfile('mine', {'cifval': 3.5});
@@ -92,7 +93,9 @@ void main() {
     );
     final merged = store.colorProfiles(bundled);
     expect(merged.keys, ['default', 'deep', 'mine']);
-    expect(merged['default'], {'cifval': 9.0});
+    // A user profile with a bundled one's name is left out.
+    expect(merged['default'], {'cifval': 1.0});
+    expect(merged['mine'], {'cifval': 3.5});
     expect(merged['deep'], {'cifval': 2.0});
   });
 

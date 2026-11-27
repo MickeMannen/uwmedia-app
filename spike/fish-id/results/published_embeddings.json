@@ -1,0 +1,39 @@
+{
+  "matrix_shape": [
+    1024,
+    794878
+  ],
+  "matrix_dtype": "float32",
+  "matrix_gb": 3.26,
+  "labels": 794878,
+  "labels_with_common_name": 83370,
+  "species_are": "columns",
+  "entries_per_class": {
+    "Actinopterygii": 24,
+    "Elasmobranchii": 1159,
+    "Holocephali": 120,
+    "Reptilia": 0,
+    "Testudines": 0,
+    "Mammalia": 5535,
+    "Cephalopoda": 1114,
+    "Gastropoda": 38840,
+    "Malacostraca": 13558,
+    "Anthozoa": 4623,
+    "Asteroidea": 1110,
+    "Echinoidea": 1512,
+    "Holothuroidea": 511,
+    "Ascidiacea": 632
+  },
+  "sample_species_found": 11,
+  "sample_species_missing": 53,
+  "sample_species_missing_examples": [
+    "Amphiprion ocellaris",
+    "Amphiprion clarkii",
+    "Amphiprion perideraion",
+    "Dascyllus trimaculatus",
+    "Chromis viridis",
+    "Chaetodon lunula",
+    "Chaetodon vagabundus",
+    "Heniochus acuminatus"
+  ]
+}

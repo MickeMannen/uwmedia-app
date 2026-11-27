@@ -1,7 +1,7 @@
 // The phones' Settings page (lib/pages/settings/) on a temporary config
 // folder: the settings it shares with the desktop's Color page (profile,
 // output names, hardware encoding) and the units (the open pages told),
-// and the tank sensor names from picked Garmin logs (the FIT edit
+// and the tank sensor names of the kept Garmin logs (the FIT edit
 // fixture's invented ones); on a phone-sized screen.
 import 'dart:convert';
 import 'dart:io';
@@ -18,6 +18,8 @@ import 'package:uwmedia_app/pages/color/color_controller.dart'
 import 'package:uwmedia_app/pages/settings/settings_controller.dart';
 import 'package:uwmedia_app/pages/settings/settings_page.dart';
 
+import '../helpers/wait.dart';
+
 final Map<String, dynamic> _sources =
     (jsonDecode(
           utf8.decode(
@@ -29,13 +31,6 @@ final Map<String, dynamic> _sources =
           ),
         ) as Map<String, dynamic>)['sources']
         as Map<String, dynamic>;
-
-class FakeDialogs implements SettingsDialogs {
-  List<String> logs = const [];
-
-  @override
-  Future<List<String>> pickLogs() async => logs;
-}
 
 void main() {
   late Directory tmp;
@@ -118,11 +113,7 @@ void main() {
       MaterialApp(
         theme: appTheme(),
         home: Scaffold(
-          body: SettingsPage(
-            services: services,
-            dialogs: FakeDialogs(),
-            bundledColorYaml: bundled,
-          ),
+          body: SettingsPage(services: services, bundledColorYaml: bundled),
         ),
       ),
     );
@@ -140,7 +131,7 @@ void main() {
     expect(told, 1, reason: 'the Color page is told');
   });
 
-  testWidgets('on a phone: units, profile and tank names from picked logs', (
+  testWidgets('on a phone: units, and the tank names with no log kept', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(400, 860);
@@ -154,22 +145,11 @@ void main() {
     );
     var revision = 0;
     services.unitsRevision.addListener(() => revision++);
-    final logs = <String>[];
-    for (final name in ['air', 'nitrox_30_min_later']) {
-      final path = p.join(tmp.path, '$name.FIT');
-      File(path).writeAsBytesSync(base64.decode(_sources[name] as String));
-      logs.add(path);
-    }
-    final dialogs = FakeDialogs()..logs = logs;
     await tester.pumpWidget(
       MaterialApp(
         theme: appTheme(),
         home: Scaffold(
-          body: SettingsPage(
-            services: services,
-            dialogs: dialogs,
-            bundledColorYaml: bundled,
-          ),
+          body: SettingsPage(services: services, bundledColorYaml: bundled),
         ),
       ),
     );
@@ -184,15 +164,58 @@ void main() {
     expect(revision, 1);
 
     await tester.ensureVisible(find.text('Tank Sensor Names…'));
-    await tester.tap(find.text('Tank Sensor Names…'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tank Sensor Names'), findsOneWidget);
     await tester.runAsync(() async {
-      await tester.tap(find.text('Read Garmin Logs…'));
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Tank Sensor Names…'));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
     });
+    await pumpUntilFound(tester, find.textContaining('No tank sensors yet'));
+    expect(find.text('Tank Sensor Names'), findsOneWidget);
+    // No log is picked here: the sensors come from the Dive Logs page's
+    // logs (owner, 2026-11-25).
+    expect(find.text('Read Garmin Logs…'), findsNothing);
+    expect(find.textContaining('No tank sensors yet'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('sensor(s) in .fit files'), findsOneWidget);
+    expect(find.text('Tank Sensor Names'), findsNothing);
+  });
+
+  testWidgets('on a phone: the tank sensors of the dive logs the app keeps', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final services = AppServices(
+      capabilities: const Capabilities(desktop: false),
+      config: config,
+      home: tmp.path,
+      dataDir: () => Directory(p.join(tmp.path, 'data')),
+    );
+    // A kept Garmin log: its sensors are in the window when it opens,
+    // with no file picked (owner, 2026-11-24).
+    final kept = services.logStore.folder..createSync(recursive: true);
+    File(p.join(kept.path, 'air.fit'))
+        .writeAsBytesSync(base64.decode(_sources['air'] as String));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: SettingsPage(services: services, bundledColorYaml: bundled),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Tank Sensor Names…'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Tank Sensor Names…'));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    // The log is read on an isolate: as long as that takes.
+    await pumpUntilFound(tester, find.textContaining('from your dive logs'));
+    expect(find.text('Tank Sensor Names'), findsOneWidget);
+    expect(find.textContaining('from your dive logs'), findsOneWidget);
+    expect(find.textContaining('1 dive'), findsWidgets);
+    expect(tester.takeException(), isNull);
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(config.tankConfig().tanks.tanks, isNotEmpty);

@@ -17,6 +17,9 @@ import 'package:uwmedia_app/engine/file_picks.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
 import 'package:uwmedia_app/engine/watermark_store.dart';
 import 'package:uwmedia_app/pages/color_tuning/color_tuning_page.dart';
+import 'package:uwmedia_app/pages/shared/phone_files.dart';
+import 'package:uwmedia_app/pages/shared/photos.dart';
+import 'package:uwmedia_app/pages/shared/place_menu.dart';
 import 'package:uwmedia_app/pages/shared/watermark_editor.dart';
 import 'package:uwmedia_app/widgets/section_card.dart';
 
@@ -36,11 +39,19 @@ String watermarkSummary(Watermark mark) {
               '${watermarkPlaceText(mark.placePortrait).toLowerCase()})';
     place = '${watermarkPlaceText(mark.place)}$upright';
   }
-  final size = (mark.size * 100).toStringAsFixed(mark.isPicture ? 0 : 1);
+  String percent(double share) =>
+      (share * 100).toStringAsFixed(mark.isPicture ? 0 : 1);
+  // The size of the one kind of frame it is for; of both when they differ.
+  final size = !mark.onLandscape
+      ? '${percent(mark.sizePortrait)} % of the width'
+      : mark.onPortrait && mark.sizePortrait != mark.size
+      ? '${percent(mark.size)} % of the width '
+            '(portrait: ${percent(mark.sizePortrait)} %)'
+      : '${percent(mark.size)} % of the width';
   return mark.isPicture
-      ? 'Picture · $place · $size % of the width · '
+      ? 'Picture · $place · $size · '
             '${(mark.opacity * 100).round()} % solid'
-      : 'Text "${mark.text}" · $place · letters $size % of the width';
+      : 'Text "${mark.text}" · $place · letters $size';
 }
 
 Future<String?> _pickFile() async => (await openFile(
@@ -122,6 +133,7 @@ class WatermarksSection extends StatefulWidget {
     this.pickSampleFile = _pickSampleFile,
     this.kit = HudKit.load,
     this.pickSample,
+    this.photos,
   });
 
   /// The renderer's fonts, with which the editor measures a text.
@@ -133,6 +145,10 @@ class WatermarksSection extends StatefulWidget {
   final Future<String?> Function()? pickSample;
 
   final AppServices services;
+
+  /// Apple Photos on a computer that has it (the Mac), for a test; the
+  /// system's own otherwise.
+  final MediaLibrary? photos;
 
   /// A picture file picked in the system's file dialog (Files on a phone).
   final Future<String?> Function() pickFile;
@@ -158,27 +174,59 @@ class _WatermarksSectionState extends State<WatermarksSection> {
     widget.services.watermarksRevision.value++;
   }
 
+  // Apple Photos beside the files on a computer that has it (the Mac),
+  // as on the pages that pick photos and videos (spec §10.50).
+  MediaLibrary? get _photos => !widget.services.capabilities.desktop
+      ? null
+      : widget.photos ??
+            (widget.services.capabilities.photos
+                ? const PlatformMediaLibrary()
+                : null);
+
+  // One item picked in Photos, as a copy in a working folder; the copy
+  // of the pick before under the same [keep] is removed.
+  Future<String?> _fromPhotos(String keep, {required bool videos}) async {
+    final dir = await pickFromPhotos(
+      _photos!,
+      widget.services.tempDir,
+      page: keep,
+      videos: videos,
+      multiple: false,
+    );
+    return dir == null ? null : mediaIn(dir).firstOrNull;
+  }
+
+  // A computer's sample of [path]: a picture as it is, a video's middle
+  // frame.
+  Future<String?> _desktopSample(String? path) async {
+    if (path == null || !isVideoPath(path)) {
+      return path;
+    }
+    // Without ffmpeg no frame: the editor says the sample failed.
+    final services = widget.services;
+    final tools = await services.desktopTools();
+    final sample = await desktopSample(path, tools.ffmpeg, services.tempDir);
+    if (sample == null) {
+      throw const EngineException('The video gave no frame');
+    }
+    return sample;
+  }
+
   // A photo, or a video's middle frame, from a phone's library or, on a
   // computer, from a file.
   Future<String?> _sample() async {
     final services = widget.services;
     if (services.capabilities.desktop) {
-      final path = await widget.pickSampleFile();
-      if (path == null || !isVideoPath(path)) {
-        return path;
-      }
-      // Without ffmpeg no frame: the editor says the sample failed.
-      final tools = await services.desktopTools();
-      final sample = await desktopSample(path, tools.ffmpeg, services.tempDir);
-      if (sample == null) {
-        throw const EngineException('The video gave no frame');
-      }
-      return sample;
+      return _desktopSample(await widget.pickSampleFile());
     }
     return services.capabilities.mobileEngine
         ? pickSampleFromLibrary(services.tempDir)('')
         : widget.pickFromLibrary();
   }
+
+  // The same from Apple Photos on the Mac.
+  Future<String?> _sampleFromPhotos() async =>
+      _desktopSample(await _fromPhotos('Watermark sample', videos: true));
 
   Future<void> _addPicture(Future<String?> Function() pick) async {
     final String? path;
@@ -227,6 +275,7 @@ class _WatermarksSectionState extends State<WatermarksSection> {
         pictureBytes: store.pictureBytes(mark),
         kit: widget.kit,
         pickSample: widget.pickSample ?? _sample,
+        pickSampleFromPhotos: _photos == null ? null : _sampleFromPhotos,
       ),
     );
     if (changed == null || !mounted) {
@@ -253,6 +302,7 @@ class _WatermarksSectionState extends State<WatermarksSection> {
   Widget build(BuildContext context) {
     final marks = store.list();
     final phone = !widget.services.capabilities.desktop;
+    final photos = _photos;
     return SectionCard(
       title: 'My watermarks',
       children: [
@@ -288,18 +338,47 @@ class _WatermarksSectionState extends State<WatermarksSection> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            OutlinedButton(
-              onPressed: () => _addPicture(widget.pickFile),
-              child: Text(phone ? 'Add picture from Files…' : 'Add picture…'),
-            ),
+            // A phone: one button, with the library or Files to choose
+            // from, as where photos are picked (owner, 2026-11-25).
             if (phone)
+              PickMediaButton(
+                label: 'Add picture…',
+                icon: Icons.add_photo_alternate_outlined,
+                filled: false,
+                onPick: ({required fromFiles}) => _addPicture(
+                  fromFiles ? widget.pickFile : widget.pickFromLibrary,
+                ),
+              )
+            // The Mac: from a file or from Photos, as its other pages
+            // (owner, 2026-11-26).
+            else if (photos != null)
+              PlaceMenuButton(
+                label: 'Add picture…',
+                icon: Icons.add_photo_alternate_outlined,
+                places: [
+                  (
+                    icon: Icons.description_outlined,
+                    label: filesPlaceLabel,
+                    onPressed: () => _addPicture(widget.pickFile),
+                  ),
+                  (
+                    icon: Icons.photo_library_outlined,
+                    label: photoLibraryPlaceLabel,
+                    onPressed: () => _addPicture(
+                      () => _fromPhotos('Watermarks', videos: false),
+                    ),
+                  ),
+                ],
+              )
+            else
               OutlinedButton(
-                onPressed: () => _addPicture(widget.pickFromLibrary),
-                child: const Text('Add picture from the library…'),
+                onPressed: () => _addPicture(widget.pickFile),
+                child: const Text('Add picture…'),
               ),
             OutlinedButton(onPressed: _addText, child: const Text('Add text…')),
           ],
         ),
+        if (photos != null) const PhotosFetching(),
         if (_status.isNotEmpty) MutedText(_status),
       ],
     );

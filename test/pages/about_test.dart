@@ -65,6 +65,92 @@ void main() {
     );
   });
 
+  testWidgets('no update check where the app comes from a store', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final tmp = Directory.systemTemp.createTempSync('uwmedia_about_');
+    addTearDown(() => tmp.deleteSync(recursive: true));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: AboutPage(
+            services: AppServices(
+              capabilities: const Capabilities(
+                desktop: false,
+                updateCheck: false,
+              ),
+              config: ConfigStore(() => Directory(p.join(tmp.path, 'c'))),
+              home: '/Users/x',
+            ),
+            version: '1.0.0',
+            latestTag: () async => fail('not to be asked'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Version 1.0.0'), findsOneWidget);
+    expect(find.text('Updates'), findsNothing);
+    expect(find.text('Check for updates'), findsNothing);
+    expect(find.text('License'), findsOneWidget);
+  });
+
+  testWidgets('no word of ffmpeg and exiftool in the Mac App Store build', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final tmp = Directory.systemTemp.createTempSync('uwmedia_about_');
+    addTearDown(() => tmp.deleteSync(recursive: true));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: AboutPage(
+            services: AppServices(
+              capabilities: const Capabilities(
+                desktop: true,
+                externalTools: false,
+                updateCheck: false,
+              ),
+              config: ConfigStore(() => Directory(p.join(tmp.path, 'c'))),
+              home: '/Users/x',
+            ),
+            version: '1.0.0',
+            build: '2611270813',
+            latestTag: () async => fail('not to be asked'),
+            finder: () => fail('no tools to look for'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The build's number is the version's tooltip.
+    expect(
+      tester
+          .widget<Tooltip>(
+            find.ancestor(
+              of: find.text('Version 1.0.0'),
+              matching: find.byType(Tooltip),
+            ),
+          )
+          .message,
+      'Build 2611270813',
+    );
+    expect(find.textContaining('FFmpeg'), findsNothing);
+    expect(find.textContaining('ExifTool'), findsNothing);
+    expect(find.textContaining('external programs'), findsNothing);
+    // The fonts and the licences' list stay.
+    expect(find.text('Third-Party Licenses'), findsOneWidget);
+    expect(find.textContaining('The overlay fonts'), findsOneWidget);
+    expect(find.text('Open-source licenses'), findsOneWidget);
+  });
+
   testWidgets('on screen', (tester) async {
     tester.view.physicalSize = const Size(1000, 1600);
     tester.view.devicePixelRatio = 1;

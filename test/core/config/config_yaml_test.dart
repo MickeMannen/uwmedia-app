@@ -264,11 +264,18 @@ void main() {
           c['bundled'] as String?,
           c['user'] as String?,
         );
-        // An entry that is not a set of parameters is left out here.
+        // An entry that is not a set of parameters is left out here,
+        // and a bundled profile stays as shipped where Python lets the
+        // user's of the same name take its place (spec §10.103).
+        final shipped = mergedColorProfiles(c['bundled'] as String?, null);
+        final names = bundledProfileNames(c['bundled'] as String?);
         final want = {
           for (final MapEntry(:key, :value)
               in (c['profiles'] as Map<String, dynamic>).entries)
-            if (value is Map) key: value,
+            if (names.contains(key))
+              key: shipped[key]
+            else if (value is Map)
+              key: value,
         };
         expect(
           merged,
@@ -285,8 +292,19 @@ void main() {
         'default:\n  sharpness: 1.25\n',
       );
       expect(merged.keys, ['default', 'vivid', 'subtle']);
-      // The user's default replaces the bundled one as a whole.
-      final profile = ColorProfile.fromMap(merged['default']!);
+      // The user's default is left out: the bundled one as shipped
+      // (spec §10.103).
+      expect(
+        merged['default'],
+        mergedColorProfiles(color['bundled'] as String, null)['default'],
+      );
+      // One of the user's own feeds the engine as a whole.
+      final own = mergedColorProfiles(
+        color['bundled'] as String,
+        'mine:\n  sharpness: 1.25\n',
+      );
+      expect(own.keys, ['default', 'vivid', 'subtle', 'mine']);
+      final profile = ColorProfile.fromMap(own['mine']!);
       expect(profile.sharpness, 1.25);
       expect(profile.darkness, 0.0);
       expect(ColorProfile.fromMap(merged['vivid']!).redThreshold, 0.25);
@@ -326,6 +344,71 @@ void main() {
       expect(colorParamsByKey['sharpness']!.fallback, defaults.sharpness);
       expect(colorParamsByKey['bh_max_idx']!.fallback, defaults.bhMaxIdx);
       expect(colorParamsByKey['dehaze_min']!.fallback, defaults.dehazeMin);
+    });
+  });
+
+  group('the port\'s sections (spec §10.104)', () {
+    test('sidemount names, sides and rated pressures are kept and read', () {
+      final tanks = TankConfig(
+        {'111': 'Micke01', '222': 'Micke02', '333': 'Stage'},
+        {'111': 10.6},
+        {'111': 'Left', '222': 'Right'},
+        {'111': TankSide.left, '222': TankSide.right},
+        {'111': 206.84},
+      );
+      final text = ConfigFile.parse('other: kept\n').withTanks(tanks);
+      final saved = ConfigFile.parse(text);
+      expect(saved.tanks.tanks, tanks.tanks);
+      expect(saved.tanks.sizes, {'111': 10.6});
+      expect(saved.tanks.sidemountNames, {'111': 'Left', '222': 'Right'});
+      expect(saved.tanks.sides, {'111': TankSide.left, '222': TankSide.right});
+      expect(saved.tanks.workingBar, {'111': 206.84});
+      expect(yamlValue(saved.data['other']), 'kept');
+      // Emptied again: the sections go.
+      final plain = saved.withTanks(TankConfig(tanks.tanks));
+      expect(plain, isNot(contains('tank_')));
+      expect(ConfigFile.parse(plain).tanks.tanks, tanks.tanks);
+    });
+
+    test('what is not a name, a side or a pressure is left out', () {
+      final config = ConfigFile.parse(
+        'tanks:\n  "1": A\n  "2": B\n'
+        'tank_sidemount_names:\n  "1": "  "\n  "2": 7\n'
+        'tank_sides:\n  "1": LEFT\n  "2": up\n'
+        'tank_working_bar:\n  "1": 232\n  "2": 4000\n',
+      );
+      expect(config.tanks.sidemountNames, {'2': '7'});
+      expect(config.tanks.sides, {'1': TankSide.left});
+      expect(config.tanks.workingBar, {'1': 232.0});
+    });
+
+    test('by tank key: two sensors of one name share the first one\'s', () {
+      final tanks = TankConfig(
+        {'1': 'Left', '2': 'Left', '3': 'Right'},
+        const {},
+        {'2': 'Port', '3': 'Starboard', '9': 'Spare'},
+        {'1': TankSide.right, '2': TankSide.left},
+      );
+      expect(tanks.sidemountNamesByKey, {
+        'Left': 'Port',
+        'Right': 'Starboard',
+        '9': 'Spare',
+      });
+      expect(tanks.sidesByKey, {'Left': TankSide.right});
+      final without = tanks.withoutTank('2');
+      expect(without.sidemountNames.keys, ['3', '9']);
+      expect(without.sides.keys, ['1']);
+    });
+
+    test('cubic feet and litres', () {
+      // An AL80: 77.4 cu ft at 3000 psi.
+      expect(defaultWorkingBar, closeTo(206.84, 0.01));
+      final litres = litresOfCubicFeet(77.4, defaultWorkingBar);
+      expect(litres, closeTo(10.6, 0.01));
+      expect(cubicFeetOf(litres, defaultWorkingBar), closeTo(77.4, 1e-9));
+      expect(validWorkingBar(49), isFalse);
+      expect(validWorkingBar(232), isTrue);
+      expect(validWorkingBar(401), isFalse);
     });
   });
 }

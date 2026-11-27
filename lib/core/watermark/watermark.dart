@@ -147,7 +147,7 @@ const _designWidth = 1920;
 
 /// How far from the frame's edges a watermark lies, as a share of the
 /// frame's width.
-const watermarkMargin = 0.02;
+const watermarkMargin = 0.005;
 
 /// The limits of a watermark's size and opacity.
 const watermarkMinSize = 0.02;
@@ -172,6 +172,7 @@ class Watermark {
     this._placePortrait,
     this.textBox,
     double? size,
+    this._sizePortrait,
     this.opacity = 0.8,
     this.frames = watermarkFramesBoth,
   }) : size = size ?? (picture == null ? 0.03 : 0.15);
@@ -199,6 +200,7 @@ class Watermark {
     final anchor = json['anchor'];
     final color = json['color'];
     final size = json['size'];
+    final sizePortrait = json['size_portrait'];
     final opacity = json['opacity'];
     // One kept before the two places has its anchor for both.
     final place = _placeFromJson(json['place']);
@@ -222,6 +224,10 @@ class Watermark {
       textBox: box != null && box.$1 > 0 && box.$2 > 0 ? box : null,
       size: size is num
           ? size.toDouble().clamp(watermarkMinSize, watermarkMaxSize)
+          : null,
+      // One kept before the two sizes has its size for both.
+      sizePortrait: sizePortrait is num
+          ? sizePortrait.toDouble().clamp(watermarkMinSize, watermarkMaxSize)
           : null,
       opacity: opacity is num
           ? opacity.toDouble().clamp(watermarkMinOpacity, 1.0)
@@ -286,8 +292,23 @@ class Watermark {
   final (double, double)? textBox;
 
   /// A picture's width, or a text's letter height, as a share of the
-  /// frame's width.
+  /// frame's width, on a landscape (or square) frame.
   final double size;
+
+  final double? _sizePortrait;
+
+  /// The same on a portrait frame, whose width is its short side: [size]
+  /// until it is given one of its own (owner, 2026-11-25; spec §10.105).
+  double get sizePortrait => _sizePortrait ?? size;
+
+  /// The size on a frame of [frameW] by [frameH].
+  double sizeOn(int frameW, int frameH) =>
+      frameH > frameW ? sizePortrait : size;
+
+  /// This mark as it is on a portrait frame ([portrait]) or a landscape
+  /// one: its [size] is that frame's.
+  Watermark shaped({required bool portrait}) =>
+      portrait && sizePortrait != size ? copyWith(size: sizePortrait) : this;
 
   /// How solid a picture is drawn, 0 to 1. A text is always solid, with a
   /// dark outline so that it reads on light and dark water.
@@ -304,6 +325,7 @@ class Watermark {
     if (picture == null && textBox != null)
       'text_box': [textBox!.$1, textBox!.$2],
     'size': size,
+    if (_sizePortrait != null) 'size_portrait': _sizePortrait,
     if (picture != null) 'opacity': opacity,
     if (frames != watermarkFramesBoth) 'frames': frames,
   };
@@ -318,6 +340,7 @@ class Watermark {
     WatermarkPlace? placePortrait,
     (double, double)? textBox,
     double? size,
+    double? sizePortrait,
     double? opacity,
     String? frames,
   }) => Watermark(
@@ -331,6 +354,7 @@ class Watermark {
     textBox:
         textBox ?? (text == null || text == this.text ? this.textBox : null),
     size: size ?? this.size,
+    sizePortrait: sizePortrait ?? _sizePortrait,
     opacity: opacity ?? this.opacity,
   );
 }
@@ -391,6 +415,8 @@ Map<String, dynamic>? watermarkLayout(
   }
   final margin = watermarkMargin * _designWidth;
   var place = mark.placeOn(frameW, frameH);
+  // From here on the size is this frame's.
+  mark = mark.shaped(portrait: frameH > frameW);
   final textBox = mark.textBox;
   var anchor = anchorOfPlace(place);
   // The mark's size in design pixels, where it is known.

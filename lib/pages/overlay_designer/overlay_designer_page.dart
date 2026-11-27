@@ -127,7 +127,7 @@ class DesktopDesignerMedia implements DesignerMedia {
 typedef DesignerSetup = Future<DesignerController> Function(AppServices);
 
 Future<DesignerController> defaultDesignerSetup(AppServices services) async {
-  final kit = await HudKit.load();
+  final kit = await services.hudKit();
   Future<DesignerMedia>? media;
   // In checkout mode the bundled tree is the checkout's own folder, read
   // from disk so that a save shows at once (spec §10.84).

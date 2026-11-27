@@ -1,0 +1,298 @@
+{
+  "params": {
+    "model": "bioclip-2.5-vith14",
+    "weights_file_mb": 3944.5,
+    "params_visual_m": 632.1,
+    "params_text_and_rest_m": 354.0,
+    "visual_fp32_mb": 2528.3,
+    "visual_fp16_mb": 1264.2,
+    "text_fp32_mb": 1416.1,
+    "embedding_dim": 1024,
+    "input": "1x3x224x224",
+    "preprocess": "Compose(\n    Resize(size=224, interpolation=bicubic, max_size=None, antialias=True)\n    CenterCrop(size=(224, 224))\n    MaybeConvertMode()\n    MaybeToTensor()\n    Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])\n)"
+  },
+  "text": {
+    "species": 64,
+    "matrix_shape": [
+      64,
+      1024
+    ],
+    "matrix_dtype": "float16",
+    "matrix_kb": 131.1,
+    "seconds_for_all_cpu": 4.08,
+    "seconds_per_species_cpu": 0.064,
+    "logit_scale": 98.864,
+    "fp16_matrix_vs_whole_model_max_probability_difference": 0.0001004934310913086,
+    "same_top_species": true,
+    "sample_top3_no_accuracy_claim": [
+      {
+        "picture": "frame-corrected.jpg",
+        "top3": [
+          [
+            "Amphiprion ocellaris",
+            0.999
+          ],
+          [
+            "Amphiprion clarkii",
+            0.001
+          ],
+          [
+            "Amphiprion perideraion",
+            0.0
+          ]
+        ]
+      },
+      {
+        "picture": "frame-original.jpg",
+        "top3": [
+          [
+            "Amphiprion ocellaris",
+            0.989
+          ],
+          [
+            "Amphiprion clarkii",
+            0.011
+          ],
+          [
+            "Amphiprion perideraion",
+            0.0
+          ]
+        ]
+      },
+      {
+        "picture": "jpeg_3x2_2mp.jpg",
+        "top3": [
+          [
+            "Odontodactylus scyllarus",
+            0.249
+          ],
+          [
+            "Balistoides conspicillum",
+            0.207
+          ],
+          [
+            "Paracanthurus hepatus",
+            0.166
+          ]
+        ]
+      }
+    ],
+    "extrapolated_mb": {
+      "500 species": 1.0,
+      "3000 species": 6.1,
+      "20000 species": 41.0,
+      "250000 species": 512.0,
+      "1000000 species": 2048.0
+    }
+  },
+  "onnx": {
+    "opset": 17,
+    "export_seconds": 7.4,
+    "files_the_exporter_wrote_above_2gb": 521,
+    "inputs": [
+      [
+        "image",
+        [
+          "batch",
+          3,
+          224,
+          224
+        ],
+        "tensor(float)"
+      ]
+    ],
+    "outputs": [
+      [
+        "embedding",
+        [
+          "batch",
+          1024
+        ],
+        "tensor(float)"
+      ]
+    ],
+    "operators": [
+      "Add",
+      "Cast",
+      "Concat",
+      "Constant",
+      "ConstantOfShape",
+      "Conv",
+      "Div",
+      "Equal",
+      "Erf",
+      "Expand",
+      "Gather",
+      "LayerNormalization",
+      "MatMul",
+      "Mul",
+      "ReduceL2",
+      "Reshape",
+      "Shape",
+      "Softmax",
+      "Transpose",
+      "Unsqueeze",
+      "Where"
+    ],
+    "fp32_mb": 2528.9,
+    "fp16_mb": 1264.6,
+    "fp16_error": null,
+    "fp32_cosine_to_pytorch_min": 0.9999997615814209,
+    "fp16_cosine_to_pytorch_min": 0.9999960660934448
+  },
+  "time": {
+    "machine": "arm64",
+    "threads": 4,
+    "pytorch_cpu_1": 0.564,
+    "pytorch_cpu_8": 3.089,
+    "pytorch_mps_1": 0.186,
+    "pytorch_mps_8": 1.145,
+    "pytorch_mps_fp16_1": 0.156,
+    "pytorch_mps_fp16_8": 0.945,
+    "onnx_fp32_cpu_1": 1.125,
+    "onnx_fp32_cpu_8": 9.321,
+    "onnx_fp32_cpu_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp32_coreml_1": 1.519,
+    "onnx_fp32_coreml_providers": [
+      "CoreMLExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp16_cpu_1": 1.118,
+    "onnx_fp16_cpu_8": 8.794,
+    "onnx_fp16_cpu_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp16_coreml_1": 1.027,
+    "onnx_fp16_coreml_providers": [
+      "CoreMLExecutionProvider",
+      "CPUExecutionProvider"
+    ]
+  },
+  "coreml": {
+    "convert_seconds": 16.7,
+    "mlpackage_fp16_mb": 1264.5,
+    "all_load_and_first_seconds": 10.7,
+    "all_seconds_1": 0.135,
+    "all_cosine_to_pytorch": 1.0002453327178955,
+    "cpu_and_gpu_load_and_first_seconds": 7.5,
+    "cpu_and_gpu_seconds_1": 0.135,
+    "cpu_and_gpu_cosine_to_pytorch": 1.0002453327178955,
+    "cpu_and_ne_load_and_first_seconds": 4.3,
+    "cpu_and_ne_seconds_1": 0.17,
+    "cpu_and_ne_cosine_to_pytorch": 0.9987261295318604,
+    "cpu_only_load_and_first_seconds": 8.1,
+    "cpu_only_seconds_1": 0.168,
+    "cpu_only_cosine_to_pytorch": 0.9987261295318604
+  },
+  "prompts": {
+    "seven ranks and common name": {
+      "mean_cosine_to_first_wording": 1.0,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.999
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.989
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Odontodactylus scyllarus",
+          0.249
+        ]
+      ]
+    },
+    "seven ranks": {
+      "mean_cosine_to_first_wording": 0.968,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.997
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.988
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Balistoides conspicillum",
+          0.305
+        ]
+      ]
+    },
+    "no class, common name": {
+      "mean_cosine_to_first_wording": 0.995,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.999
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.989
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Odontodactylus scyllarus",
+          0.287
+        ]
+      ]
+    },
+    "scientific name": {
+      "mean_cosine_to_first_wording": 0.96,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.998
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.986
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Balistoides conspicillum",
+          0.351
+        ]
+      ]
+    },
+    "common name": {
+      "mean_cosine_to_first_wording": 0.88,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.99
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.962
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Synchiropus splendidus",
+          0.232
+        ]
+      ]
+    }
+  },
+  "memory": {
+    "coreml_all_peak_rss_mb": 2911.0,
+    "coreml_cpu_and_gpu_peak_rss_mb": 2908.0,
+    "coreml_cpu_only_peak_rss_mb": 2883.0,
+    "onnx_cpu_fp16_peak_rss_mb": 3873.0,
+    "onnx_cpu_fp32_peak_rss_mb": 2616.0
+  }
+}

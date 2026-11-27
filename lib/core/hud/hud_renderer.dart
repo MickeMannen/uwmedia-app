@@ -20,6 +20,7 @@ import 'package:uwmedia_app/core/hud/hud_fonts.dart';
 import 'package:uwmedia_app/core/hud/hud_geometry.dart';
 import 'package:uwmedia_app/core/hud/hud_ops.dart';
 import 'package:uwmedia_app/core/hud/hud_text.dart';
+import 'package:uwmedia_app/core/hud/sidemount_tanks.dart';
 import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/rules/hud_notices.dart';
 import 'package:uwmedia_app/core/rules/hud_rules_engine.dart';
@@ -475,6 +476,12 @@ class HudRenderer {
   /// render.
   final HudRules rules;
 
+  /// The saved sides and sidemount names of the tanks, which an overlay
+  /// that shows a second tank is drawn with (spec §10.104); `null` draws
+  /// every overlay from the dive's tanks as they are. Set by the app from
+  /// `config.yaml`, at its start and when the names are saved.
+  SidemountTanks? sidemount;
+
   /// The font size (px) a text element draws at: [size], or smaller when
   /// the element has a `max_width` (skin px) and the value with its small
   /// suffix, and the unit drawn after it, is wider than that.
@@ -711,6 +718,16 @@ class HudRenderer {
     UnitSystem units = UnitSystem.metric,
     double? flashAt,
   }) {
+    final sidemount = this.sidemount;
+    if (sidemount != null && showsSecondTank(layout)) {
+      if (waypoint != null) {
+        waypoint = sidemount.view(waypoint);
+      }
+      // The dive too: the notices are worked out along it.
+      if (waypoints != null) {
+        waypoints = sidemount.viewAll(waypoints);
+      }
+    }
     final ops = <HudOp>[];
     final hudSkin = layout['hud_skin'] is Map<String, dynamic>
         ? layout['hud_skin'] as Map<String, dynamic>
@@ -2300,7 +2317,9 @@ class _Pass {
   /// range_min..range_max. `segments` > 1 splits the track with
   /// `segment_gap` degrees between the parts. The fill takes `color`, or
   /// the band / rule colour at the value. Drawn without a value too (an
-  /// empty track), like the device's.
+  /// empty track), like the device's. `fill_from: "end"` fills from the
+  /// track's end back towards its start (a TUSA TC1's nitrogen dots, lit
+  /// from the left along the lower rim: spec §10.107).
   void drawArc(Map<String, dynamic> elem, double? value) {
     final scale = skin.scale;
     final (w, h, thick) = arcGeometry(elem);
@@ -2320,7 +2339,10 @@ class _Pass {
         : hexRgb(
             bandColor(elem, field, value, '${_get(elem, 'color', '#FFFFFF')}'),
           );
-    final fillEnd = start + sweep * gaugeFraction(elem, value, arcDefaults);
+    final fraction = gaugeFraction(elem, value, arcDefaults);
+    final fromEnd = elem['fill_from'] == 'end';
+    final fillEnd = start + sweep * fraction;
+    final fillStart = start + sweep * (1 - fraction);
     final part = (sweep - gap * (count - 1)) / count;
     void arc(double a0, double a1, Rgb color) => ops.add(
       ArcOp(
@@ -2338,7 +2360,14 @@ class _Pass {
       final a0 = start + i * (part + gap);
       final a1 = a0 + part;
       arc(a0, a1, track);
-      if (fill != null && fillEnd > a0) {
+      if (fill == null) {
+        continue;
+      }
+      if (fromEnd) {
+        if (fillStart < a1) {
+          arc(fillStart > a0 ? fillStart : a0, a1, fill);
+        }
+      } else if (fillEnd > a0) {
         arc(a0, fillEnd < a1 ? fillEnd : a1, fill);
       }
     }

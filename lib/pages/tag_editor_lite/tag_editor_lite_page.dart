@@ -1,6 +1,8 @@
 /// The Tag Editor on a phone (spec §9.1): pick photos and videos, see and
 /// set their dates and offsets, shift them all, and save corrected copies
-/// into a new album.
+/// where the phone's other pages save: an album in Photos or a folder in
+/// Files, chosen under "Save to…" (spec §10.112). Where a system has no
+/// such folders (the Mac App Store build), into an album asked for.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,18 +11,36 @@ import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/core/metadata/media_dates.dart';
 import 'package:uwmedia_app/core/metadata/tag_editor.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
+import 'package:uwmedia_app/engine/result_folder.dart';
+import 'package:uwmedia_app/pages/shared/phone_files.dart';
+import 'package:uwmedia_app/pages/shared/save_to.dart';
 import 'package:uwmedia_app/pages/tag_editor_lite/tag_editor_lite_controller.dart';
 import 'package:uwmedia_app/widgets/section_card.dart';
+
+/// What a phone's save button says.
+const saveCopiesLabel = 'Save copies';
 
 class TagEditorLitePage extends StatefulWidget {
   const TagEditorLitePage({
     super.key,
     required this.services,
     this.library = const PlatformMediaLibrary(),
+    this.pickFiles = pickFromFiles,
+    this.folders = const PlatformResultFolders(),
+    this.albums = photoAlbums,
   });
 
   final AppServices services;
   final MediaLibrary library;
+
+  /// Photos and videos from the phone's files; empty when none was picked.
+  final Future<List<String>> Function() pickFiles;
+
+  /// The folders of the phone's files that copies can be saved into.
+  final ResultFolders folders;
+
+  /// The library's albums by name, for "Save to…".
+  final Future<List<String>> Function() albums;
 
   @override
   State<TagEditorLitePage> createState() => _TagEditorLitePageState();
@@ -75,7 +95,19 @@ class _TagEditorLitePageState extends State<TagEditorLitePage> {
   int _whole(TextEditingController text) =>
       int.tryParse(text.text.replaceFirst('+', '')) ?? 0;
 
+  // Whether the copies go where "Save to…" says, as on Color and Resize.
+  bool get _saveTo => widget.services.capabilities.resultFolders;
+
   Future<void> _save() async {
+    if (_saveTo) {
+      // The place chosen; with none yet, a new album named for now, as
+      // a run of the Color page makes.
+      await controller.saveCopiesTo(
+        keptSavePlace(widget.services.config, widget.folders, widget.library) ??
+            AlbumPlace(widget.library, controller.albumSuggestion),
+      );
+      return;
+    }
     final name = await showDialog<String>(
       context: context,
       builder: (_) => _AlbumDialog(suggestion: controller.albumSuggestion),
@@ -206,9 +238,13 @@ class _TagEditorLitePageState extends State<TagEditorLitePage> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              FilledButton(
-                onPressed: c.busy ? null : c.pick,
-                child: const Text('Pick photos and videos'),
+              // The library or the phone's files, as on Color (owner,
+              // 2026-11-25).
+              PickMediaButton(
+                label: pickMediaLabel,
+                enabled: !c.busy,
+                onPick: ({required fromFiles}) =>
+                    c.pick(from: fromFiles ? widget.pickFiles : null),
               ),
               OutlinedButton(
                 onPressed: !c.busy && c.hasChanges ? c.discard : null,
@@ -216,14 +252,24 @@ class _TagEditorLitePageState extends State<TagEditorLitePage> {
               ),
               FilledButton(
                 onPressed: !c.busy && c.hasChanges ? _save : null,
-                child: const Text('Save copies to new album…'),
+                child: Text(
+                  _saveTo ? saveCopiesLabel : 'Save copies to new album…',
+                ),
               ),
             ],
           ),
+          if (_saveTo)
+            SaveToButton(
+              config: widget.services.config,
+              folders: widget.folders,
+              albums: widget.albums,
+              enabled: !c.busy,
+            ),
           if (c.items.isEmpty)
-            const MutedText(
-              'Pick photos and videos from the library to see their dates. '
-              'Changes are saved as corrected copies in a new album.',
+            MutedText(
+              'Pick photos and videos from the library or from Files to see '
+              'their dates. '
+              '${_saveTo ? 'Changes are saved as corrected copies; the originals stay as they are.' : 'Changes are saved as corrected copies in a new album.'}',
             )
           else ...[
             _list(),

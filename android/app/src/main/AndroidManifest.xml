@@ -29,6 +29,14 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- A file opened with the app comes as an intent with the file's
+                 address, which MainActivity reads. Flutter would also take
+                 the address for a page to go to, and it has none (an error
+                 in the log at each "Open with", owner 2026-11-27). -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -44,6 +52,12 @@
                 <data android:scheme="content"/>
                 <data android:scheme="file"/>
                 <data android:mimeType="application/vnd.ant.fit"/>
+                <!-- What Android itself calls a .fit file: the astronomers'
+                     FITS picture (RFC 4047 gives it the endings fits, fit
+                     and fts), so a Garmin log came as one and no app was
+                     offered (owner, 2026-11-26, spec §10.112). -->
+                <data android:mimeType="image/fits"/>
+                <data android:mimeType="application/fits"/>
                 <data android:mimeType="application/octet-stream"/>
                 <data android:mimeType="application/xml"/>
                 <data android:mimeType="text/xml"/>
@@ -51,11 +65,74 @@
                 <data android:mimeType="text/csv"/>
                 <data android:mimeType="text/comma-separated-values"/>
             </intent-filter>
+            <!-- The same by the file's ending, whatever type the sender
+                 gives it (a log has no type of its own that every app
+                 knows): for the senders whose address ends in the file's
+                 name. A pattern stops at the first dot it can, so names
+                 with one, two and three dots are each written out. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+                <data android:mimeType="*/*"/>
+                <data android:pathPattern=".*\\.fit"/>
+                <data android:pathPattern=".*\\..*\\.fit"/>
+                <data android:pathPattern=".*\\..*\\..*\\.fit"/>
+                <data android:pathPattern=".*\\.FIT"/>
+                <data android:pathPattern=".*\\..*\\.FIT"/>
+                <data android:pathPattern=".*\\..*\\..*\\.FIT"/>
+                <data android:pathPattern=".*\\.uddf"/>
+                <data android:pathPattern=".*\\..*\\.uddf"/>
+                <data android:pathPattern=".*\\..*\\..*\\.uddf"/>
+                <data android:pathPattern=".*\\.UDDF"/>
+                <data android:pathPattern=".*\\..*\\.UDDF"/>
+                <data android:pathPattern=".*\\..*\\..*\\.UDDF"/>
+                <data android:pathPattern=".*\\.ssrf"/>
+                <data android:pathPattern=".*\\..*\\.ssrf"/>
+                <data android:pathPattern=".*\\..*\\..*\\.ssrf"/>
+                <data android:pathPattern=".*\\.SSRF"/>
+                <data android:pathPattern=".*\\..*\\.SSRF"/>
+                <data android:pathPattern=".*\\..*\\..*\\.SSRF"/>
+            </intent-filter>
+            <!-- And by the ending with no type at all: a file manager that
+                 knows no type for an ending sends none (Samsung's My Files
+                 for .uddf and .ssrf, it seems: no app was offered there
+                 while sharing the same file worked; owner, 2026-11-27),
+                 and a filter that names a type takes only what has one. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+                <data android:pathPattern=".*\\.fit"/>
+                <data android:pathPattern=".*\\..*\\.fit"/>
+                <data android:pathPattern=".*\\..*\\..*\\.fit"/>
+                <data android:pathPattern=".*\\.FIT"/>
+                <data android:pathPattern=".*\\..*\\.FIT"/>
+                <data android:pathPattern=".*\\..*\\..*\\.FIT"/>
+                <data android:pathPattern=".*\\.uddf"/>
+                <data android:pathPattern=".*\\..*\\.uddf"/>
+                <data android:pathPattern=".*\\..*\\..*\\.uddf"/>
+                <data android:pathPattern=".*\\.UDDF"/>
+                <data android:pathPattern=".*\\..*\\.UDDF"/>
+                <data android:pathPattern=".*\\..*\\..*\\.UDDF"/>
+                <data android:pathPattern=".*\\.ssrf"/>
+                <data android:pathPattern=".*\\..*\\.ssrf"/>
+                <data android:pathPattern=".*\\..*\\..*\\.ssrf"/>
+                <data android:pathPattern=".*\\.SSRF"/>
+                <data android:pathPattern=".*\\..*\\.SSRF"/>
+                <data android:pathPattern=".*\\..*\\..*\\.SSRF"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <action android:name="android.intent.action.SEND_MULTIPLE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="application/vnd.ant.fit"/>
+                <data android:mimeType="image/fits"/>
+                <data android:mimeType="application/fits"/>
                 <data android:mimeType="application/octet-stream"/>
                 <data android:mimeType="application/xml"/>
                 <data android:mimeType="text/xml"/>

@@ -97,14 +97,15 @@ void main() {
       final codec = await ui.instantiateImageCodec(out);
       final rgba = await _pixels((await codec.getNextFrame()).image);
 
-      // 15 % of 400 is 60 wide (30 high), 8 pixels in from the corner:
-      // x 332 to 392, y 262 to 292. Half red over the grey inside it.
+      // 15 % of 400 is 60 wide (30 high), 2 pixels in from the corner
+      // (0.5 % of the width, spec §10.103): x 338 to 398, y 268 to 298.
+      // Half red over the grey inside it.
       final inside = _at(rgba, 362, 277);
       expect(inside[0], inInclusiveRange(170, 185));
       expect(inside[1], inInclusiveRange(45, 55));
-      expect(_at(rgba, 396, 296), [100, 100, 100], reason: 'the margin');
-      expect(_at(rgba, 325, 277), [100, 100, 100], reason: 'left of it');
-      expect(_at(rgba, 362, 255), [100, 100, 100], reason: 'above it');
+      expect(_at(rgba, 399, 299), [100, 100, 100], reason: 'the margin');
+      expect(_at(rgba, 331, 277), [100, 100, 100], reason: 'left of it');
+      expect(_at(rgba, 362, 261), [100, 100, 100], reason: 'above it');
       expect(_at(rgba, 10, 10), [100, 100, 100]);
     },
   );
@@ -142,10 +143,10 @@ void main() {
       }
     }
     expect(changed, greaterThan(100), reason: 'the text is drawn');
-    // 8 pixels in from the corner (the outline a pixel out, the letters'
+    // 2 pixels in from the corner (the outline a pixel out, the letters'
     // own top a few in), letters 20 high.
-    expect(minX, inInclusiveRange(5, 10));
-    expect(minY, inInclusiveRange(5, 14));
+    expect(minX, inInclusiveRange(0, 4));
+    expect(minY, inInclusiveRange(0, 8));
     expect(maxY, lessThan(40));
     expect(maxX, lessThan(_w ~/ 2));
   });
@@ -190,17 +191,17 @@ void main() {
       pictureBytes: logo,
     )!;
     expect(layer.always, isTrue);
-    // Landscape, 400 x 300: 100 x 50 with a margin of 8; a quarter of the
-    // way across the room of 284, three quarters down the room of 234.
+    // Landscape, 400 x 300: 100 x 50 with a margin of 2; a quarter of the
+    // way across the room of 296, three quarters down the room of 246.
     final (x0, y0, x1, y1) = await changedBox([layer], 400, 300);
-    expect(x0, closeTo(79, 1));
-    expect(y0, closeTo(183.5, 1.5));
+    expect(x0, closeTo(76, 1));
+    expect(y0, closeTo(186.5, 1.5));
     expect(x1 - x0 + 1, closeTo(100, 1));
     expect(y1 - y0 + 1, closeTo(50, 1));
-    // Portrait, 300 x 400: 75 x 37.5 against the top right margin (6).
+    // Portrait, 300 x 400: 75 x 37.5 against the top right margin (1.5).
     final (px0, py0, px1, py1) = await changedBox([layer], 300, 400);
-    expect(px1, closeTo(293, 1));
-    expect(py0, closeTo(6, 1));
+    expect(px1, closeTo(297.5, 1));
+    expect(py0, closeTo(1.5, 1));
     expect(px1 - px0 + 1, closeTo(75, 1));
     expect(py1 - py0 + 1, closeTo(37.5, 1.5));
     // The layer for a frame is a plain one: asked again, it is itself.
@@ -231,14 +232,14 @@ void main() {
       final layer = watermarkLayer(measured.copyWith(place: place))!;
       final (x0, y0, x1, y1) = await changedBox([layer], _w, _h);
       // The ink with its outline, a pixel or two around the box.
-      final left = 8 + place.x * (_w - 16 - w);
-      final top = 8 + place.y * (_h - 16 - h);
+      final left = 2 + place.x * (_w - 4 - w);
+      final top = 2 + place.y * (_h - 4 - h);
       expect(x0, closeTo(left, 3.5), reason: '$place');
       expect(x1, closeTo(left + w, 3.5), reason: '$place');
       expect(y0, closeTo(top, 3.5), reason: '$place');
       expect(y1, closeTo(top + h, 3.5), reason: '$place');
-      expect(x0, greaterThanOrEqualTo(4), reason: 'inside the frame');
-      expect(x1, lessThan(_w - 4));
+      expect(x0, greaterThanOrEqualTo(1), reason: 'inside the frame');
+      expect(x1, lessThan(_w - 1));
     }
     // Two watermarks on one frame: each where it belongs.
     final both = await changedBox(

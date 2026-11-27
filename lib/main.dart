@@ -18,10 +18,18 @@ import 'package:uwmedia_app/engine/start_folders.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Working folders a run left behind more than a day ago.
-  (await initAppPaths()).pruneTempDirs();
-  final capabilities = Capabilities.ofPlatform();
+  final clock = Stopwatch()..start();
+  final paths = await initAppPaths();
   _startLog();
+  // Working folders a run left behind more than a day ago.
+  final swept = paths.pruneTempDirs();
+  AppLog.note(
+    'App',
+    'The folders found and $swept old working '
+        'folder${swept == 1 ? '' : 's'} removed after '
+        '${clock.elapsedMilliseconds} ms',
+  );
+  final capabilities = Capabilities.ofPlatform();
   if (capabilities.desktop) {
     // Hidden until placed where the last run left it (spec §13.6); shown
     // also when that fails.
@@ -37,7 +45,12 @@ Future<void> main() async {
     final access = FileAccess.instance = FileAccess(
       File(p.join(userConfigDir().path, bookmarksFilename)),
     );
-    await access.restore();
+    await AppLog.timed(
+      'App',
+      'Opening the folders picked before',
+      access.restore,
+      slowMs: 0,
+    );
   }
   final home = homeFromEnvironment(Platform.environment);
   final services = AppServices(
@@ -45,11 +58,17 @@ Future<void> main() async {
     config: ConfigStore(
       userConfigDir,
       startFolders: capabilities.desktop
-          ? await findStartFolders(home)
+          ? await AppLog.timed(
+              'App',
+              'Finding Pictures and Downloads',
+              () => findStartFolders(home),
+              slowMs: 0,
+            )
           : const {},
     ),
     home: home,
   );
+  AppLog.note('App', 'Ready to draw after ${clock.elapsedMilliseconds} ms');
   runApp(UwmediaApp(services: services));
 }
 

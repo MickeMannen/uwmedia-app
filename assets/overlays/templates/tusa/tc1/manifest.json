@@ -1,0 +1,38 @@
+{
+  "manufacturer": "Tusa",
+  "model": "TC1",
+  "pages": [
+    {
+      "id": "normal",
+      "name": "Normal Display"
+    },
+    {
+      "id": "simple",
+      "name": "Simple Display"
+    }
+  ],
+  "notes": {
+    "verified": [
+      "Normal Display (TC1 / IQ1301 manual p.20-23 figures): the depth with its small decimal across the top under the battery; NDL over its value on the left, the ascent rate and the time of day in two cells on the right; TIME (the dive time in minutes) and TEMP along the bottom",
+      "In a safety stop and in deco (p.20, p.22-23): STOP over the countdown on the left, CEILING over the stop depth on the right; CLEAR when a deco stop is done",
+      "Simple Display (p.20-23): DIVE TIME over the time, the depth in a box with its DEPTH tag, NDL under it; in a stop SFTY / STOP or DECO / STOP beside the box and COUNT over the countdown; in deco the depth and the ceiling (CEILG) side by side in the box; the nitrogen level along the lower rim",
+      "The safety stop is 3 minutes, counted from 5 m (p.20); the case is 50 mm (p.47)",
+      "Simple Display, from a picture of the computer showing it (the skin): dark on a light screen, the places and sizes of DIVE TIME, the time, the depth's box with its DEPTH tag, the NDL tag and value, and the nitrogen dots along the lower left rim towards the coloured band"
+    ],
+    "assumed": [
+      "The skin is a picture of the white and rose gold TC1, its screen emptied; the bezel alone, without the buttons and the strap",
+      "Normal Display: no picture shows it, so its lines and battery are drawn on the emptied screen and its places are measured on the manual's figures",
+      "The safety stop is armed by a dive past 10 m and counts up to 1 m (the manual gives only the 5 m)",
+      "In deco the countdown shows the stop's time from the log before the stop is reached too, where the computer shows by how much the NDL is passed ('-0:25')",
+      "A deco stop counts as reached within 1 m of the ceiling"
+    ],
+    "not_shown": [
+      "The battery's level (drawn full); the depth's leading zeros ('018.6')",
+      "PO2 in place of the time of day when it is over its limit",
+      "Simple Display: the up arrow in deco, the tags beside the box as filled bars",
+      "CLEAR after a safety stop (after a deco stop only)",
+      "Gauge and freediving modes, the alarms"
+    ],
+    "_about": "What this template reproduces of the real screen and what it does not; the pages are the manual's PDF pages"
+  }
+}

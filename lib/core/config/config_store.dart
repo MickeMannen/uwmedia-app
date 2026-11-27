@@ -123,14 +123,14 @@ class ConfigStore {
   }
 
   /// The colour profiles: the bundled ones ([bundledText], the asset
-  /// `assets/color.yaml`) with the user's own over them.
+  /// `assets/color.yaml`) as shipped, and the user's own beside them.
   Map<String, Map<String, Object?>> colorProfiles(String? bundledText) =>
       mergedColorProfiles(bundledText, _read(colorYamlPath));
 
   /// Puts [values] into the user's `color.yaml` as the profile [name],
   /// leaving every other profile in that file as it is. The bundled file
-  /// is never touched: a profile saved as "default" is the user's own,
-  /// which comes before the bundled one.
+  /// is never touched, and a bundled profile's name is not saved under
+  /// (the pages refuse it; spec §10.103).
   void saveUserProfile(String name, Map<String, Object?> values) {
     final path = colorYamlPath;
     _write(path, withUserProfile(_read(path), name, values));

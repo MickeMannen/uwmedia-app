@@ -178,6 +178,8 @@ void main() {
         '${p.join('/Users/diver/Out', 'Reef 720p.mp4')}\n'
         '${p.join('/Users/diver/Out', 'Reef 360p.mp4')}',
       );
+      // A phone's page lists the names alone (owner, 2026-11-24).
+      expect(c.outputNamesText, 'Reef 720p.mp4\nReef 360p.mp4');
 
       // A file ffprobe cannot read: every resolution may be picked.
       engine.size = null;

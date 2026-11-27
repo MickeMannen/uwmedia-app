@@ -98,10 +98,17 @@ void main() {
 
       c.setValue('gw_blur_radius', 12.6);
       expect(c.textOf('gw_blur_radius'), '12');
+      // A bundled profile is not saved over, nor is its name taken by
+      // a new one (spec §10.103): nothing is written.
+      expect(c.currentIsBundled, isTrue);
       c.saveProfile();
-      expect(c.statusText, "Saved profile 'vivid'");
-      final saved = readYamlMap(File(config.colorYamlPath).readAsStringSync());
-      expect(yamlValue((saved['vivid']! as Map)['gw_blur_radius']), 12);
+      expect(c.statusText, bundledProfileText('vivid'));
+      expect(File(config.colorYamlPath).existsSync(), isFalse);
+      c.newProfileName = 'default';
+      c.saveNewProfile();
+      expect(c.statusText, bundledProfileText('default'));
+      expect(File(config.colorYamlPath).existsSync(), isFalse);
+      expect(c.currentProfile, 'vivid');
 
       c.newProfileName = 'my reef of the year';
       expect(c.newProfileName, 'my reef of');
@@ -110,6 +117,15 @@ void main() {
       expect(c.currentProfile, 'my reef of');
       expect(c.profileList, contains('my reef of'));
       expect(c.newProfileName, '');
+
+      // One of the user's own is saved over.
+      expect(c.currentIsBundled, isFalse);
+      c.setValue('gw_blur_radius', 14.4);
+      c.saveProfile();
+      expect(c.statusText, "Saved profile 'my reef of'");
+      final saved = readYamlMap(File(config.colorYamlPath).readAsStringSync());
+      expect(yamlValue((saved['my reef of']! as Map)['gw_blur_radius']), 14);
+      expect(saved.keys, ['my reef of']);
 
       await c.loadImage(p.join(tmp.path, 'none.png'));
       expect(c.statusText, startsWith('Could not load:'));
@@ -212,6 +228,15 @@ void main() {
     });
     await tester.pump();
     expect(find.text('Color Restoration & Blend'), findsOneWidget);
+    // A bundled profile is not saved over (spec §10.103).
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(OutlinedButton, 'Save Profile'),
+          )
+          .onPressed,
+      isNull,
+    );
     expect(find.text(_sample), findsOneWidget);
     expect(find.byType(RawImage), findsNWidgets(2));
     expect(find.byType(Slider), findsWidgets);
@@ -385,7 +410,22 @@ void main() {
     expect(find.text('Save Profile'), findsNothing);
     await tester.tap(find.text('Save…'));
     await tester.pumpAndSettle();
-    expect(find.text('Overwrite "default"'), findsOneWidget);
+    // A bundled profile is not written over (spec §10.103).
+    expect(find.text('Overwrite "default"'), findsNothing);
+    expect(find.textContaining('comes with the app'), findsOneWidget);
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(OutlinedButton, 'Save As New'),
+          )
+          .onPressed,
+      isNull,
+    );
+    // A name of the app's own is said in the field, and not saved
+    // (owner, 2026-11-26).
+    await tester.enterText(find.byType(TextField), 'vivid');
+    await tester.pump();
+    expect(find.text(takenProfileNameText('vivid')), findsOneWidget);
     expect(
       tester
           .widget<OutlinedButton>(
@@ -396,6 +436,7 @@ void main() {
     );
     await tester.enterText(find.byType(TextField), 'reef');
     await tester.pump();
+    expect(find.textContaining('Choose another name'), findsNothing);
     await tester.tap(find.text('Save As New'));
     await tester.pumpAndSettle();
     expect(config.colorProfiles(bundled).keys, contains('reef'));

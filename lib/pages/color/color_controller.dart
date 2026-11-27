@@ -1842,7 +1842,10 @@ class ColorController extends ChangeNotifier implements ColorBatchListener {
             final bytes = watermarkStore?.pictureBytes(mark);
             return bytes == null ? null : imageSize(bytes);
           });
-    final (shareW, shareH) = watermarkShare(mark, pictureSize: size);
+    final (shareW, shareH) = watermarkShare(
+      mark.shaped(portrait: h > w),
+      pictureSize: size,
+    );
     final markW = shareW * w;
     final markH = shareH * w;
     final (x, y) = watermarkCorner(

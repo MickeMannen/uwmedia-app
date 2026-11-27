@@ -35,6 +35,47 @@ class AppLog {
   /// A line into the running app's log, when there is one.
   static void note(String source, String text) => instance?.add(source, text);
 
+  // The work under way, by the order it began: what it is and its clock.
+  static final _underWay = <int, (String, Stopwatch)>{};
+  static int _begun = 0;
+
+  /// [work] is under way until its future ends (spec §10.109): a piece
+  /// of the app's own work that reads files, runs a tool or waits for
+  /// the system, so that the log can say what was still going when the
+  /// app was closed ([underWay]). A line is written when it took
+  /// [slowMs] or longer ("... took 1234 ms"); with `null` never, with 0
+  /// always. What it gives, or throws, is passed on.
+  static Future<T> timed<T>(
+    String source,
+    String what,
+    Future<T> Function() work, {
+    int? slowMs = 500,
+  }) async {
+    final id = _begun++;
+    final clock = Stopwatch()..start();
+    _underWay[id] = (what, clock);
+    var ended = 'took';
+    try {
+      return await work();
+    } on Object {
+      ended = 'failed after';
+      rethrow;
+    } finally {
+      _underWay.remove(id);
+      final ms = clock.elapsedMilliseconds;
+      if (slowMs != null && ms >= slowMs) {
+        note(source, '$what $ended $ms ms');
+      }
+    }
+  }
+
+  /// The work under way now, oldest first, each with how long it has
+  /// been going: "ffmpeg -version (1234 ms)".
+  static List<String> underWay() => [
+    for (final (what, clock) in _underWay.values)
+      '$what (${clock.elapsedMilliseconds} ms)',
+  ];
+
   final File file;
   final DateTime Function() _now;
 

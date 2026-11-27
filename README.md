@@ -41,6 +41,8 @@ numbers in it, each in the screen layouts listed:
 | Suunto EON Core | classic, prominent, tank, graphical, CCR, gauge |
 | Suunto EON Steel Black | classic, prominent, tank, graphical, CCR, gauge |
 | Suunto Nautic | main, NDL / TTS with ppO2 / MOD |
+| TUSA TC1 (IQ1301) | normal, simple |
+| TUSA DC Solar Link (IQ1204) | basic display |
 
 Beside them come plain overlays that fit any computer: depth and
 temperature as a row, a column or a box (dark or light, and in two rows

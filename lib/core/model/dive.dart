@@ -373,6 +373,48 @@ class Waypoint {
     'dive_alerts': List<String>.of(diveAlerts),
   };
 
+  /// This waypoint with other tanks, of the same dive: what a sidemount
+  /// overlay is drawn from (spec §10.104).
+  Waypoint withTanks(Map<String, TankData> tanks) => Waypoint(
+    timestamp: timestamp,
+    timeSinceStart: timeSinceStart,
+    depth: depth,
+    temp: temp,
+    maxDepth: maxDepth,
+    decoStopDepth: decoStopDepth,
+    ceiling: ceiling,
+    tts: tts,
+    ndl: ndl,
+    diveTime: diveTime,
+    tanks: tanks,
+    nextStopDepth: nextStopDepth,
+    nextStopTime: nextStopTime,
+    airRemaining: airRemaining,
+    ascentRate: ascentRate,
+    n2TissueLoad: n2TissueLoad,
+    pressureSac: pressureSac,
+    volumeSac: volumeSac,
+    rmv: rmv,
+    heartRate: heartRate,
+    cns: cns,
+    po2: po2,
+    divemode: divemode,
+    gf: gf,
+    surfGf: surfGf,
+    switchmix: switchmix,
+    battery: battery,
+    clearedGasMix: clearedGasMix,
+    setpoint: setpoint,
+    gasO2Percent: gasO2Percent,
+    gasHePercent: gasHePercent,
+    diluentO2Percent: diluentO2Percent,
+    diluentHePercent: diluentHePercent,
+    po2_1: po2_1,
+    po2_2: po2_2,
+    po2_3: po2_3,
+    diveAlerts: diveAlerts,
+  )..dive = dive;
+
   // Python: `tank.name or key`, so an empty name also falls back.
   static String _nameOrKey(MapEntry<String, TankData> entry) {
     final name = entry.value.name;

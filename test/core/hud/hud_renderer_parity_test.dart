@@ -16,6 +16,7 @@ import 'package:uwmedia_app/core/rules/hud_rules_engine.dart';
 import 'package:uwmedia_app/core/units/units.dart';
 
 import '../../helpers/renderer_reference.dart';
+import 'template_tree_test.dart' show isOwnTemplate;
 
 void main() {
   final reference = RendererReference.load();
@@ -55,9 +56,10 @@ void main() {
         .map(
           (f) => f.parent.path.replaceAll(r'\', '/').split('templates/').last,
         )
-        // This app's own simple overlays are not in the Python app, so
-        // not in its fixture either (simple_overlays_test.dart has them).
-        .where((page) => !page.startsWith('generic/simple/'))
+        // This app's own overlays are not in the Python app, so not in
+        // its fixture either (simple_overlays_test.dart and
+        // tusa_overlays_test.dart have them).
+        .where((page) => !isOwnTemplate(page))
         .toSet();
     // A page with variants has a shared base that is no page of its own.
     final bases = {

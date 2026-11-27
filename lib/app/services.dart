@@ -3,6 +3,7 @@
 /// a time.
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,8 @@ import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/app/hud_kit.dart';
 import 'package:uwmedia_app/core/app_paths.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/hud/sidemount_tanks.dart';
+import 'package:uwmedia_app/engine/app_log.dart';
 import 'package:uwmedia_app/engine/desktop/exiftool.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/tool_finder.dart';
@@ -47,6 +50,7 @@ class Capabilities {
     this.photos = false,
     this.resultFolders = false,
     this.nativeVideo = false,
+    this.updateCheck = true,
     bool? externalTools,
   }) : externalTools = externalTools ?? desktop;
 
@@ -60,6 +64,7 @@ class Capabilities {
     externalTools:
         (Platform.isMacOS || Platform.isWindows || Platform.isLinux) &&
         !(storeBuild && Platform.isMacOS),
+    updateCheck: !Platform.isIOS && !(storeBuild && Platform.isMacOS),
   );
 
   /// The full app: external ffmpeg and exiftool, source and output
@@ -89,6 +94,12 @@ class Capabilities {
   /// build but the Mac App Store's ([storeBuild]), which has only the
   /// runner's media engine and the app's own readers (spec §10.74).
   final bool externalTools;
+
+  /// "Check for updates" on the About page (it asks GitHub for the
+  /// latest release): not where the app comes from Apple's stores, the
+  /// iPhone and the Mac App Store build, whose updates are the store's
+  /// and whose sandbox on the Mac has no network (spec §10.110).
+  final bool updateCheck;
 }
 
 /// The build for the Mac App Store (`--dart-define=UWMEDIA_STORE=true`):
@@ -209,6 +220,28 @@ class AppServices {
   /// The app's data folder (`userDataDir` in the app).
   final Directory Function() dataDir;
 
+  /// What draws overlays, with the saved sides and sidemount names of the
+  /// tanks for the overlays that show two (spec §10.104).
+  Future<HudKit> hudKit() async {
+    final kit = await HudKit.load();
+    kit.renderer.sidemount = SidemountTanks(config.tankConfig().tanks);
+    return kit;
+  }
+
+  /// The Tank Sensor Names were saved: the overlays drawn from now on
+  /// follow them. (A dive read before keeps the names it was read with
+  /// until its page reads the logs again.)
+  void tankNamesSaved() {
+    final loading = HudKit.loading;
+    if (loading != null) {
+      unawaited(
+        loading.then<void>((kit) {
+          kit.renderer.sidemount = SidemountTanks(config.tankConfig().tanks);
+        }, onError: (Object _) {}),
+      );
+    }
+  }
+
   /// The dive logs kept in the app on a phone (spec §12.3).
   LogStore get logStore =>
       LogStore(Directory(p.join(dataDir().path, logStoreFolder)));
@@ -286,7 +319,11 @@ class AppServices {
       return storeDesktopTools(_nativeEngine(), currentEngineOs());
     }
     final finder = _toolFinder();
-    final found = await finder.findAll(config.settings());
+    final found = await AppLog.timed(
+      'Tools',
+      'Looking for ffmpeg, ffprobe and exiftool',
+      () => finder.findAll(config.settings()),
+    );
     final missing = [
       for (final tool in [toolFfmpeg, toolFfprobe, toolExiftool])
         if (!found.containsKey(tool)) tool,

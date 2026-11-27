@@ -10,12 +10,10 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/pages/display_paths.dart';
 import 'package:uwmedia_app/core/units/units.dart';
 import 'package:uwmedia_app/engine/desktop/tool_finder.dart';
 import 'package:uwmedia_app/pages/shared/tank_names.dart';
-
-export 'package:uwmedia_app/pages/shared/tank_names.dart'
-    show fitLogsDirField, fitTankSerials;
 
 /// The folder settings the page sets, by kind.
 const folderKinds = {
@@ -56,12 +54,8 @@ class AdvancedController extends ChangeNotifier {
   String get ffmpegPathText => _ffmpeg;
   String get exiftoolPathText => _exiftool;
 
-  /// The dialogs' folders: the FIT logs' starts in Downloads.
-  String dialogDir(String field) => config.dialogDirFor(
-    field,
-    home: home,
-    start: field == fitLogsDirField ? StartFolder.downloads : StartFolder.home,
-  );
+  /// The dialogs' folders.
+  String dialogDir(String field) => config.dialogDirFor(field, home: home);
 
   void rememberDialogDir(String field, String folder) {
     try {
@@ -136,6 +130,11 @@ class AdvancedController extends ChangeNotifier {
   /// Where the tank names are kept.
   String get tankNamesPathText => config.configYamlPath;
 
+  /// [path] as its row shows it: short when it is in the app's own folders
+  /// (spec §10.113). The path itself is the row's tooltip.
+  String shown(String path) =>
+      shownLocation(path, [dataDir().path, config.configDir().path], home);
+
   /// A folder of [kind] ([folderKinds]) picked in the dialog.
   void setFolder(String kind, String path) {
     rememberDialogDir(folderDialogField(kind), path);
@@ -198,20 +197,9 @@ class AdvancedController extends ChangeNotifier {
 
   // -- the tank sensor names ---------------------------------------------------
 
-  /// The names and their order (shared with the phones' Settings page).
-  late final TankNamesEditor tanks = TankNamesEditor(config: config, home: home)
+  /// The sensors' names (shared with the phones' Settings page).
+  late final TankNamesEditor tanks = TankNamesEditor(config: config)
     ..addListener(notifyListeners);
-
-  List<(String serial, String name)> get tankRows => tanks.rows;
-  String get tankStatusText => tanks.statusText;
-  bool get tankFileUnreadable => tanks.unreadable;
-  void openTankNames() => tanks.open();
-  void setTankName(String serial, String name) => tanks.setName(serial, name);
-  void removeTank(String serial) => tanks.remove(serial);
-  void moveTank(String serial, int step) => tanks.move(serial, step);
-  bool addSerial(String text) => tanks.addSerial(text);
-  Future<void> scanFolder(String folder) => tanks.scanFolder(folder);
-  String? saveTankNames() => tanks.save();
 
   bool _disposed = false;
 

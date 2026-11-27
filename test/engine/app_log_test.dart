@@ -1,5 +1,6 @@
 // The app's log and the problem report made of it (spec §10.76;
 // lib/engine/app_log.dart, lib/core/diagnostics/report.dart).
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,50 @@ void main() {
       '2026-01-02 00:00:00 [Error] first | second | third',
     );
   });
+
+  test(
+    'work under way is known while it goes, and slow work is written',
+    () async {
+      final file = File(p.join(tmp.path, 'cache', appLogFilename));
+      final log = AppLog.instance = AppLog(
+        file,
+        now: () => naive(2026, 11, 26),
+      );
+      addTearDown(() => AppLog.instance = null);
+      expect(AppLog.underWay(), isEmpty);
+
+      final gate = Completer<int>();
+      final quick = AppLog.timed('Tools', 'ffmpeg -version', () => gate.future);
+      final always = AppLog.timed(
+        'App',
+        'Finding Pictures',
+        () => gate.future,
+        slowMs: 0,
+      );
+      final failing = AppLog.timed<int>(
+        'Tools',
+        'exiftool -ver',
+        () async => throw const FormatException('no'),
+        slowMs: 0,
+      );
+      await expectLater(failing, throwsFormatException);
+      // Two still going, each with its time so far; the failed one is done.
+      expect(AppLog.underWay(), [
+        matches(r'^ffmpeg -version \(\d+ ms\)$'),
+        matches(r'^Finding Pictures \(\d+ ms\)$'),
+      ]);
+      gate.complete(7);
+      expect(await quick, 7);
+      expect(await always, 7);
+      expect(AppLog.underWay(), isEmpty);
+      // The quick one is not written; the one always written and the failed
+      // one are.
+      expect(log.tail(), [
+        matches(r'\[Tools\] exiftool -ver failed after \d+ ms$'),
+        matches(r'\[App\] Finding Pictures took \d+ ms$'),
+      ]);
+    },
+  );
 
   test('lines are kept in the file, and read back', () {
     final file = File(p.join(tmp.path, 'cache', appLogFilename));

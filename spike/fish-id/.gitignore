@@ -1,0 +1,7 @@
+# The Python environment, the downloaded weights and what the scripts
+# export are never committed: several GB, and fetched or made again by
+# the scripts.
+.venv/
+weights/
+out/
+__pycache__/

@@ -285,15 +285,19 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       if (constraints.maxWidth >= railMinWidth) {
+        // Clear of the system's bars and a phone's cut-out (on a
+        // computer there are none).
         return Scaffold(
-          body: Row(
-            children: [
-              SizedBox(
-                width: 220,
-                child: Material(color: navBackground, child: _list()),
-              ),
-              Expanded(child: _stack()),
-            ],
+          body: SafeArea(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 220,
+                  child: Material(color: navBackground, child: _list()),
+                ),
+                Expanded(child: _stack()),
+              ],
+            ),
           ),
         );
       }
@@ -307,7 +311,10 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
         ),
-        body: _stack(),
+        // Clear of the system's bar at the bottom: Android draws the
+        // app under its three buttons, which covered the last buttons
+        // of a page (owner, 2026-11-26, spec §10.112).
+        body: SafeArea(top: false, child: _stack()),
       );
     },
   );

@@ -71,7 +71,8 @@ Follow `CONTRIBUTING.md`:
   number. Sections are lettered and items numbered ("C12"); a number is
   never reused, and a new item takes the next free number of its section.
 - `docs/roadmap_v0.2.0.md` holds what comes after the release and is not
-  worked from until the owner says so.
+  worked from until the owner says so; `docs/roadmap_v0.3.0.md` what
+  comes after that, the same.
 
 ## Changelog
 User-facing changes get a bullet under `## [Unreleased]` in `CHANGELOG.md`.

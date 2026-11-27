@@ -118,7 +118,7 @@ typedef OverlayGeneratorSetup = Future<OverlayGeneratorController> Function(
 Future<OverlayGeneratorController> defaultOverlayGeneratorSetup(
   AppServices services,
 ) async {
-  final kit = await HudKit.load();
+  final kit = await services.hudKit();
   final bundled = await bundledTemplateFolder();
   TemplateTree list() => TemplateTree(
     bundled: bundled,

@@ -92,6 +92,33 @@ void main() {
       }
     });
 
+    test('shownLocation', () {
+      const box =
+          '/Users/x/Library/Containers/org.christersson.uwmedia/Data'
+          '/Library/Application Support/org.christersson.uwmedia';
+      const own = [box, ''];
+      expect(shownLocation(box, own, '/Users/x'), ownFolderName);
+      expect(
+        shownLocation('$box/layouts', own, '/Users/x'),
+        "UWMedia's own folder › layouts",
+      );
+      expect(
+        shownLocation('$box/a/config.yaml', own, '/Users/x'),
+        "UWMedia's own folder › a › config.yaml",
+      );
+      // Beside it, or elsewhere: the path, with the home folder short.
+      expect(shownLocation('${box}x/layouts', own, null), '${box}x/layouts');
+      expect(shownLocation('/Users/x/Dive', own, '/Users/x'), '~/Dive');
+      expect(shownLocation('/Volumes/d', own, '/Users/x'), '/Volumes/d');
+      // Windows.
+      expect(
+        shownLocation(r'C:\Users\d\AppData\Roaming\UWMedia\layouts', [
+          r'C:\Users\d\AppData\Roaming\UWMedia',
+        ], r'C:\Users\d'),
+        "UWMedia's own folder › layouts",
+      );
+    });
+
     test('contractHomePath', () {
       const home = '/Users/diver';
       for (final [path, want]

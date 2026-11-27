@@ -1,0 +1,67 @@
+# A small sample of Indo-Pacific reef animals for the spike: the seven ranks, then a common name.
+# Written by hand for the shapes and timings only; a real list comes from a checked taxonomy (GBIF / WoRMS).
+kingdom	phylum	class	order	family	genus	species	common
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacentridae	Amphiprion	ocellaris	clown anemonefish
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacentridae	Amphiprion	clarkii	Clark's anemonefish
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacentridae	Amphiprion	perideraion	pink anemonefish
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacentridae	Dascyllus	trimaculatus	threespot dascyllus
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacentridae	Chromis	viridis	blue green damselfish
+Animalia	Chordata	Actinopterygii	Perciformes	Chaetodontidae	Chaetodon	lunula	raccoon butterflyfish
+Animalia	Chordata	Actinopterygii	Perciformes	Chaetodontidae	Chaetodon	vagabundus	vagabond butterflyfish
+Animalia	Chordata	Actinopterygii	Perciformes	Chaetodontidae	Heniochus	acuminatus	pennant coralfish
+Animalia	Chordata	Actinopterygii	Perciformes	Chaetodontidae	Forcipiger	flavissimus	longnose butterflyfish
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacanthidae	Pomacanthus	imperator	emperor angelfish
+Animalia	Chordata	Actinopterygii	Perciformes	Pomacanthidae	Pygoplites	diacanthus	regal angelfish
+Animalia	Chordata	Actinopterygii	Perciformes	Zanclidae	Zanclus	cornutus	moorish idol
+Animalia	Chordata	Actinopterygii	Perciformes	Acanthuridae	Paracanthurus	hepatus	palette surgeonfish
+Animalia	Chordata	Actinopterygii	Perciformes	Acanthuridae	Acanthurus	leucosternon	powderblue surgeonfish
+Animalia	Chordata	Actinopterygii	Perciformes	Acanthuridae	Naso	lituratus	orangespine unicornfish
+Animalia	Chordata	Actinopterygii	Perciformes	Labridae	Cheilinus	undulatus	humphead wrasse
+Animalia	Chordata	Actinopterygii	Perciformes	Labridae	Labroides	dimidiatus	bluestreak cleaner wrasse
+Animalia	Chordata	Actinopterygii	Perciformes	Labridae	Thalassoma	lunare	moon wrasse
+Animalia	Chordata	Actinopterygii	Perciformes	Scaridae	Bolbometopon	muricatum	green humphead parrotfish
+Animalia	Chordata	Actinopterygii	Perciformes	Scaridae	Chlorurus	sordidus	daisy parrotfish
+Animalia	Chordata	Actinopterygii	Perciformes	Serranidae	Cephalopholis	miniata	coral hind
+Animalia	Chordata	Actinopterygii	Perciformes	Serranidae	Pseudanthias	squamipinnis	sea goldie
+Animalia	Chordata	Actinopterygii	Perciformes	Serranidae	Plectropomus	leopardus	leopard coralgrouper
+Animalia	Chordata	Actinopterygii	Perciformes	Lutjanidae	Lutjanus	kasmira	common bluestripe snapper
+Animalia	Chordata	Actinopterygii	Perciformes	Lutjanidae	Macolor	niger	black and white snapper
+Animalia	Chordata	Actinopterygii	Perciformes	Haemulidae	Plectorhinchus	chaetodonoides	harlequin sweetlips
+Animalia	Chordata	Actinopterygii	Perciformes	Carangidae	Caranx	ignobilis	giant trevally
+Animalia	Chordata	Actinopterygii	Perciformes	Carangidae	Caranx	sexfasciatus	bigeye trevally
+Animalia	Chordata	Actinopterygii	Perciformes	Sphyraenidae	Sphyraena	barracuda	great barracuda
+Animalia	Chordata	Actinopterygii	Perciformes	Sphyraenidae	Sphyraena	qenie	blackfin barracuda
+Animalia	Chordata	Actinopterygii	Perciformes	Ephippidae	Platax	teira	longfin batfish
+Animalia	Chordata	Actinopterygii	Perciformes	Cirrhitidae	Oxycirrhites	typus	longnose hawkfish
+Animalia	Chordata	Actinopterygii	Perciformes	Gobiidae	Bryaninops	yongei	whip coral goby
+Animalia	Chordata	Actinopterygii	Perciformes	Callionymidae	Synchiropus	splendidus	mandarinfish
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Balistidae	Balistoides	conspicillum	clown triggerfish
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Balistidae	Balistoides	viridescens	titan triggerfish
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Balistidae	Rhinecanthus	aculeatus	lagoon triggerfish
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Tetraodontidae	Arothron	nigropunctatus	blackspotted puffer
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Tetraodontidae	Arothron	mappa	map puffer
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Diodontidae	Diodon	hystrix	spot-fin porcupinefish
+Animalia	Chordata	Actinopterygii	Tetraodontiformes	Ostraciidae	Ostracion	cubicus	yellow boxfish
+Animalia	Chordata	Actinopterygii	Scorpaeniformes	Scorpaenidae	Pterois	volitans	red lionfish
+Animalia	Chordata	Actinopterygii	Scorpaeniformes	Scorpaenidae	Rhinopias	frondosa	weedy scorpionfish
+Animalia	Chordata	Actinopterygii	Scorpaeniformes	Synanceiidae	Synanceia	verrucosa	reef stonefish
+Animalia	Chordata	Actinopterygii	Syngnathiformes	Syngnathidae	Hippocampus	bargibanti	Bargibant's pygmy seahorse
+Animalia	Chordata	Actinopterygii	Syngnathiformes	Solenostomidae	Solenostomus	paradoxus	ornate ghost pipefish
+Animalia	Chordata	Actinopterygii	Syngnathiformes	Aulostomidae	Aulostomus	chinensis	Chinese trumpetfish
+Animalia	Chordata	Actinopterygii	Anguilliformes	Muraenidae	Gymnothorax	javanicus	giant moray
+Animalia	Chordata	Actinopterygii	Anguilliformes	Muraenidae	Rhinomuraena	quaesita	ribbon eel
+Animalia	Chordata	Actinopterygii	Lophiiformes	Antennariidae	Antennarius	commerson	giant frogfish
+Animalia	Chordata	Elasmobranchii	Carcharhiniformes	Carcharhinidae	Carcharhinus	melanopterus	blacktip reef shark
+Animalia	Chordata	Elasmobranchii	Carcharhiniformes	Carcharhinidae	Triaenodon	obesus	whitetip reef shark
+Animalia	Chordata	Elasmobranchii	Orectolobiformes	Rhincodontidae	Rhincodon	typus	whale shark
+Animalia	Chordata	Elasmobranchii	Myliobatiformes	Mobulidae	Mobula	alfredi	reef manta ray
+Animalia	Chordata	Elasmobranchii	Myliobatiformes	Dasyatidae	Taeniura	lymma	bluespotted ribbontail ray
+Animalia	Chordata	Reptilia	Testudines	Cheloniidae	Chelonia	mydas	green sea turtle
+Animalia	Chordata	Reptilia	Testudines	Cheloniidae	Eretmochelys	imbricata	hawksbill sea turtle
+Animalia	Mollusca	Cephalopoda	Octopoda	Octopodidae	Octopus	cyanea	day octopus
+Animalia	Mollusca	Cephalopoda	Octopoda	Octopodidae	Thaumoctopus	mimicus	mimic octopus
+Animalia	Mollusca	Cephalopoda	Sepiida	Sepiidae	Sepia	latimanus	broadclub cuttlefish
+Animalia	Mollusca	Gastropoda	Nudibranchia	Chromodorididae	Chromodoris	annae	Anna's chromodoris
+Animalia	Mollusca	Gastropoda	Nudibranchia	Polyceridae	Nembrotha	kubaryana	variable neon slug
+Animalia	Arthropoda	Malacostraca	Decapoda	Hymenoceridae	Hymenocera	picta	harlequin shrimp
+Animalia	Arthropoda	Malacostraca	Stomatopoda	Odontodactylidae	Odontodactylus	scyllarus	peacock mantis shrimp

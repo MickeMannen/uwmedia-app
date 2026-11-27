@@ -38,6 +38,11 @@ const bundledPictureWidthsMm = <String, double>{
   'suunto/eon_core': 80,
   'suunto/eon_steel_black': 104.6,
   'suunto/nautic': 101,
+  // The TC1's case is 50 mm (its manual, p.47); its picture is the bezel
+  // with a little round it. The DC Solar Link's is not in its manual:
+  // about 51 mm, assumed, and its picture a little wider (spec §10.107).
+  'tusa/tc1': 51,
+  'tusa/iq1204': 53,
 };
 
 /// The real width of a computer's picture in millimetres: its manifest's

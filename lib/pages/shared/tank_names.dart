@@ -1,9 +1,11 @@
-/// The tank sensor names and their order (Python
-/// `backends/advanced_backend.py`, the Tank Sensor Names window): Garmin
-/// tank sensor serials mapped to friendly names, the order being the tank
-/// order. Edited on the desktop's Advanced page and the phones' Settings
-/// page, saved into `config.yaml`. The port adds each tank's size, for
-/// VSAC on dives whose log has none (spec §10.54).
+/// The tank sensor names (spec §4.1, §10.104): the Garmin tank sensors of
+/// the dive logs the app keeps, each with the name the diver gives it, the
+/// name and the side it has in sidemount, and its size. The order is the
+/// tank order. Edited on the desktop's Advanced page and the phones'
+/// Settings page, saved into `config.yaml`.
+///
+/// The window reads no log of its own: a sensor is here because a kept log
+/// has it (the Dive Logs page), or because it was saved before.
 library;
 
 import 'dart:io';
@@ -15,93 +17,272 @@ import 'package:uwmedia_app/core/config/config_store.dart';
 import 'package:uwmedia_app/core/config/tank_config.dart';
 import 'package:uwmedia_app/core/parsers/fit_reader.dart';
 import 'package:uwmedia_app/core/parsers/garmin.dart';
+import 'package:uwmedia_app/core/units/units.dart';
+import 'package:uwmedia_app/core/util/naive_time.dart';
+import 'package:uwmedia_app/engine/log_store.dart';
 import 'package:uwmedia_app/widgets/section_card.dart';
 
-const fitLogsDirField = 'advanced_fit_logs_dialog_dir';
+/// Where a sensor is in the kept logs: in how many dives, and the start of
+/// the last of them.
+typedef SensorSeen = ({int dives, DateTime? last});
 
-/// The tank serials of the Garmin `.fit` logs directly in [folder].
-Set<String> fitTankSerials(String folder) => fitTankSerialsOf([
-  for (final entry in Directory(folder).listSync())
-    if (entry is File) entry.path,
-]);
+/// The tank sensors of the Garmin logs kept in [folder], with where each
+/// was seen. A dive kept twice (the same dive under two file names) counts
+/// once; a log that cannot be read is passed over.
+Map<String, SensorSeen> keptTankSensors(String folder) {
+  final dir = Directory(folder);
+  if (!dir.existsSync()) {
+    return {};
+  }
+  // The dives' starts as the Dive Logs page has them (remembered per
+  // file); the names do not matter for them.
+  final starts = <String, DateTime>{};
+  final copies = <String>{};
+  try {
+    for (final dive in LogStore(dir).summaries(TankConfig()).dives) {
+      if (dive.copyOf != null) {
+        copies.add(dive.file);
+      } else {
+        starts.putIfAbsent(dive.file, () => dive.start);
+      }
+    }
+  } on Object {
+    // No dates then.
+  }
+  final seen = <String, SensorSeen>{};
+  for (final entry in dir.listSync()) {
+    final name = p.basename(entry.path);
+    if (entry is! File ||
+        p.extension(name).toLowerCase() != '.fit' ||
+        (copies.contains(name) && !starts.containsKey(name))) {
+      continue;
+    }
+    final List<String> serials;
+    try {
+      serials = uniqueTankSerials(readFitMessages(entry.readAsBytesSync()));
+    } on Object {
+      continue;
+    }
+    final start = starts[name];
+    for (final serial in serials) {
+      final before = seen[serial];
+      final last = before?.last;
+      seen[serial] = (
+        dives: (before?.dives ?? 0) + 1,
+        last: start == null || (last != null && last.isAfter(start))
+            ? last
+            : start,
+      );
+    }
+  }
+  return seen;
+}
 
-/// The tank serials of the Garmin `.fit` logs among [paths].
-Set<String> fitTankSerialsOf(List<String> paths) => {
-  for (final path in paths)
-    if (p.extension(path).toLowerCase() == '.fit')
-      ...uniqueTankSerials(readFitMessages(File(path).readAsBytesSync())),
-};
+/// One sensor as the window shows it.
+typedef TankRow = ({
+  String serial,
+  String name,
+  String sidemountName,
+  TankSide? side,
+  SensorSeen? seen,
+});
 
 class TankNamesEditor extends ChangeNotifier {
-  TankNamesEditor({required this.config, required this.home});
+  TankNamesEditor({required this.config});
 
   final ConfigStore config;
-  final String home;
 
-  Map<String, String> _tanks = {};
-  Map<String, double> _sizes = {};
+  List<String> _order = [];
+  final Map<String, String> _names = {};
+  final Map<String, String> _sidemount = {};
+  final Map<String, TankSide> _sides = {};
+  final Map<String, double> _sizes = {};
+  final Map<String, double> _working = {};
   final Set<String> _badSizes = {};
+  final Set<String> _badWorking = {};
+  Map<String, SensorSeen> _seen = {};
   String statusText = '';
   bool _unreadable = false;
+  bool _reading = false;
   bool _disposed = false;
+  int _opened = 0;
 
-  /// The names in the saved order: the tank order (first is an overlay's
-  /// primary tank).
-  List<(String serial, String name)> get rows => [
-    for (final MapEntry(:key, :value) in _tanks.entries) (key, value),
+  /// The sensors in the saved order: the tank order (the first one a dive
+  /// has is the tank an overlay with one tank shows).
+  List<TankRow> get rows => [
+    for (final serial in _order)
+      (
+        serial: serial,
+        name: _names[serial] ?? '',
+        sidemountName: _sidemount[serial] ?? '',
+        side: _sides[serial],
+        seen: _seen[serial],
+      ),
   ];
+
+  /// The kept logs are being read.
+  bool get reading => _reading;
 
   /// The size of the tank with this serial in litres, if it has one.
   double? sizeOf(String serial) => _sizes[serial];
 
+  /// The pressure this tank is rated at in bar: what its size in cubic
+  /// feet is counted at.
+  double workingBarOf(String serial) => _working[serial] ?? defaultWorkingBar;
+
+  /// The size as its field shows it in [units]: litres, or cubic feet at
+  /// the tank's rated pressure; empty for none.
+  String sizeText(String serial, UnitSystem units) {
+    final litres = _sizes[serial];
+    if (litres == null) {
+      return '';
+    }
+    return units == UnitSystem.imperial
+        ? _number(cubicFeetOf(litres, workingBarOf(serial)), 1)
+        : _number(litres, 2);
+  }
+
+  /// The rated pressure as its field shows it, in psi.
+  String workingText(String serial) =>
+      _number(workingBarOf(serial) * psiPerBar, 0);
+
   /// The size typed for this serial is not a size: Save is off.
   bool badSize(String serial) => _badSizes.contains(serial);
 
-  bool get canSave => _badSizes.isEmpty;
+  /// The rated pressure typed for this serial is not one: Save is off.
+  bool badWorking(String serial) => _badWorking.contains(serial);
+
+  bool get canSave => _badSizes.isEmpty && _badWorking.isEmpty;
 
   /// `config.yaml` is there but cannot be read: saving replaces it.
   bool get unreadable => _unreadable;
 
   String get path => config.configYamlPath;
 
-  /// The dialogs' folders: the FIT logs' starts in Downloads.
-  String dialogDir(String field) => config.dialogDirFor(
-    field,
-    home: home,
-    start: field == fitLogsDirField ? StartFolder.downloads : StartFolder.home,
-  );
-
-  /// The window opened: the saved names.
+  /// The window opened: the saved sensors.
   void open() {
     final file = config.tankConfig();
-    _tanks = Map.of(file.tanks.tanks);
-    _sizes = Map.of(file.tanks.sizes);
+    final saved = file.tanks;
+    _opened++;
+    _order = saved.tanks.keys.toList();
+    _names
+      ..clear()
+      ..addAll(saved.tanks);
+    _sidemount
+      ..clear()
+      ..addAll(saved.sidemountNames);
+    _sides
+      ..clear()
+      ..addAll(saved.sides);
+    _sizes
+      ..clear()
+      ..addAll(saved.sizes);
+    _working
+      ..clear()
+      ..addAll(saved.workingBar);
     _badSizes.clear();
+    _badWorking.clear();
+    _seen = {};
     _unreadable = file.unreadable;
     statusText = '';
     notifyListeners();
   }
 
+  /// The sensors of the dive logs the app keeps in [folder] (read on
+  /// another isolate): where each was seen, and the ones not saved yet
+  /// added after the saved ones, by serial.
+  Future<void> readKept(String folder) async {
+    final opened = _opened;
+    _reading = true;
+    notifyListeners();
+    Map<String, SensorSeen> found;
+    try {
+      found = await Isolate.run(() => keptTankSensors(folder));
+    } on Object {
+      found = {};
+    }
+    if (_disposed || opened != _opened) {
+      return;
+    }
+    _reading = false;
+    _seen = found;
+    final fresh = [
+      for (final serial in found.keys.toList()..sort())
+        if (!_names.containsKey(serial)) serial,
+    ];
+    for (final serial in fresh) {
+      _order.add(serial);
+      _names[serial] = 'Tank $serial';
+    }
+    if (fresh.isNotEmpty) {
+      statusText =
+          '${fresh.length} new sensor(s) from your dive logs: name them '
+          'and Save.';
+    }
+    notifyListeners();
+  }
+
   void setName(String serial, String name) {
-    if (_tanks.containsKey(serial)) {
-      _tanks[serial] = name;
+    if (_names.containsKey(serial)) {
+      _names[serial] = name;
     }
   }
 
-  /// A size typed in, in litres (a comma for the decimal point too); empty
+  /// The name on a sidemount overlay; empty for the same name there.
+  void setSidemountName(String serial, String name) {
+    if (!_names.containsKey(serial)) {
+      return;
+    }
+    if (name.trim().isEmpty) {
+      _sidemount.remove(serial);
+    } else {
+      _sidemount[serial] = name;
+    }
+  }
+
+  /// The side the tank is worn on in sidemount; `null` for neither.
+  void setSide(String serial, TankSide? side) {
+    if (!_names.containsKey(serial)) {
+      return;
+    }
+    if (side == null) {
+      _sides.remove(serial);
+    } else {
+      _sides[serial] = side;
+    }
+    notifyListeners();
+  }
+
+  /// A size typed in (a comma for the decimal point too): litres, or with
+  /// imperial [units] cubic feet at the tank's rated pressure. Empty
   /// clears it.
-  void setSize(String serial, String text) {
-    if (!_tanks.containsKey(serial)) {
+  void setSize(
+    String serial,
+    String text, {
+    UnitSystem units = UnitSystem.metric,
+  }) {
+    if (!_names.containsKey(serial)) {
       return;
     }
     final typed = text.trim().replaceAll(',', '.');
-    final litres = double.tryParse(typed);
+    final value = double.tryParse(typed);
+    final imperial = units == UnitSystem.imperial;
+    // The litres are kept to 0.01, which gives the cubic feet back to 0.1.
+    final litres = value == null
+        ? null
+        : imperial
+        ? (litresOfCubicFeet(value, workingBarOf(serial)) * 100).round() / 100
+        : value;
     final wasBad = _badSizes.contains(serial);
     if (typed.isEmpty) {
       _sizes.remove(serial);
+      _working.remove(serial);
       _badSizes.remove(serial);
     } else if (litres != null && validTankSize(litres)) {
       _sizes[serial] = litres;
+      if (imperial) {
+        _working[serial] = workingBarOf(serial);
+      }
       _badSizes.remove(serial);
     } else {
       _sizes.remove(serial);
@@ -112,79 +293,47 @@ class TankNamesEditor extends ChangeNotifier {
     }
   }
 
-  void remove(String serial) {
-    _tanks.remove(serial);
-    _sizes.remove(serial);
-    _badSizes.remove(serial);
-    notifyListeners();
-  }
-
-  /// Moves a row up ([step] -1) or down (+1) in the tank order.
-  void move(String serial, int step) {
-    final serials = _tanks.keys.toList();
-    final at = serials.indexOf(serial);
-    final to = at + step;
-    if (at < 0 || to < 0 || to >= serials.length) {
+  /// The rated pressure typed in, in psi: the tank keeps its cubic feet,
+  /// so its litres follow.
+  void setWorkingPsi(String serial, String text) {
+    if (!_names.containsKey(serial)) {
       return;
     }
-    serials.insert(to, serials.removeAt(at));
-    _tanks = {for (final s in serials) s: _tanks[s]!};
-    notifyListeners();
-  }
-
-  /// A serial typed in; false when it is empty or already there.
-  bool addSerial(String text) {
-    final serial = text.trim();
-    if (serial.isEmpty || _tanks.containsKey(serial)) {
-      return false;
+    final psi = double.tryParse(text.trim().replaceAll(',', '.'));
+    final bar = psi == null ? null : psi / psiPerBar;
+    final wasBad = _badWorking.contains(serial);
+    if (bar != null && validWorkingBar(bar)) {
+      final litres = _sizes[serial];
+      if (litres != null) {
+        final cubicFeet = cubicFeetOf(litres, workingBarOf(serial));
+        final next = (litresOfCubicFeet(cubicFeet, bar) * 100).round() / 100;
+        if (validTankSize(next)) {
+          _sizes[serial] = next;
+        }
+      }
+      _working[serial] = bar;
+      _badWorking.remove(serial);
+    } else {
+      _badWorking.add(serial);
     }
-    _tanks[serial] = 'Tank $serial';
-    notifyListeners();
-    return true;
-  }
-
-  /// The sensors of the Garmin logs in [folder] (read on another isolate),
-  /// the new ones added.
-  Future<void> scanFolder(String folder) async {
-    try {
-      config.rememberDialogDir(fitLogsDirField, folder);
-    } on FileSystemException {
-      // Only not kept.
-    }
-    await _scan(() => fitTankSerials(folder), 'that folder');
-  }
-
-  /// The sensors of the Garmin logs [paths] (a phone picks files, not a
-  /// folder), the new ones added.
-  Future<void> scanFiles(List<String> paths) =>
-      _scan(() => fitTankSerialsOf(paths), 'those files');
-
-  Future<void> _scan(Set<String> Function() read, String where) async {
-    final Set<String> found;
-    try {
-      found = await Isolate.run(read);
-    } on Object catch (e) {
-      statusText = 'Failed to scan $where: $e';
+    if (wasBad != _badWorking.contains(serial)) {
       notifyListeners();
+    }
+  }
+
+  /// A row dragged from place [from] to place [to] in the tank order.
+  void reorder(int from, int to) {
+    if (from < 0 || from >= _order.length) {
       return;
     }
-    final fresh = [
-      for (final serial in found.toList()..sort())
-        if (!_tanks.containsKey(serial)) serial,
-    ];
-    for (final serial in fresh) {
-      _tanks[serial] = 'Tank $serial';
-    }
-    statusText = found.isEmpty
-        ? 'No tank sensors found in $where.'
-        : 'Found ${found.length} sensor(s) in .fit files, added '
-              '${fresh.length} new.';
+    _order.insert(to.clamp(0, _order.length - 1), _order.removeAt(from));
     notifyListeners();
   }
 
-  /// Saves the names (an empty one as `Tank <serial>`) and the sizes into
-  /// `config.yaml`, keeping whatever else the file holds. The path saved to, or `null`
-  /// with [statusText] set when it could not be written.
+  /// Saves the sensors into `config.yaml` (an empty name as
+  /// `Tank <serial>`), keeping whatever else the file holds. The path
+  /// saved to, or `null` with [statusText] set when it could not be
+  /// written.
   String? save() {
     final file = config.tankConfig();
     try {
@@ -192,12 +341,20 @@ class TankNamesEditor extends ChangeNotifier {
         file.withTanks(
           TankConfig(
             {
-              for (final MapEntry(:key, :value) in _tanks.entries)
-                key: value.trim().isEmpty ? 'Tank $key' : value.trim(),
+              for (final serial in _order)
+                serial: _names[serial]!.trim().isEmpty
+                    ? 'Tank $serial'
+                    : _names[serial]!.trim(),
             },
+            Map.of(_sizes),
             {
-              for (final MapEntry(:key, :value) in _sizes.entries)
-                if (_tanks.containsKey(key)) key: value,
+              for (final MapEntry(:key, :value) in _sidemount.entries)
+                if (value.trim().isNotEmpty) key: value.trim(),
+            },
+            Map.of(_sides),
+            {
+              for (final MapEntry(:key, :value) in _working.entries)
+                if (_sizes.containsKey(key)) key: value,
             },
           ),
         ),
@@ -226,36 +383,26 @@ class TankNamesEditor extends ChangeNotifier {
   }
 }
 
-/// The Tank Sensor Names window: a row per sensor with its size, Up, Down
-/// and Remove, a serial typed in, the sensors of Garmin logs scanned in
-/// ([scanLogs], with its button's label), and Save.
-class TankNamesDialog extends StatefulWidget {
+/// The Tank Sensor Names window: the sensors of the kept Garmin logs, a
+/// block per sensor with its name, its name and side in sidemount and its
+/// size, dragged into the tank order, and Save. [onSaved] is told when the
+/// names are saved.
+class TankNamesDialog extends StatelessWidget {
   const TankNamesDialog({
     super.key,
     required this.editor,
-    required this.scanLogs,
-    this.scanLabel = 'Scan Logs Folder…',
+    this.units = UnitSystem.metric,
+    this.onSaved,
   });
 
   final TankNamesEditor editor;
-  final Future<void> Function() scanLogs;
-  final String scanLabel;
 
-  @override
-  State<TankNamesDialog> createState() => _TankNamesDialogState();
-}
+  /// Litres, or cubic feet at a rated pressure.
+  final UnitSystem units;
+  final VoidCallback? onSaved;
 
-class _TankNamesDialogState extends State<TankNamesDialog> {
-  final _serial = TextEditingController();
-
-  @override
-  void dispose() {
-    _serial.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final c = widget.editor;
+  Future<void> _save(BuildContext context) async {
+    final c = editor;
     if (c.unreadable) {
       final replace = await showDialog<bool>(
         context: context,
@@ -282,23 +429,25 @@ class _TankNamesDialogState extends State<TankNamesDialog> {
       }
     }
     final saved = c.save();
-    if (saved != null && mounted) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text('Sensor names saved to:\n$saved')),
-      );
+    if (saved != null) {
+      onSaved?.call();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(const SnackBar(content: Text('Saved')));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: widget.editor,
+    listenable: editor,
     builder: (context, _) {
-      final c = widget.editor;
+      final c = editor;
       final rows = c.rows;
       return AlertDialog(
         title: const Text('Tank Sensor Names'),
-        // Scrolls on a phone, where the rows wrap and outgrow the screen.
+        // Scrolls on a phone, where the fields wrap and outgrow the screen.
         content: SingleChildScrollView(
           child: SizedBox(
             width: 640,
@@ -308,112 +457,55 @@ class _TankNamesDialogState extends State<TankNamesDialog> {
               spacing: 8,
               children: [
                 const Text(
-                  'Map Garmin tank sensor serial numbers to friendly names (e.g. '
-                  '"Left", "Micke01"). The order is the tank order: an '
-                  "overlay's primary tank is the first one listed here that the "
-                  'dive has, its secondary tank the next. The size (water volume '
-                  'in litres, e.g. 11.1 for an AL80) gives VSAC for dives whose '
-                  'log has none.',
+                  'The tank sensors of your Garmin dive logs. Give each a '
+                  'name. The two sidemount fields are for overlays with two '
+                  'tanks: the side the tank is worn on, and another name '
+                  'there if you want one.',
                 ),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 320),
-                  child: ListView(
+                if (rows.isEmpty)
+                  MutedText(
+                    c.reading
+                        ? 'Reading your dive logs…'
+                        : 'No tank sensors yet. Import Garmin dive logs on '
+                              'the Dive Logs page and their sensors are '
+                              'listed here.',
+                  )
+                else
+                  ReorderableListView(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    onReorderItem: c.reorder,
                     children: [
-                      for (final (i, (serial, name)) in rows.indexed)
-                        Wrap(
-                          key: ValueKey(serial),
-                          spacing: 6,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            SizedBox(width: 130, child: SelectableText(serial)),
-                            SizedBox(
-                              width: 200,
-                              child: TextFormField(
-                                initialValue: name,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                ),
-                                onChanged: (v) => c.setName(serial, v),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 90,
-                              child: TextFormField(
-                                initialValue: _litres(c.sizeOf(serial)),
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  hintText: 'Size',
-                                  suffixText: 'l',
-                                  errorText: c.badSize(serial) ? '0-100' : null,
-                                ),
-                                onChanged: (v) => c.setSize(serial, v),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: i == 0
-                                  ? null
-                                  : () => c.move(serial, -1),
-                              child: const Text('Up'),
-                            ),
-                            TextButton(
-                              onPressed: i == rows.length - 1
-                                  ? null
-                                  : () => c.move(serial, 1),
-                              child: const Text('Down'),
-                            ),
-                            TextButton(
-                              onPressed: () => c.remove(serial),
-                              child: const Text('Remove'),
-                            ),
-                          ],
+                      for (final (i, row) in rows.indexed)
+                        _SensorBlock(
+                          key: ValueKey(row.serial),
+                          editor: c,
+                          row: row,
+                          index: i,
+                          units: units,
+                          reading: c.reading,
                         ),
                     ],
                   ),
-                ),
-                Row(
-                  spacing: 8,
-                  children: [
-                    const Flexible(child: Text('Add serial manually')),
-                    Expanded(
-                      child: TextField(
-                        controller: _serial,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          hintText: 'Serial number',
-                        ),
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        if (c.addSerial(_serial.text)) {
-                          _serial.clear();
-                        }
-                      },
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
+                if (rows.length > 1)
+                  const MutedText(
+                    'Drag a sensor by its handle to change the order: with '
+                    'several tanks on a dive, an overlay with one tank shows '
+                    'the first.',
+                  ),
                 if (c.statusText.isNotEmpty) MutedText(c.statusText),
               ],
             ),
           ),
         ),
         actions: [
-          OutlinedButton(
-            onPressed: widget.scanLogs,
-            child: Text(widget.scanLabel),
-          ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: c.canSave ? _save : null,
+            onPressed: c.canSave ? () => _save(context) : null,
             child: const Text('Save'),
           ),
         ],
@@ -422,9 +514,186 @@ class _TankNamesDialogState extends State<TankNamesDialog> {
   );
 }
 
-/// A size as the field shows it: `12`, `11.1`; empty for none.
-String _litres(double? litres) => litres == null
-    ? ''
-    : litres == litres.roundToDouble()
-    ? litres.toStringAsFixed(0)
-    : '$litres';
+class _SensorBlock extends StatelessWidget {
+  const _SensorBlock({
+    super.key,
+    required this.editor,
+    required this.row,
+    required this.index,
+    required this.units,
+    required this.reading,
+  });
+
+  final TankNamesEditor editor;
+  final TankRow row;
+  final int index;
+  final UnitSystem units;
+  final bool reading;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = editor;
+    final serial = row.serial;
+    final imperial = units == UnitSystem.imperial;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: const Padding(
+              padding: EdgeInsets.only(top: 2, right: 4),
+              child: Tooltip(
+                message: 'Drag to change the order',
+                child: Icon(Icons.drag_handle),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    SelectableText(
+                      'Sensor $serial',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    MutedText(seenText(row.seen, reading: reading)),
+                  ],
+                ),
+                // On a phone two fields share a line.
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final narrow = box.maxWidth < 420;
+                    final half = (box.maxWidth - 8) / 2;
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: narrow ? half : 150,
+                          child: TextFormField(
+                            key: ValueKey('name-$serial'),
+                            initialValue: row.name,
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              labelText: 'Name',
+                            ),
+                            onChanged: (v) => c.setName(serial, v),
+                          ),
+                        ),
+                        SizedBox(
+                          width: narrow ? half : 150,
+                          child: TextFormField(
+                            key: ValueKey('sidemount-$serial'),
+                            initialValue: row.sidemountName,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              labelText: 'Sidemount name',
+                              hintText: 'The same',
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                            ),
+                            onChanged: (v) => c.setSidemountName(serial, v),
+                          ),
+                        ),
+                        SizedBox(
+                          width: narrow ? half : 110,
+                          child: DropdownButtonFormField<TankSide?>(
+                            key: ValueKey('side-$serial'),
+                            initialValue: row.side,
+                            isDense: true,
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              labelText: 'Sidemount side',
+                            ),
+                            items: const [
+                              DropdownMenuItem(child: Text('–')),
+                              DropdownMenuItem(
+                                value: TankSide.left,
+                                child: Text('Left'),
+                              ),
+                              DropdownMenuItem(
+                                value: TankSide.right,
+                                child: Text('Right'),
+                              ),
+                            ],
+                            onChanged: (v) => c.setSide(serial, v),
+                          ),
+                        ),
+                        SizedBox(
+                          width: narrow ? half : 90,
+                          child: TextFormField(
+                            key: ValueKey('size-$serial'),
+                            initialValue: c.sizeText(serial, units),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              labelText: 'Size',
+                              suffixText: imperial ? 'cu ft' : 'l',
+                              errorText: c.badSize(serial)
+                                  ? (imperial ? 'Not a size' : '0-100')
+                                  : null,
+                            ),
+                            onChanged: (v) =>
+                                c.setSize(serial, v, units: units),
+                          ),
+                        ),
+                        if (imperial)
+                          SizedBox(
+                            width: narrow ? half : 90,
+                            child: TextFormField(
+                              key: ValueKey('working-$serial'),
+                              initialValue: c.workingText(serial),
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                labelText: 'Rated at',
+                                suffixText: 'psi',
+                                errorText: c.badWorking(serial)
+                                    ? '725-5800'
+                                    : null,
+                              ),
+                              onChanged: (v) => c.setWorkingPsi(serial, v),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where a sensor was seen, as its block says it.
+String seenText(SensorSeen? seen, {bool reading = false}) {
+  if (seen == null) {
+    return reading ? '' : 'not in your dive logs';
+  }
+  final dives = seen.dives == 1 ? '1 dive' : '${seen.dives} dives';
+  final last = seen.last;
+  return last == null
+      ? dives
+      : '$dives, last ${formatNaive(last).substring(0, 10)}';
+}
+
+/// A number as a field shows it, with at most [decimals] decimals and no
+/// zeros at its end: `12`, `11.1`, `77.4`.
+String _number(double value, int decimals) {
+  final text = value.toStringAsFixed(decimals);
+  return text.contains('.') ? text.replaceFirst(RegExp(r'\.?0+$'), '') : text;
+}

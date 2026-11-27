@@ -14,6 +14,7 @@ import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/app/shell.dart';
 import 'package:uwmedia_app/app/theme.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
+import 'package:uwmedia_app/core/config/tank_config.dart';
 import 'package:uwmedia_app/core/engine/ffmpeg_commands.dart';
 import 'package:uwmedia_app/core/parsers/fit_reader.dart';
 import 'package:uwmedia_app/core/parsers/garmin.dart';
@@ -81,6 +82,11 @@ void main() {
     expect(c.layoutsDirText, p.join(tmp.path, 'data', 'layouts'));
     expect(c.templatesDirText, p.join(tmp.path, 'data', 'templates'));
     expect(c.colorDirText, p.join(tmp.path, 'config'));
+    // Shown short while they are in the app's own folders (spec §10.113).
+    expect(c.shown(c.layoutsDirText), "UWMedia's own folder › layouts");
+    expect(c.shown(c.colorDirText), "UWMedia's own folder");
+    expect(c.shown(c.tankNamesPathText), "UWMedia's own folder › config.yaml");
+    expect(c.shown('/my/templates'), '/my/templates');
     c
       ..setFolder('templates', '/my/templates')
       ..setFolder('color', '/my/colors');
@@ -104,7 +110,9 @@ void main() {
     c.dispose();
   });
 
-  test('the tank sensor names: order, names, scan, save', () async {
+  test('the tank sensor names: the kept logs\' sensors, order, names, '
+      'save', () async {
+    // The logs the app keeps: their sensors are the window's.
     final logs = Directory(p.join(tmp.path, 'logs'))..createSync();
     final expected = <String>{};
     for (final name in ['air', 'nitrox_30_min_later', 'ccr_1_h_later']) {
@@ -117,31 +125,31 @@ void main() {
       '# my notes\ntanks:\n  "111": Left\n  "222": Right\nother: kept\n',
     );
 
-    final c = controller()..openTankNames();
-    expect(c.tankRows, [('111', 'Left'), ('222', 'Right')]);
-    expect(c.tankFileUnreadable, isFalse);
-    c
-      ..moveTank('222', -1)
-      ..moveTank('222', -1);
-    expect(c.tankRows.first, ('222', 'Right'));
-    c.setTankName('111', '  ');
-    expect(c.addSerial(' 333 '), isTrue);
-    expect(c.addSerial('333'), isFalse);
-    expect(c.tankRows.last, ('333', 'Tank 333'));
-    c.removeTank('333');
-
-    await c.scanFolder(logs.path);
-    final fresh = expected.difference({'111', '222'});
+    final c = controller();
+    final tanks = c.tanks..open();
     expect(
-      c.tankStatusText,
-      expected.isEmpty
-          ? 'No tank sensors found in that folder.'
-          : 'Found ${expected.length} sensor(s) in .fit files, added '
-                '${fresh.length} new.',
+      [for (final row in tanks.rows) (row.serial, row.name)],
+      [('111', 'Left'), ('222', 'Right')],
     );
-    expect(config.fields()[fitLogsDirField], logs.path);
+    expect(tanks.unreadable, isFalse);
+    tanks.reorder(1, 0);
+    expect(tanks.rows.first.serial, '222');
+    tanks.setName('111', '  ');
 
-    expect(c.saveTankNames(), config.configYamlPath);
+    await tanks.readKept(logs.path);
+    final fresh = expected.difference({'111', '222'});
+    expect(tanks.rows.length, 2 + fresh.length);
+    expect(tanks.rows.first.seen, isNull, reason: 'saved, in no kept log');
+    for (final row in tanks.rows.skip(2)) {
+      expect(row.name, 'Tank ${row.serial}');
+      expect(row.seen!.dives, greaterThan(0));
+    }
+    expect(
+      tanks.statusText,
+      fresh.isEmpty ? '' : contains('${fresh.length} new sensor(s)'),
+    );
+
+    expect(tanks.save(), config.configYamlPath);
     final saved = config.tankConfig();
     expect(saved.tanks.tanks.keys.take(2), ['222', '111']);
     expect(saved.tanks.tanks['111'], 'Tank 111');
@@ -152,9 +160,9 @@ void main() {
     );
 
     config.saveConfigYaml('tanks: [unclosed');
-    c.openTankNames();
-    expect(c.tankFileUnreadable, isTrue);
-    expect(c.tankRows, isEmpty);
+    tanks.open();
+    expect(tanks.unreadable, isTrue);
+    expect(tanks.rows, isEmpty);
     c.dispose();
   });
 
@@ -191,11 +199,27 @@ void main() {
     await tester.tap(find.text('Edit Tank Sensor Names…'));
     await tester.pumpAndSettle();
     expect(find.text('Tank Sensor Names'), findsOneWidget);
-    expect(find.text('111'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Left'), 'Port');
+    expect(find.text('Sensor 111'), findsOneWidget);
+    // No log picker in the window: the sensors are the kept logs'.
+    expect(find.textContaining('Scan'), findsNothing);
+    expect(find.text('Add'), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('name-111')), 'Port');
+    await tester.enterText(find.byKey(const ValueKey('sidemount-111')), 'Left');
+    // Imperial units: the size in cubic feet at the rated pressure.
+    await tester.enterText(find.byKey(const ValueKey('size-111')), '77.4');
+    expect(find.byKey(const ValueKey('working-111')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('side-111')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Right').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    expect(config.tankConfig().tanks.tanks, {'111': 'Port'});
+    final saved = config.tankConfig().tanks;
+    expect(saved.tanks, {'111': 'Port'});
+    expect(saved.sidemountNames, {'111': 'Left'});
+    expect(saved.sides, {'111': TankSide.right});
+    expect(saved.sizes['111'], closeTo(10.6, 0.01));
+    expect(saved.workingBar['111'], closeTo(206.84, 0.01));
   });
 
   testWidgets('the video engine: offered only where the runner has one, '

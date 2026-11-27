@@ -17,8 +17,13 @@ import 'package:uwmedia_app/core/rules/hud_rules_engine.dart';
 import 'package:uwmedia_app/core/watermark/watermark.dart';
 import 'package:uwmedia_app/engine/watermark_store.dart';
 import 'package:uwmedia_app/hud/hud_painter.dart';
+import 'package:uwmedia_app/pages/shared/phone_files.dart';
+import 'package:uwmedia_app/pages/shared/place_menu.dart';
 import 'package:uwmedia_app/pages/shared/watermark_editor.dart';
 import 'package:uwmedia_app/pages/shared/watermarks_section.dart';
+
+import '../helpers/menus.dart';
+import 'photos_test.dart' show FakePhotos;
 
 /// A PNG of one pixel.
 final _png = base64Decode(
@@ -151,7 +156,10 @@ void main() {
     await tester.tap(find.text('Add picture…'));
     await tester.pumpAndSettle();
     expect(find.text('Picture watermark'), findsOneWidget);
-    expect(find.text('Size: 15 % of the width'), findsOneWidget);
+    expect(
+      find.text('Size on landscape photos: 15 % of the width'),
+      findsOneWidget,
+    );
     expect(find.text('Opacity: 80 %'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Logo');
     await tester.tap(find.text('Save'));
@@ -239,6 +247,162 @@ void main() {
   final stage = find.byKey(const ValueKey('watermark stage'));
   final onStage = find.byKey(const ValueKey('watermark mark'));
 
+  testWidgets('on a phone: one button to add a picture, from the library or '
+      'from Files', (tester) async {
+    tester.view.physicalSize = const Size(400, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final services = AppServices(
+      capabilities: const Capabilities(desktop: false),
+      config: config,
+      home: tmp.path,
+      dataDir: () => Directory(p.join(tmp.path, 'data')),
+    );
+    final asked = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WatermarksSection(
+              services: services,
+              pickFile: () async {
+                asked.add('files');
+                return null;
+              },
+              pickFromLibrary: () async {
+                asked.add('library');
+                return null;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Add picture…'), findsOneWidget);
+    expect(find.textContaining('Add picture from'), findsNothing);
+    expect(find.text('Add text…'), findsOneWidget);
+
+    await tester.tap(find.text('Add picture…'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(fromLibraryLabel));
+    await tester.pumpAndSettle();
+    expect(asked, ['library']);
+    await tester.tap(find.text('Add picture…'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(fromFilesLabel));
+    await tester.pumpAndSettle();
+    expect(asked, ['library', 'files']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('on the Mac: a picture and the editor\'s sample from a file or '
+      'from Photos', (tester) async {
+    tester.view.physicalSize = const Size(900, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final services = AppServices(
+      capabilities: const Capabilities(desktop: true, photos: true),
+      config: config,
+      home: tmp.path,
+      dataDir: () => Directory(p.join(tmp.path, 'data')),
+      tempDir: (prefix) => tmp.createTempSync(prefix),
+    );
+    final photos = FakePhotos();
+    final asked = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WatermarksSection(
+              services: services,
+              photos: photos,
+              pickFile: () async {
+                asked.add('file');
+                return null;
+              },
+              pickSampleFile: () async {
+                asked.add('sample file');
+                return null;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // The button asks where from; a file as before.
+    await choosePlace(tester, find.text('Add picture…'), filesPlaceLabel);
+    expect(asked, ['file']);
+    expect(photos.asked, isEmpty);
+
+    // From Photos: one photo, no videos; kept, and its editor opens.
+    final picked = p.join(tmp.path, 'From Photos.png');
+    File(picked).writeAsBytesSync(_png);
+    photos.offered = [picked];
+    await choosePlace(
+      tester,
+      find.text('Add picture…'),
+      photoLibraryPlaceLabel,
+      real: true,
+    );
+    expect(photos.asked, ['photos']);
+    expect(store.list().single.name, 'From Photos');
+    expect(
+      File(p.join(store.folder.path, 'From Photos.png')).existsSync(),
+      isTrue,
+    );
+    expect(find.text('Picture watermark'), findsOneWidget);
+
+    // The editor's sample: the same two places, Photos with its videos.
+    await choosePlace(tester, find.text('Sample picture…'), filesPlaceLabel);
+    expect(asked, ['file', 'sample file']);
+    final sample = p.join(tmp.path, 'sample.png');
+    File(sample).writeAsBytesSync(_png);
+    photos.offered = [sample];
+    await choosePlace(
+      tester,
+      find.text('Sample picture…'),
+      photoLibraryPlaceLabel,
+      real: true,
+    );
+    expect(photos.asked, ['photos', 'photos videos']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('without Photos a computer has the one button, to a file', (
+    tester,
+  ) async {
+    final services = AppServices(
+      capabilities: const Capabilities(desktop: true),
+      config: config,
+      home: tmp.path,
+      dataDir: () => Directory(p.join(tmp.path, 'data')),
+    );
+    final asked = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WatermarksSection(
+              services: services,
+              pickFile: () async {
+                asked.add('file');
+                return null;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Add picture…'));
+    await tester.pumpAndSettle();
+    expect(asked, ['file']);
+    expect(find.text(photoLibraryPlaceLabel), findsNothing);
+  });
+
   testWidgets('the editor: a picture dragged to its place, taken onto the '
       'lines, one place for landscape and one for portrait', (tester) async {
     tester.view.physicalSize = const Size(900, 1400);
@@ -299,7 +463,10 @@ void main() {
         final upright = tester.getRect(stage);
         expect(upright.height / upright.width, closeTo(16 / 9, 0.01));
         box = tester.getRect(onStage);
-        expect(box.right, closeTo(upright.right - upright.width * 0.02, 0.5));
+        expect(
+          box.right,
+          closeTo(upright.right - upright.width * watermarkMargin, 0.5),
+        );
         await tester.dragFrom(
           box.center,
           Offset(
@@ -311,6 +478,22 @@ void main() {
         box = tester.getRect(onStage);
         expect(box.center.dx, closeTo(upright.center.dx, 0.5));
         expect(find.text('Put it on portrait photos and videos'), findsOne);
+
+        // The size shown is the portrait one: its own from now on.
+        expect(
+          find.text('Size on portrait photos: 20 % of the width'),
+          findsOne,
+        );
+        await tester.ensureVisible(find.byType(Slider).first);
+        final slider = tester.widget<Slider>(find.byType(Slider).first);
+        slider.onChanged!(0.4);
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Size on portrait photos: 40 % of the width'),
+          findsOne,
+        );
+        final larger = tester.getRect(onStage);
+        expect(larger.width, closeTo(box.width * 2, 1));
 
         // A picture of the user's own to place it on.
         await tester.runAsync(() async {
@@ -327,9 +510,11 @@ void main() {
     );
     expect(saved!.place, (x: 0.0, y: 0.0));
     expect(saved.placePortrait, (x: 0.5, y: 0.0));
+    expect((saved.size, saved.sizePortrait), (0.2, 0.4));
     expect(
       watermarkSummary(saved),
-      'Picture · Top left (portrait: top) · 20 % of the width · 80 % solid',
+      'Picture · Top left (portrait: top) · 20 % of the width '
+      '(portrait: 40 %) · 80 % solid',
     );
   });
 

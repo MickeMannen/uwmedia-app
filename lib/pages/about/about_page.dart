@@ -202,10 +202,15 @@ class AboutPage extends StatefulWidget {
     super.key,
     required this.services,
     this.version,
+    this.build,
     this.latestTag = latestReleaseTag,
     this.finder,
     this.log,
   });
+
+  /// The build's number, for a test; with [version] given and this left
+  /// out, none is shown.
+  final String? build;
 
   /// The log a report is made of; by default the running app's.
   final AppLog? log;
@@ -227,6 +232,9 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   String _version = '';
+  // The build's number: what tells two builds of one version apart (the
+  // store's uploads, spec §10.114).
+  String _build = '';
   UpdateNote? _update;
   final Map<String, String> _tools = {};
 
@@ -237,11 +245,15 @@ class _AboutPageState extends State<AboutPage> {
     registerFontLicenses();
     if (widget.version != null) {
       _version = widget.version!;
+      _build = widget.build ?? '';
     } else {
       PackageInfo.fromPlatform()
           .then((info) {
             if (mounted) {
-              setState(() => _version = info.version);
+              setState(() {
+                _version = info.version;
+                _build = info.buildNumber;
+              });
             }
           })
           .catchError((Object _) {
@@ -250,10 +262,17 @@ class _AboutPageState extends State<AboutPage> {
             }
           });
     }
-    if (widget.services.capabilities.desktop) {
+    if (_usesTools) {
       _findTools();
     }
   }
+
+  // Whether this build runs ffmpeg and exiftool: a computer's, but not the
+  // Mac App Store's, which has neither (spec §10.74). Without them there
+  // is nothing to say of them.
+  bool get _usesTools =>
+      widget.services.capabilities.desktop &&
+      widget.services.capabilities.externalTools;
 
   Future<void> _findTools() async {
     final finder = (widget.finder ?? ToolFinder.forThisMachine)();
@@ -318,7 +337,11 @@ class _AboutPageState extends State<AboutPage> {
     final services = widget.services;
     final caps = services.capabilities;
     return reportText({
-      'Version': _version.isEmpty ? 'unknown' : _version,
+      'Version': _version.isEmpty
+          ? 'unknown'
+          : _build.isEmpty
+          ? _version
+          : '$_version (build $_build)',
       'System':
           '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
       'Language': Platform.localeName,
@@ -377,9 +400,15 @@ class _AboutPageState extends State<AboutPage> {
       SectionCard(
         title: 'UWMedia',
         children: [
-          Text(
-            'Version $_version',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Tooltip(
+              message: _build.isEmpty ? '' : 'Build $_build',
+              child: Text(
+                'Version $_version',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
           const Text(
             'Underwater media processor - color correction and dive telemetry '
@@ -387,20 +416,21 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ],
       ),
-      SectionCard(
-        title: 'Updates',
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton(
-              onPressed: _check,
-              child: const Text('Check for updates'),
+      if (widget.services.capabilities.updateCheck)
+        SectionCard(
+          title: 'Updates',
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton(
+                onPressed: _check,
+                child: const Text('Check for updates'),
+              ),
             ),
-          ),
-          if (_update != null)
-            Text(_update!.text, style: TextStyle(color: _update!.color)),
-        ],
-      ),
+            if (_update != null)
+              Text(_update!.text, style: TextStyle(color: _update!.color)),
+          ],
+        ),
       const SectionCard(
         title: 'License',
         children: [
@@ -414,7 +444,7 @@ class _AboutPageState extends State<AboutPage> {
       SectionCard(
         title: 'Third-Party Licenses',
         children: [
-          if (widget.services.capabilities.desktop) ...[
+          if (_usesTools) ...[
             const MutedText(
               'UWMedia invokes these as separate external programs, not '
               "linked libraries - this does not affect UWMedia's own MIT "

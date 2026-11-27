@@ -14,6 +14,8 @@ import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/color/color_shader.dart';
 import 'package:uwmedia_app/core/color/color_engine.dart';
 import 'package:uwmedia_app/core/color/color_params.dart';
+import 'package:uwmedia_app/core/color/color_profiles.dart'
+    show bundledProfileNames;
 import 'package:uwmedia_app/core/config/config_store.dart';
 
 /// The longest side of the sample the page works on.
@@ -23,6 +25,10 @@ const tuningPreviewMaxDim = 600;
 const tuningImageDirField = 'color_tuning_image_dialog_dir';
 
 const noImageText = 'No image loaded';
+
+/// What a save under the bundled profile [name] answers (spec §10.103).
+String bundledProfileText(String name) =>
+    "'$name' comes with the app and is not changed: save as a new profile";
 
 /// [rgb] corrected with [profile]: its own analysis, then the filter.
 RgbImage correctedSample((ColorProfile, RgbImage) job) {
@@ -98,6 +104,15 @@ class ColorTuningController extends ChangeNotifier {
   }
 
   List<String> get profileList => _profiles.keys.toList();
+
+  /// The bundled profiles' names: never saved over (spec §10.103).
+  late final Set<String> bundledProfiles = bundledProfileNames(
+    bundledColorYaml,
+  );
+
+  /// Whether the profile shown is a bundled one: its sliders can be moved
+  /// and saved as a new profile, not saved over it.
+  bool get currentIsBundled => bundledProfiles.contains(_current);
   String get currentProfile => _current;
   String get newProfileName => _newName;
   String get statusText => _status;
@@ -324,6 +339,10 @@ class ColorTuningController extends ChangeNotifier {
 
   /// The sliders saved as the current profile (the user's own copy of it).
   void saveProfile() {
+    if (currentIsBundled) {
+      _setStatus(bundledProfileText(_current));
+      return;
+    }
     try {
       config.saveUserProfile(_current, _sliderValues);
       _setStatus("Saved profile '$_current'");
@@ -336,6 +355,10 @@ class ColorTuningController extends ChangeNotifier {
   void saveNewProfile() {
     final name = _newName.trim();
     if (name.isEmpty) {
+      return;
+    }
+    if (bundledProfiles.contains(name)) {
+      _setStatus(bundledProfileText(name));
       return;
     }
     try {

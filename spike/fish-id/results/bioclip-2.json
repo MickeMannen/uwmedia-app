@@ -1,0 +1,298 @@
+{
+  "params": {
+    "model": "bioclip-2",
+    "weights_file_mb": 1710.5,
+    "params_visual_m": 304.0,
+    "params_text_and_rest_m": 123.7,
+    "visual_fp32_mb": 1215.9,
+    "visual_fp16_mb": 607.9,
+    "text_fp32_mb": 494.6,
+    "embedding_dim": 768,
+    "input": "1x3x224x224",
+    "preprocess": "Compose(\n    Resize(size=224, interpolation=bicubic, max_size=None, antialias=True)\n    CenterCrop(size=(224, 224))\n    MaybeConvertMode()\n    MaybeToTensor()\n    Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])\n)"
+  },
+  "text": {
+    "species": 64,
+    "matrix_shape": [
+      64,
+      768
+    ],
+    "matrix_dtype": "float16",
+    "matrix_kb": 98.3,
+    "seconds_for_all_cpu": 1.01,
+    "seconds_per_species_cpu": 0.016,
+    "logit_scale": 100.0,
+    "fp16_matrix_vs_whole_model_max_probability_difference": 0.0002151280641555786,
+    "same_top_species": true,
+    "sample_top3_no_accuracy_claim": [
+      {
+        "picture": "frame-corrected.jpg",
+        "top3": [
+          [
+            "Amphiprion ocellaris",
+            0.968
+          ],
+          [
+            "Amphiprion clarkii",
+            0.031
+          ],
+          [
+            "Amphiprion perideraion",
+            0.001
+          ]
+        ]
+      },
+      {
+        "picture": "frame-original.jpg",
+        "top3": [
+          [
+            "Amphiprion clarkii",
+            0.554
+          ],
+          [
+            "Amphiprion ocellaris",
+            0.434
+          ],
+          [
+            "Amphiprion perideraion",
+            0.011
+          ]
+        ]
+      },
+      {
+        "picture": "jpeg_3x2_2mp.jpg",
+        "top3": [
+          [
+            "Synchiropus splendidus",
+            0.552
+          ],
+          [
+            "Paracanthurus hepatus",
+            0.091
+          ],
+          [
+            "Hymenocera picta",
+            0.089
+          ]
+        ]
+      }
+    ],
+    "extrapolated_mb": {
+      "500 species": 0.8,
+      "3000 species": 4.6,
+      "20000 species": 30.7,
+      "250000 species": 384.0,
+      "1000000 species": 1536.0
+    }
+  },
+  "onnx": {
+    "opset": 17,
+    "export_seconds": 6.4,
+    "files_the_exporter_wrote_above_2gb": 1,
+    "inputs": [
+      [
+        "image",
+        [
+          "batch",
+          3,
+          224,
+          224
+        ],
+        "tensor(float)"
+      ]
+    ],
+    "outputs": [
+      [
+        "embedding",
+        [
+          "batch",
+          768
+        ],
+        "tensor(float)"
+      ]
+    ],
+    "operators": [
+      "Add",
+      "Cast",
+      "Concat",
+      "Constant",
+      "ConstantOfShape",
+      "Conv",
+      "Div",
+      "Equal",
+      "Erf",
+      "Expand",
+      "Gather",
+      "LayerNormalization",
+      "MatMul",
+      "Mul",
+      "ReduceL2",
+      "Reshape",
+      "Shape",
+      "Softmax",
+      "Transpose",
+      "Unsqueeze",
+      "Where"
+    ],
+    "fp32_mb": 1216.2,
+    "fp16_mb": 608.3,
+    "fp16_error": null,
+    "fp32_cosine_to_pytorch_min": 1.0,
+    "fp16_cosine_to_pytorch_min": 0.9999982118606567
+  },
+  "time": {
+    "machine": "arm64",
+    "threads": 4,
+    "pytorch_cpu_1": 0.268,
+    "pytorch_cpu_8": 1.661,
+    "pytorch_mps_1": 0.09,
+    "pytorch_mps_8": 0.567,
+    "pytorch_mps_fp16_1": 0.085,
+    "pytorch_mps_fp16_8": 0.484,
+    "onnx_fp32_cpu_1": 0.479,
+    "onnx_fp32_cpu_8": 4.093,
+    "onnx_fp32_cpu_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp32_coreml_1": 0.704,
+    "onnx_fp32_coreml_providers": [
+      "CoreMLExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp16_cpu_1": 0.557,
+    "onnx_fp16_cpu_8": 4.576,
+    "onnx_fp16_cpu_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnx_fp16_coreml_1": 0.509,
+    "onnx_fp16_coreml_providers": [
+      "CoreMLExecutionProvider",
+      "CPUExecutionProvider"
+    ]
+  },
+  "coreml": {
+    "convert_seconds": 18.4,
+    "mlpackage_fp16_mb": 608.2,
+    "all_load_and_first_seconds": 10.9,
+    "all_seconds_1": 0.036,
+    "all_cosine_to_pytorch": 0.9994099140167236,
+    "cpu_and_gpu_load_and_first_seconds": 3.9,
+    "cpu_and_gpu_seconds_1": 0.069,
+    "cpu_and_gpu_cosine_to_pytorch": 0.9999973177909851,
+    "cpu_and_ne_load_and_first_seconds": 10.1,
+    "cpu_and_ne_seconds_1": 0.037,
+    "cpu_and_ne_cosine_to_pytorch": 0.9994099140167236,
+    "cpu_only_load_and_first_seconds": 3.1,
+    "cpu_only_seconds_1": 0.087,
+    "cpu_only_cosine_to_pytorch": 1.0000033378601074
+  },
+  "prompts": {
+    "seven ranks and common name": {
+      "mean_cosine_to_first_wording": 1.0,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.968
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion clarkii",
+          0.554
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Synchiropus splendidus",
+          0.552
+        ]
+      ]
+    },
+    "seven ranks": {
+      "mean_cosine_to_first_wording": 0.972,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.949
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion clarkii",
+          0.636
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Synchiropus splendidus",
+          0.424
+        ]
+      ]
+    },
+    "no class, common name": {
+      "mean_cosine_to_first_wording": 0.989,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.953
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion clarkii",
+          0.629
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Synchiropus splendidus",
+          0.802
+        ]
+      ]
+    },
+    "scientific name": {
+      "mean_cosine_to_first_wording": 0.957,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.944
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion clarkii",
+          0.657
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Synchiropus splendidus",
+          0.813
+        ]
+      ]
+    },
+    "common name": {
+      "mean_cosine_to_first_wording": 0.883,
+      "top_per_picture": [
+        [
+          "frame-corrected.jpg",
+          "Amphiprion ocellaris",
+          0.959
+        ],
+        [
+          "frame-original.jpg",
+          "Amphiprion ocellaris",
+          0.742
+        ],
+        [
+          "jpeg_3x2_2mp.jpg",
+          "Rhinomuraena quaesita",
+          0.371
+        ]
+      ]
+    }
+  },
+  "memory": {
+    "coreml_all_peak_rss_mb": 1575.0,
+    "coreml_cpu_and_gpu_peak_rss_mb": 1451.0,
+    "coreml_cpu_only_peak_rss_mb": 1563.0,
+    "onnx_cpu_fp16_peak_rss_mb": 2011.0,
+    "onnx_cpu_fp32_peak_rss_mb": 1287.0
+  }
+}

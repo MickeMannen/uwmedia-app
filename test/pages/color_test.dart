@@ -1369,6 +1369,14 @@ void main() {
       findsOneWidget,
     );
   });
+  test('the preview\'s height: more of a phone on its side', () {
+    // Upright, 42 % of the height (owner, 2026-11-18); on its side that
+    // left 164 points of 390, now 80 % (owner, 2026-11-24).
+    expect(previewRoom(const Size(390, 844), phone: true), 844 * 0.42);
+    expect(previewRoom(const Size(844, 390), phone: true), 390 * 0.8);
+    expect(previewRoom(const Size(1400, 1000), phone: false), 700);
+  });
+
   testWidgets('on a phone: picked from the library, no folders', (
     tester,
   ) async {

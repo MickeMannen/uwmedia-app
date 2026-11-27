@@ -297,27 +297,33 @@ void main() {
       ..writeAsBytesSync(_fit('air'));
     final first = await loadDiveLogsOffThread(folder.path, TankConfig());
     expect(first.dives, hasLength(1));
-    // Read once: the same dives again.
+    // Read once: the same dives again (the dives themselves, kept by file
+    // since spec §10.106; the list around them is each reader's own).
     expect(
       identical(
-        (await loadDiveLogsOffThread(folder.path, TankConfig())).dives,
-        first.dives,
+        (await loadDiveLogsOffThread(folder.path, TankConfig())).dives.single,
+        first.dives.single,
       ),
       isTrue,
     );
     // A log changed, added or removed, or other tank names: read again.
     log.writeAsBytesSync(_fit('nitrox_30_min_later'));
     final changed = await loadDiveLogsOffThread(folder.path, TankConfig());
-    expect(identical(changed.dives, first.dives), isFalse);
+    expect(identical(changed.dives.single, first.dives.single), isFalse);
     expect(changed.dives.single.startTime, isNot(first.dives.single.startTime));
     File(p.join(folder.path, 'more.fit')).writeAsBytesSync(_fit('air'));
     final added = await loadDiveLogsOffThread(folder.path, TankConfig());
     expect(added.dives, hasLength(2));
+    // Only the added log was read: the other one's dive is the same.
+    expect(added.dives.any((d) => identical(d, changed.dives.single)), isTrue);
     final named = await loadDiveLogsOffThread(
       folder.path,
       TankConfig({'123': 'Left'}),
     );
-    expect(identical(named.dives, added.dives), isFalse);
+    expect(
+      named.dives.any((d) => added.dives.any((a) => identical(a, d))),
+      isFalse,
+    );
     File(p.join(folder.path, 'more.fit')).deleteSync();
     expect(
       await loadDiveLogsOffThread(folder.path, TankConfig({'123': 'Left'})),

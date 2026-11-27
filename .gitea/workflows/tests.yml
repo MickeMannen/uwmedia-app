@@ -1,6 +1,6 @@
 # The default test suite on the self-hosted Gitea runners, for every branch
 # push (development branches only go to Gitea), by hand, and nightly with
-# everything. Gitea reads .gitea/workflows/ and leaves the GitHub workflow
+# everything, the Mac App Store variant's build included. Gitea reads .gitea/workflows/ and leaves the GitHub workflow
 # alone.
 #
 # Runners (owner, 2026-11-15): `linux-docker` (Docker mode; the job runs in
@@ -155,6 +155,27 @@ jobs:
       - name: Everything
         if: github.event_name == 'schedule'
         run: tool/run_tests.sh 4
+
+      # The Mac App Store variant (spec §10.74: no ffmpeg, no exiftool,
+      # the App Sandbox), built and signed ad hoc each night so that it
+      # is seen to build (owner, 2026-11-25). Whatever the tests said. The
+      # app is not started: that would make its container in the runner's
+      # Library. It stays in the runner's build/store/ until the next run.
+      - name: Build the Mac App Store variant
+        if: ${{ github.event_name == 'schedule' && !cancelled() }}
+        run: |
+          tool/build_store.sh
+          app=build/store/UWMedia.app
+          rights=$(codesign -d --entitlements - "$app" 2>/dev/null)
+          case "$rights" in
+            *com.apple.security.app-sandbox*) ;;
+            *) echo "::error::The store build is not signed for the App Sandbox"; exit 1 ;;
+          esac
+          tools=$(find "$app" \( -name ffmpeg -o -name ffprobe -o -name exiftool \))
+          if [ -n "$tools" ]; then
+            echo "::error::The store build holds ffmpeg, ffprobe or exiftool: $tools"
+            exit 1
+          fi
 
   # The runner's service has no bash on its PATH, so the steps find the one
   # that comes with Git for Windows, next to the git that Flutter uses.

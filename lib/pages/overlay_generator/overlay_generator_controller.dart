@@ -32,6 +32,7 @@ import 'package:uwmedia_app/engine/app_log.dart';
 import 'package:uwmedia_app/engine/desktop/color_batch.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/overlay_batch.dart';
+import 'package:uwmedia_app/engine/dive_cache.dart';
 import 'package:uwmedia_app/engine/log_files.dart';
 import 'package:uwmedia_app/engine/log_store.dart';
 import 'package:uwmedia_app/pages/shared/logs_folder.dart';
@@ -206,9 +207,15 @@ class OverlayGeneratorController extends ChangeNotifier
     }
     final ticket = ++_logLoads;
     final tanks = config.tankConfig().tanks;
-    final LogRead read = await compute(
-      (String folder) => LogStore(Directory(folder)).dives(tanks),
-      dir,
+    // Through the app's cache: only the logs not read yet are parsed
+    // (spec §10.106).
+    final LogRead read = await diveCache.read(
+      // None when the folder is not there yet.
+      await compute(
+        (String folder) => LogStore(Directory(folder)).files(),
+        dir,
+      ),
+      tanks,
     );
     if (_disposed || ticket != _logLoads) {
       return;

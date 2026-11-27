@@ -4,6 +4,99 @@ All notable changes to the UWMedia app are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 git tags.
 
+## [0.1.6] - 2026-11-27
+
+### Added
+
+- About: the build number is shown when the mouse rests on the version
+  (a long press on a phone), and it is in the report, to tell two builds
+  of one version apart.
+- Overlays: two TUSA dive computers, the TC1 (its Normal and Simple
+  displays) and the DC Solar Link (IQ1204), each on a picture of the
+  computer. The layouts follow the owners' manuals; the TC1's Simple
+  display also follows a picture of that display.
+- Tank Sensor Names: a sensor can have a second name for sidemount
+  overlays and be marked as worn left or right. "Micke01" on a backmount
+  overlay can be "Left" on a sidemount one, and the left tank is always
+  shown as the left one, whatever the order of the list.
+- Tank Sensor Names: each sensor says in how many of your dives it is and
+  when it was last used, so you can tell which sensor is which tank.
+- Tank Sensor Names: with imperial units a tank's size is given in cubic
+  feet at its rated pressure.
+- Watermarks (Mac): "Add picture…" and the editor's "Sample picture…"
+  offer the photo library beside files, as the other pages do. Before,
+  a logo or a sample kept in Photos had to be exported to a file first.
+- Watermarks: a watermark has its own size for portrait photos and
+  videos, as it has its own place there. Show Portrait in the editor and
+  move the size slider; until you do, it keeps the landscape size.
+
+### Changed
+
+- iPhone: the app opens on its own dark background, without the white
+  flash before the first page.
+- Settings: the folders under "Locations" and the tank names' file are
+  shown as "UWMedia's own folder › layouts" while they are in the app's
+  own folder, in place of a path too long to read. Hover for the path.
+- About, Mac App Store: the "Third-Party Licenses" card no longer lists
+  FFmpeg and ExifTool as "not found". The store's app does not use them,
+  so there was nothing to find.
+- Tag Editor (phones): the corrected copies are saved where "Save to…"
+  says, an album you choose or a folder in Files, as on Color and
+  Resize. Before, it could only make a new album.
+- iPhone: the About page no longer has "Check for updates"; the App
+  Store updates the app, when it is there.
+- Tank Sensor Names (Settings on a phone, Advanced on a computer): a
+  simpler window. It lists the tank sensors of the Garmin dive logs on the
+  Dive Logs page, with no log files to pick or folder to scan; the order
+  is changed by dragging. The buttons to scan logs, add a serial by hand
+  and remove a sensor are gone.
+- Dive logs: the app reads each dive log once and remembers it while it
+  is open, for every page. The Log Viewer, the Overlay Generator, the
+  Overlay Designer and Color no longer read all the imported logs again
+  each time; only a new or changed log is read. The first read is also
+  faster, as several logs are read at the same time.
+- Phones, Watermarks: one "Add picture…" button, which asks whether the
+  picture comes from the photo library or from Files, where there were
+  two buttons.
+- Color Tuning: the profiles that come with the app ("default", "vivid",
+  "punchy") can no longer be changed. Move the sliders and save them as a
+  profile of your own; your own profiles are saved over as before. A
+  profile of yours that has one of those three names is no longer used:
+  save it under another name.
+- Watermarks: a watermark can lie closer to the picture's edges. The
+  margin is a quarter of what it was, so a watermark already placed
+  against an edge or in a corner moves outward a little.
+- Phones, Color: the preview is larger when the phone is held on its
+  side.
+- Phones, Resize: "Output files" lists the file names alone, without the
+  folder.
+- Phones, Tag Editor: "Pick photos and videos" asks whether they come
+  from the photo library or from Files, as on Color and Resize, so the
+  dates of what a camera card or a cable copy left on the phone can be
+  changed too.
+
+### Fixed
+
+- Android: the last buttons of a page are no longer partly under the
+  system's bar at the bottom (Tank Sensor Names, Dive Logs, Color
+  Tuning).
+- Android: the notification of a run shows how far the run is, as the
+  page does. It only said that the app was working.
+- Android: UWMedia is offered for a dive log in more places: a .fit,
+  .uddf or .ssrf file is now also taken by its ending, and a Garmin .fit
+  that Android takes for another kind of file. Sharing a log to UWMedia
+  works; some file managers may still not offer the app for a tapped
+  file.
+- About, "Report a problem": the log now says how long the app's start
+  took step by step, which tool runs were slow, and what was still
+  going when the app was closed. It helps to find why an app is slow to
+  start or to close.
+- Windows: the window closes at once when you click the close button.
+  Before, it could stay on the screen for more than ten seconds while
+  the app shut down.
+- Color: the watermarks to tick start under the "Watermarks" label, in
+  line with each other.
+
 ## [0.1.5] - 2026-11-24
 
 ### Added

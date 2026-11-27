@@ -3,6 +3,8 @@
 /// external tools.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/core/units/units.dart';
@@ -108,10 +110,14 @@ class _AdvancedPageState extends State<AdvancedPage> {
     children: [
       SizedBox(width: 140, child: Text(label)),
       Expanded(
-        child: SelectableText(
-          value,
-          maxLines: 1,
-          style: const TextStyle(fontSize: 12),
+        child: Tooltip(
+          message: value,
+          child: Text(
+            controller.shown(value),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ),
       OutlinedButton(onPressed: onChange, child: const Text('Change…')),
@@ -119,20 +125,16 @@ class _AdvancedPageState extends State<AdvancedPage> {
     ],
   );
 
+  // The sensors of the dive logs the app keeps (spec §10.104).
   Future<void> _tankNames() async {
-    controller.openTankNames();
+    controller.tanks.open();
+    unawaited(controller.tanks.readKept(widget.services.logStore.folder.path));
     await showDialog<void>(
       context: context,
       builder: (context) => TankNamesDialog(
         editor: controller.tanks,
-        scanLogs: () async {
-          final folder = await widget.dialogs.pickFolder(
-            controller.dialogDir(fitLogsDirField),
-          );
-          if (folder != null) {
-            await controller.scanFolder(folder);
-          }
-        },
+        units: controller.units,
+        onSaved: widget.services.tankNamesSaved,
       ),
     );
   }
@@ -196,9 +198,12 @@ class _AdvancedPageState extends State<AdvancedPage> {
             title: 'Sensor names',
             children: [
               const MutedText('Config file', size: 11),
-              SelectableText(
-                c.tankNamesPathText,
-                style: const TextStyle(fontSize: 12),
+              Tooltip(
+                message: c.tankNamesPathText,
+                child: Text(
+                  c.shown(c.tankNamesPathText),
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
               Align(
                 alignment: Alignment.centerLeft,

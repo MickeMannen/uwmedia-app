@@ -1,5 +1,5 @@
 /// The Tag Editor on a phone (spec §9.1, owner's decisions 2026-11-13):
-/// photos and videos picked from the library, their resolved local date,
+/// photos and videos picked from the library or the phone's files, their resolved local date,
 /// offset and raw date tags shown; one file's date and offset set, or one
 /// shift for every file (hours and minutes, and optionally a new offset);
 /// the changed files written into corrected copies by the app's own
@@ -17,6 +17,7 @@ import 'package:uwmedia_app/core/util/py_parse.dart';
 import 'package:uwmedia_app/core/util/py_strftime.dart';
 import 'package:uwmedia_app/engine/media_file_dates.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
+import 'package:uwmedia_app/engine/result_folder.dart';
 
 /// The raw date tags the page shows (E1/E2/E3), by exiftool name.
 const liteRawTags = [
@@ -121,11 +122,13 @@ class TagEditorLiteController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Photos and videos from the library, their dates read.
-  Future<void> pick() async {
+  /// Photos and videos from the library, or from the phone's files with
+  /// [from] (what a camera card or a cable copy left there), their dates
+  /// read.
+  Future<void> pick({Future<List<String>> Function()? from}) async {
     final List<String> paths;
     try {
-      paths = await library.pick();
+      paths = await (from ?? library.pick)();
     } on LibraryException catch (e) {
       _say(e.message);
       return;
@@ -264,7 +267,15 @@ class TagEditorLiteController extends ChangeNotifier {
   /// album [album]; the originals left as they are.
   Future<void> saveCopies(String album) async {
     final name = album.trim();
-    if (busy || name.isEmpty) {
+    if (name.isNotEmpty) {
+      await saveCopiesTo(AlbumPlace(library, name));
+    }
+  }
+
+  /// The same into [place]: an album, or a folder of the phone's files
+  /// (the pages' "Save to…", spec §10.112).
+  Future<void> saveCopiesTo(SavePlace place) async {
+    if (busy) {
       return;
     }
     final changed = [
@@ -277,7 +288,6 @@ class TagEditorLiteController extends ChangeNotifier {
     }
     final folder = tempDir('uwmedia_copies_');
     var saved = 0;
-    var withoutAlbum = false;
     final failed = <String>[];
     try {
       for (final (i, item) in changed.indexed) {
@@ -288,9 +298,7 @@ class TagEditorLiteController extends ChangeNotifier {
         final copy = p.join(folder.path, item.name);
         try {
           writeFileDatesCopy(item.path, item.pending!, copy);
-          if (!await library.saveToAlbum(copy, name)) {
-            withoutAlbum = true;
-          }
+          await place.save(copy);
           item.pending = null;
           saved++;
         } on Object catch (e) {
@@ -304,11 +312,13 @@ class TagEditorLiteController extends ChangeNotifier {
         // Swept at the next start.
       }
     }
-    final where = withoutAlbum
-        ? 'Saved $saved corrected copies into Photos, but not into an album: '
-              'for that UWMedia needs full access (Settings, Apps, UWMedia, '
-              'Photos).'
-        : 'Saved $saved corrected copies into "$name".';
+    // "Saved into the album …" as the runs say it, with how many.
+    final where = saved == 0
+        ? 'No copy was saved.'
+        : place.savedText.replaceFirst(
+            'Saved',
+            'Saved $saved corrected ${saved == 1 ? 'copy' : 'copies'}',
+          );
     _say(
       failed.isEmpty
           ? where

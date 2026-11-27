@@ -123,6 +123,7 @@ class MobileConvertionEngine implements ConvertionEngine {
     void Function(ConvertStep step)? onStep,
     void Function(double percent)? onProgress,
   }) => withScreenOn(() async {
+    final report = RunProgressReporter();
     final drawing = watermarks.isEmpty ? null : await kit?.call();
     return MobileConvertRun(
       engine: engine,
@@ -139,10 +140,15 @@ class MobileConvertionEngine implements ConvertionEngine {
       watermarks: watermarks,
       control: control,
       onStep: (step) {
-        unawaited(reportRunProgress(step.done, step.total));
+        report.files(step.done, step.total);
         onStep?.call(step);
       },
-      onProgress: onProgress,
+      onProgress: onProgress == null
+          ? report.file
+          : (percent) {
+              report.file(percent);
+              onProgress(percent);
+            },
     );
   }, onStop: control.stop);
 }
@@ -382,7 +388,7 @@ class _ConvertionPageState extends State<ConvertionPage> {
         title: 'Output files',
         children: [
           SelectableText(
-            c.outputPreviewText,
+            widget.phone ? c.outputNamesText : c.outputPreviewText,
             style: const TextStyle(color: mutedText, fontSize: 12),
           ),
         ],

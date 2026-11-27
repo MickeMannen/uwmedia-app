@@ -105,6 +105,14 @@ class _Heard implements ColorBatchListener {
 
 typedef _Tools = ({FfmpegTools ffmpeg, Exiftool exiftool});
 
+// A result's name as the batch writes it: the ending in lower case
+// (`output_naming.dart`, as Python), so a photo "X.JPG" asked for as
+// "color_X.JPG" is the file "color_X.jpg". Asked for by the name with the
+// capitals, the file was found on a Mac and on Windows and not on Linux
+// (Gitea's nightly run failed there for it).
+String _result(String name) =>
+    p.withoutExtension(name) + p.extension(name).toLowerCase();
+
 void main() {
   final media = '${testDataDir().path}/release_test';
   final logs = '${testDataDir().path}/logs';
@@ -365,7 +373,10 @@ void main() {
         ]..sort();
         expect(photos, hasLength(6));
         for (final photo in photos) {
-          final target = p.join(out.path, 'color_${p.basename(photo)}');
+          final target = p.join(
+            out.path,
+            _result('color_${p.basename(photo)}'),
+          );
           await run(photo, target);
           expect(
             await tools.ffmpeg.dimensions(target),
@@ -377,7 +388,7 @@ void main() {
           final profile = ColorProfile.fromMap(profiles[name]!);
           await run(
             p.join(media, _photo),
-            p.join(out.path, 'profile_${name}_$_photo'),
+            p.join(out.path, _result('profile_${name}_$_photo')),
             profile: profile,
             profileName: name,
           );
@@ -436,10 +447,10 @@ void main() {
         await setUpEngine();
         final out = outFor('overlay_photo');
         final photo = p.join(media, _photo);
-        final plain = p.join(out.path, 'color_only_$_photo');
+        final plain = p.join(out.path, _result('color_only_$_photo'));
         await run(photo, plain);
         for (final MapEntry(key: name, value: layout) in _layouts.entries) {
-          final target = p.join(out.path, 'overlay_${name}_$_photo');
+          final target = p.join(out.path, _result('overlay_${name}_$_photo'));
           final messages = await run(
             photo,
             target,
@@ -455,9 +466,12 @@ void main() {
         }
 
         final ssrfPhoto = p.join(media, _ssrfPhoto);
-        final ssrfPlain = p.join(out.path, 'color_only_$_ssrfPhoto');
+        final ssrfPlain = p.join(out.path, _result('color_only_$_ssrfPhoto'));
         await run(ssrfPhoto, ssrfPlain);
-        final target = p.join(out.path, 'overlay_depth_temp_$_ssrfPhoto');
+        final target = p.join(
+          out.path,
+          _result('overlay_depth_temp_$_ssrfPhoto'),
+        );
         final messages = await run(
           ssrfPhoto,
           target,

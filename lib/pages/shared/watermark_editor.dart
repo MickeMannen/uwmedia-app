@@ -18,6 +18,8 @@ import 'package:uwmedia_app/core/hud/hud_fonts.dart';
 import 'package:uwmedia_app/core/hud/image_size.dart';
 import 'package:uwmedia_app/core/watermark/watermark.dart';
 import 'package:uwmedia_app/hud/hud_painter.dart';
+import 'package:uwmedia_app/pages/shared/photos.dart';
+import 'package:uwmedia_app/pages/shared/place_menu.dart';
 import 'package:uwmedia_app/widgets/section_card.dart';
 
 /// The colours a text watermark is offered at a tap, by name; any other
@@ -91,6 +93,7 @@ class WatermarkDialog extends StatefulWidget {
     this.pictureBytes,
     this.kit,
     this.pickSample,
+    this.pickSampleFromPhotos,
   });
 
   final Watermark mark;
@@ -105,6 +108,10 @@ class WatermarkDialog extends StatefulWidget {
   /// A picture of the user's own to place the mark on (a video gives one
   /// of its frames); without it the stage stays plain.
   final Future<String?> Function()? pickSample;
+
+  /// The same from Apple Photos, where a computer has it (the Mac): the
+  /// button then asks which of the two.
+  final Future<String?> Function()? pickSampleFromPhotos;
 
   @override
   State<WatermarkDialog> createState() => _WatermarkDialogState();
@@ -171,6 +178,9 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
 
   WatermarkPlace get _place => _portrait ? mark.placePortrait : mark.place;
 
+  // The size on frames of the shape shown: each shape has its own.
+  double get _size => _portrait ? mark.sizePortrait : mark.size;
+
   // Whether the mark is put on frames of the shape shown.
   bool get _used => _portrait ? mark.onPortrait : mark.onLandscape;
 
@@ -208,7 +218,10 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
 
   // The mark's size on a stage [stageW] wide.
   (double, double) _markSize(double stageW) {
-    final (w, h) = watermarkShare(mark, pictureSize: _pictureSize);
+    final (w, h) = watermarkShare(
+      mark.shaped(portrait: _portrait),
+      pictureSize: _pictureSize,
+    );
     return (w * stageW, h * stageW);
   }
 
@@ -356,10 +369,10 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
     );
   }
 
-  Future<void> _pickSample() async {
+  Future<void> _pickSample(Future<String?> Function() pick) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final path = await widget.pickSample!();
+      final path = await pick();
       if (path != null && mounted) {
         setState(() => _sample = path);
       }
@@ -405,6 +418,7 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
   @override
   Widget build(BuildContext context) {
     final picture = mark.isPicture;
+    final shape = _portrait ? 'portrait' : 'landscape';
     // A picture's width, or a text's letter height, of the frame's width.
     final (low, high) = picture ? (0.05, 0.5) : (0.015, 0.1);
     return AlertDialog(
@@ -464,9 +478,29 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
                     onSelectionChanged: (v) =>
                         setState(() => _portrait = v.single),
                   ),
-                  if (widget.pickSample != null)
+                  if (widget.pickSample != null &&
+                      widget.pickSampleFromPhotos != null) ...[
+                    PlaceMenuButton(
+                      label: 'Sample picture…',
+                      icon: Icons.image_outlined,
+                      places: [
+                        (
+                          icon: Icons.description_outlined,
+                          label: filesPlaceLabel,
+                          onPressed: () => _pickSample(widget.pickSample!),
+                        ),
+                        (
+                          icon: Icons.photo_library_outlined,
+                          label: photoLibraryPlaceLabel,
+                          onPressed: () =>
+                              _pickSample(widget.pickSampleFromPhotos!),
+                        ),
+                      ],
+                    ),
+                    const PhotosFetching(),
+                  ] else if (widget.pickSample != null)
                     OutlinedButton(
-                      onPressed: _pickSample,
+                      onPressed: () => _pickSample(widget.pickSample!),
                       child: const Text('Sample picture…'),
                     ),
                 ],
@@ -497,15 +531,20 @@ class _WatermarkDialogState extends State<WatermarkDialog> {
               ),
               Text(
                 picture
-                    ? 'Size: ${(mark.size * 100).round()} % of the width'
-                    : 'Letters: ${(mark.size * 100).toStringAsFixed(1)} % of '
-                          'the width',
+                    ? 'Size on $shape photos: '
+                          '${(_size * 100).round()} % of the width'
+                    : 'Letters on $shape photos: '
+                          '${(_size * 100).toStringAsFixed(1)} % of the width',
               ),
               Slider(
                 min: low,
                 max: high,
-                value: mark.size.clamp(low, high),
-                onChanged: (v) => setState(() => mark = mark.copyWith(size: v)),
+                value: _size.clamp(low, high),
+                onChanged: (v) => setState(
+                  () => mark = _portrait
+                      ? mark.copyWith(sizePortrait: v)
+                      : mark.copyWith(size: v),
+                ),
               ),
               if (picture) ...[
                 Text('Opacity: ${(mark.opacity * 100).round()} %'),

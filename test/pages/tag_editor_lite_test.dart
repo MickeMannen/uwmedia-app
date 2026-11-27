@@ -13,12 +13,27 @@ import 'package:uwmedia_app/app/theme.dart';
 import 'package:uwmedia_app/core/config/config_store.dart';
 import 'package:uwmedia_app/engine/media_file_dates.dart';
 import 'package:uwmedia_app/engine/media_library.dart';
+import 'package:uwmedia_app/engine/result_folder.dart';
+import 'package:uwmedia_app/pages/shared/save_to.dart';
 import 'package:uwmedia_app/pages/tag_editor_lite/tag_editor_lite_controller.dart';
 import 'package:uwmedia_app/pages/tag_editor_lite/tag_editor_lite_page.dart';
 
 import '../helpers/tools.dart';
 
 const _sony = 'test/fixtures/media/photo/jpeg_3x2_2mp.jpg';
+
+/// Folders of the phone's files that keep what is saved into them.
+class FakeFolders implements ResultFolders {
+  ResultFolder? offered;
+  final saved = <(String name, String folder)>[];
+
+  @override
+  Future<ResultFolder?> pick() async => offered;
+
+  @override
+  Future<void> save(String path, ResultFolder folder) async =>
+      saved.add((p.basename(path), folder.name));
+}
 
 /// A library that hands out [picked] and keeps what is saved into
 /// [albums] (album → copies of the saved files).
@@ -117,7 +132,12 @@ void main() {
       for (final path in library.picked) path: File(path).readAsBytesSync(),
     };
     await c.saveCopies('Trip');
-    expect(c.status, 'Saved ${c.items.length} corrected copies into "Trip".');
+    expect(
+      c.status,
+      withVideo
+          ? 'Saved 2 corrected copies into the album "Trip".'
+          : 'Saved 1 corrected copy into the album "Trip".',
+    );
     expect(c.hasChanges, isFalse);
     before.forEach((path, bytes) {
       expect(File(path).readAsBytesSync(), bytes, reason: path);
@@ -187,6 +207,19 @@ void main() {
     c.dispose();
   });
 
+  test("picked from the phone's files; a pick that fails is said", () async {
+    final c = make();
+    await c.pick(from: () async => [photo]);
+    expect(c.items.map((i) => i.name), ['DSC0001.JPG']);
+    expect(c.status, 'Picked 1 file(s).');
+    await c.pick(
+      from: () async => throw const LibraryException('It could not be read'),
+    );
+    expect(c.status, 'It could not be read');
+    expect(c.items, hasLength(1));
+    c.dispose();
+  });
+
   test('a copy the library refuses is named', () async {
     final c = make();
     await c.pick();
@@ -195,8 +228,8 @@ void main() {
     await c.saveCopies('Refused');
     expect(
       c.status,
-      'Saved ${c.items.length - 1} corrected copies into "Refused". Could '
-      'not save 1: DSC0001.JPG (the library refused it).',
+      '${withVideo ? 'Saved 1 corrected copy into the album "Refused".' : 'No copy was saved.'} '
+      'Could not save 1: DSC0001.JPG (the library refused it).',
     );
     expect(c.items.first.pending, isNotNull);
     c.dispose();
@@ -215,15 +248,31 @@ void main() {
       tempDir: (prefix) => tmp.createTempSync(prefix),
     );
     library.picked = [photo];
+    final fromFiles = p.join(tmp.path, 'picked', 'CARD0001.JPG');
+    File(_sony).copySync(fromFiles);
     await tester.pumpWidget(
       MaterialApp(
         theme: appTheme(),
         home: Scaffold(
-          body: TagEditorLitePage(services: services, library: library),
+          body: TagEditorLitePage(
+            services: services,
+            library: library,
+            pickFiles: () async => [fromFiles],
+          ),
         ),
       ),
     );
+    // From the phone's files (owner, 2026-11-25).
     await tester.tap(find.text('Pick photos and videos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Files'));
+    await tester.pumpAndSettle();
+    expect(find.text('CARD0001.JPG'), findsWidgets);
+    expect(find.text('DSC0001.JPG'), findsNothing);
+
+    await tester.tap(find.text('Pick photos and videos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Photo library'));
     await tester.pumpAndSettle();
     expect(find.text('DSC0001.JPG'), findsWidgets);
     expect(find.textContaining('2025:12:03 09:15:48 +08:00'), findsOneWidget);
@@ -247,7 +296,84 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
     await tester.pumpAndSettle();
-    expect(find.text('Saved 1 corrected copies into "Bali".'), findsOneWidget);
+    expect(
+      find.text('Saved 1 corrected copy into the album "Bali".'),
+      findsOneWidget,
+    );
     expect(library.albums['Bali'], hasLength(1));
+  });
+
+  testWidgets('on a phone with "Save to…": the copies go to the place chosen, '
+      'a folder or an album; with none, to a new album', (tester) async {
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final services = AppServices(
+      capabilities: const Capabilities(desktop: false, resultFolders: true),
+      config: ConfigStore(() => Directory(p.join(tmp.path, 'config'))),
+      home: tmp.path,
+      tempDir: (prefix) => tmp.createTempSync(prefix),
+    );
+    library.picked = [photo];
+    final folders = FakeFolders()
+      ..offered = (name: 'Dive trip', bookmark: 'b1');
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(),
+        home: Scaffold(
+          body: TagEditorLitePage(
+            services: services,
+            library: library,
+            folders: folders,
+            albums: () async => const ['Bali'],
+          ),
+        ),
+      ),
+    );
+    // The place is chosen as on Color; no album is asked for at the save.
+    expect(find.text(saveToLabel), findsOneWidget);
+    expect(find.text(noPlaceChosenText), findsOneWidget);
+    expect(find.text('Save copies to new album…'), findsNothing);
+
+    Future<void> shiftAndSave(String hours) async {
+      await tester.ensureVisible(find.text('Shift all'));
+      await tester.enterText(find.byKey(const ValueKey('lite-hours')), hours);
+      await tester.tap(find.text('Shift all'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(saveCopiesLabel));
+      await tester.runAsync(() async {
+        await tester.tap(find.text(saveCopiesLabel));
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
+      await tester.pumpAndSettle();
+    }
+
+    await tester.tap(find.text('Pick photos and videos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Photo library'));
+    await tester.pumpAndSettle();
+
+    // No place chosen yet: a new album named for now.
+    await shiftAndSave('1');
+    expect(library.albums.keys.single, startsWith('UWMedia '));
+    expect(
+      find.textContaining('Saved 1 corrected copy into the album "UWMedia '),
+      findsOneWidget,
+    );
+
+    // A folder in Files.
+    await tester.ensureVisible(find.text(saveToLabel));
+    await tester.tap(find.text(saveToLabel));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(saveToFolderChoice));
+    await tester.pumpAndSettle();
+    expect(find.text('The folder "Dive trip"'), findsOneWidget);
+    await shiftAndSave('2');
+    expect(folders.saved, [('DSC0001.JPG', 'Dive trip')]);
+    expect(
+      find.text('Saved 1 corrected copy into the folder "Dive trip".'),
+      findsOneWidget,
+    );
+    expect(library.albums, hasLength(1));
   });
 }

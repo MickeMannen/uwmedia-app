@@ -48,6 +48,7 @@ import 'package:uwmedia_app/core/util/py_parse.dart';
 import 'package:uwmedia_app/core/util/py_round.dart';
 import 'package:uwmedia_app/engine/desktop/exiftool.dart';
 import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
+import 'package:uwmedia_app/engine/dive_cache.dart';
 import 'package:uwmedia_app/engine/log_files.dart';
 import 'package:uwmedia_app/engine/photo_run.dart';
 import 'package:uwmedia_app/engine/template_files.dart';
@@ -186,19 +187,19 @@ abstract interface class DesignerMedia {
   }
 }
 
-// Every log of a folder off the UI isolate, and how many files were logs.
-({List<Dive> dives, int files}) _readLogFolder((String, TankConfig) job) {
-  final (folder, tanks) = job;
-  final dives = <Dive>[];
-  var files = 0;
-  for (final path in logFilesIn(folder)) {
-    final read = _readLogFile((path, tanks));
-    if (read.dives != null) {
-      dives.addAll(read.dives!);
-      files++;
-    }
-  }
-  return (dives: dives, files: files);
+// Every log of a folder and how many files were logs, through the app's
+// cache: a log is parsed (off the UI isolate) only when it was not read
+// before (spec §10.106).
+Future<({List<Dive> dives, int files})> _readLogFolder(
+  String folder,
+  TankConfig tanks,
+) async {
+  final paths = await compute(logFilesIn, folder);
+  final read = await diveCache.files(paths, tanks);
+  return (
+    dives: [for (final file in read) ...?file.dives],
+    files: read.where((file) => file.dives != null).length,
+  );
 }
 
 /// A choice of where a page is saved: an existing computer, or (computer
@@ -3313,7 +3314,7 @@ class DesignerController extends ChangeNotifier {
     final tanks = config.tankConfig().tanks;
     final ({List<Dive> dives, int files}) read;
     try {
-      read = await compute(_readLogFolder, (folder, tanks));
+      read = await _readLogFolder(folder, tanks);
     } on Object catch (e) {
       if (ticket == _logTicket && !_disposed) {
         _setStatus('Could not read ${p.basename(folder)}: $e');

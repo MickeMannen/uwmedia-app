@@ -35,6 +35,37 @@ void main() {
     },
   );
 
+  test('the run\'s progress for the notification: the files done, and the '
+      'file going on a whole percent at a time', () async {
+    final calls = <String>[];
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const screen = MethodChannel('uwmedia/screen');
+    messenger.setMockMethodCallHandler(screen, (call) async {
+      calls.add('${call.method} ${call.arguments}');
+      return null;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(screen, null));
+    RunProgressReporter()
+      ..files(0, 2)
+      ..file(0.4)
+      ..file(0.9)
+      ..file(12.5)
+      ..file(12.9)
+      ..file(140)
+      ..files(1, 2)
+      ..file(0);
+    await pumpEventQueue();
+    expect(calls, [
+      'runProgress {done: 0, total: 2}',
+      'runProgress {done: 0, total: 2, percent: 0}',
+      'runProgress {done: 0, total: 2, percent: 12}',
+      'runProgress {done: 0, total: 2, percent: 100}',
+      'runProgress {done: 1, total: 2}',
+      'runProgress {done: 1, total: 2, percent: 0}',
+    ]);
+  });
+
   test('Stop from the runner ends the run; the files done are told', () async {
     final calls = <String>[];
     messenger.setMockMethodCallHandler(screen, (call) async {

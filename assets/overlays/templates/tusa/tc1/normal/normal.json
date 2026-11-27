@@ -1,0 +1,333 @@
+{
+  "manufacturer": "Tusa",
+  "model": "TC1",
+  "design_width": 1920,
+  "design_height": 1080,
+  "rules": {
+    "deco_stop": {
+      "approach_m": 3.0,
+      "at_stop_m": 1.0,
+      "violation_above_m": 0.5
+    },
+    "ndl": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "ndl_zero": "#33354A",
+    "ascent_rate": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "tissue_load": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "ceiling_broken": null,
+    "safety_stop": {
+      "text": "STOP",
+      "color": "#33354A",
+      "duration_sec": 180,
+      "trigger_max_depth": 10.0,
+      "stop_depth": 5.0,
+      "start_window": 1.0,
+      "pause_above": 4.0,
+      "min_depth": 0.5
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "STOP",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "timer_format": "mm:ss",
+        "show_depth": false
+      },
+      "deco": {
+        "label": "STOP",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "violation_color": "#33354A",
+        "timer_format": "mm:ss",
+        "show_depth": false
+      },
+      "clear": {
+        "label": "CLEAR",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "clear_value_text": " ",
+        "show_depth": false
+      }
+    },
+    "_source": "TC1 (IQ1301) manual p.20-23: a monochrome screen, so one colour for every value; the safety stop counts 3 minutes from 5 m (p.20). Assumed: armed past 10 m, counting up to 1 m, the Normal Display's places (no picture shows it)"
+  },
+  "hud_skin": {
+    "type": "image",
+    "anchor": "BOTTOM_LEFT",
+    "ref_offset_x": 16.0,
+    "ref_offset_y": -16.0,
+    "opacity": 1.0,
+    "path": "normal.png",
+    "scale": 0.5,
+    "screen": {
+      "x0": 0.2233,
+      "y0": 0.2357,
+      "x1": 0.7712,
+      "y1": 0.7552,
+      "shape": "ellipse"
+    },
+    "linked_elements": [
+      {
+        "id": "depth",
+        "field": "depth",
+        "rel_x": 0.49725,
+        "rel_y": 0.38211,
+        "color": "#33354A",
+        "font_size": 84,
+        "font_weight": "bold",
+        "align": "center",
+        "valign": "bottom",
+        "small_suffix": "decimals",
+        "small_suffix_scale": 0.62,
+        "small_suffix_align": "baseline",
+        "unit_suffix": true,
+        "unit_scale": 0.5,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_ndl",
+        "field": "custom:NDL",
+        "rel_x": 0.36774,
+        "rel_y": 0.40809,
+        "color": "#33354A",
+        "font_size": 46,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "safety_stop",
+          "deco",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "ndl",
+        "field": "ndl",
+        "rel_x": 0.36774,
+        "rel_y": 0.5781,
+        "color": "#33354A",
+        "font_size": 104,
+        "font_weight": "bold",
+        "align": "center",
+        "valign": "bottom",
+        "hide_in_states": [
+          "safety_stop",
+          "deco",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "state",
+        "field": "state_badge",
+        "rel_x": 0.36774,
+        "rel_y": 0.41045,
+        "type": "badge",
+        "font_size": 50,
+        "value_font_size": 74,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "top",
+        "max_width": 186,
+        "line_spacing": 1.25,
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "ascent_rate_value",
+        "field": "ascent_rate_value",
+        "rel_x": 0.64669,
+        "rel_y": 0.47893,
+        "color": "#33354A",
+        "font_size": 60,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "bottom",
+        "hide_in_states": [
+          "safety_stop",
+          "deco"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "ascent",
+        "field": "ascent_rate",
+        "rel_x": 0.52465,
+        "rel_y": 0.41517,
+        "type": "ascent_chevrons",
+        "width": 30,
+        "height": 52,
+        "up_count": 2,
+        "down_count": 2,
+        "hide_in_states": [
+          "safety_stop",
+          "deco"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "time_of_day",
+        "field": "time_of_day",
+        "rel_x": 0.62677,
+        "rel_y": 0.57337,
+        "color": "#33354A",
+        "font_size": 60,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "bottom",
+        "hide_in_states": [
+          "safety_stop",
+          "deco"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_ceiling",
+        "field": "custom:CEILING",
+        "rel_x": 0.62677,
+        "rel_y": 0.41517,
+        "color": "#33354A",
+        "font_size": 42,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "normal",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "safety_stop_depth",
+        "field": "safety_stop_depth",
+        "rel_x": 0.62677,
+        "rel_y": 0.57337,
+        "color": "#33354A",
+        "font_size": 72,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "bottom",
+        "value_format": "integer",
+        "unit_suffix": true,
+        "unit_scale": 0.6,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "hide_in_states": [
+          "normal",
+          "deco",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "deco_stop_depth",
+        "field": "deco_stop_depth",
+        "rel_x": 0.62677,
+        "rel_y": 0.57337,
+        "color": "#33354A",
+        "font_size": 72,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "bottom",
+        "value_format": "integer",
+        "unit_suffix": true,
+        "unit_scale": 0.6,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "dive_time",
+        "field": "dive_time",
+        "rel_x": 0.47982,
+        "rel_y": 0.69852,
+        "color": "#33354A",
+        "font_size": 64,
+        "font_weight": "regular",
+        "align": "right",
+        "valign": "bottom",
+        "value_format": "minutes",
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "temp",
+        "field": "temp",
+        "rel_x": 0.51718,
+        "rel_y": 0.69852,
+        "color": "#33354A",
+        "font_size": 64,
+        "font_weight": "regular",
+        "align": "left",
+        "valign": "bottom",
+        "value_format": "integer",
+        "unit_suffix": true,
+        "unit_scale": 0.62,
+        "unit_color": "#33354A",
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_time",
+        "field": "custom:TIME",
+        "align": "left",
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "valign": "top",
+        "scale": 1.0,
+        "rel_x": 0.26313,
+        "rel_y": 0.59935
+      },
+      {
+        "id": "label_temp",
+        "field": "custom:TEMP",
+        "align": "right",
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "valign": "top",
+        "scale": 1.0,
+        "rel_x": 0.73387,
+        "rel_y": 0.59935
+      }
+    ]
+  }
+}

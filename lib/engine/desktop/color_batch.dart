@@ -11,7 +11,6 @@ library;
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -35,6 +34,7 @@ import 'package:uwmedia_app/engine/desktop/ffmpeg_tools.dart';
 import 'package:uwmedia_app/engine/desktop/overlay_run.dart';
 import 'package:uwmedia_app/engine/desktop/process_runner.dart';
 import 'package:uwmedia_app/engine/desktop/wipe_run.dart';
+import 'package:uwmedia_app/engine/dive_cache.dart';
 import 'package:uwmedia_app/engine/mobile_engine.dart';
 import 'package:uwmedia_app/engine/mobile_video_run.dart';
 import 'package:uwmedia_app/engine/photo_run.dart';
@@ -244,48 +244,29 @@ Future<LoadedDives> loadDiveSources(
   return (dives: dives, messages: messages);
 }
 
-/// [loadDiveLogs] on another isolate, or the dives of the last read of
-/// [folder] when its logs and [tanks] are as they were then: the page has
-/// read them to match its files, and a run takes those instead of parsing
-/// every log again (owner, 2026-11-19). A top-level function so the
-/// closure sent there holds only [folder] and [tanks]: a closure made
-/// inside a method carries that method's whole context (the listener, the
-/// page behind it), and a timer in there cannot be sent.
-Future<LoadedDives> loadDiveLogsOffThread(String folder, TankConfig tanks) {
-  final mark = _logsMark(folder, tanks);
-  final last = _lastRead[folder];
-  if (last != null && last.mark == mark) {
-    return last.loaded;
-  }
-  final loaded = Isolate.run(() => loadDiveLogs(folder, tanks));
-  _lastRead[folder] = (mark: mark, loaded: loaded);
-  // A read that failed is not kept.
-  unawaited(
-    loaded.then<void>(
-      (_) {},
-      onError: (Object _) {
-        if (identical(_lastRead[folder]?.loaded, loaded)) {
-          _lastRead.remove(folder);
-        }
-      },
-    ),
+/// The dives [loadDiveLogs] gives for [folder], through the app's cache
+/// ([diveCache], spec §10.106): a log is parsed (on other isolates) only
+/// when it was not read before, or its file or [tanks] changed since. So
+/// a run takes the dives its page read to match its files (owner,
+/// 2026-11-19), and so does every other page.
+Future<LoadedDives> loadDiveLogsOffThread(
+  String folder,
+  TankConfig tanks,
+) async {
+  final paths = [
+    for (final file in Directory(folder).listSync().whereType<File>())
+      if (!p.basename(file.path).startsWith('.')) file.path,
+  ]..sort();
+  final files = await diveCache.files(paths, tanks);
+  return (
+    dives: [for (final file in files) ...?file.dives],
+    messages: [
+      for (final (i, file) in files.indexed)
+        if (file.raw != null)
+          'Warning: ${p.basename(paths[i])} could not be read (${file.raw})',
+    ],
   );
-  return loaded;
 }
-
-/// The last read of each folder of logs, and what it was read with.
-final _lastRead = <String, ({String mark, Future<LoadedDives> loaded})>{};
-
-/// What a read of [folder] depends on: each log's name, size and time,
-/// and the tank names and sizes the logs are read with.
-String _logsMark(String folder, TankConfig tanks) => ([
-  for (final file in Directory(folder).listSync().whereType<File>())
-    if (!p.basename(file.path).startsWith('.'))
-      if (file.statSync() case FileStat(:final size, :final modified))
-        'log ${file.path}\t$size\t${modified.microsecondsSinceEpoch}',
-  for (final MapEntry(:key, :value) in tanks.tanks.entries) 'tank $key=$value',
-  for (final MapEntry(:key, :value) in tanks.sizes.entries) 'size $key=$value',
-]..sort()).join('\n');
 
 /// The media files of a folder, as Python's batch takes them: every file
 /// but hidden ones, by name.

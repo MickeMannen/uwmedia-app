@@ -1,43 +1,28 @@
 /// The phones' Settings page: units, the default colour profile, output
 /// names, hardware encoding, and the tank sensor names with their order
-/// (Garmin logs picked as files, a phone has no folder to scan).
+/// (the sensors of the dive logs the app keeps, and of Garmin logs picked
+/// as files: a phone has no folder to scan).
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uwmedia_app/app/services.dart';
 import 'package:uwmedia_app/core/units/units.dart';
-import 'package:uwmedia_app/engine/file_picks.dart' as fs;
 import 'package:uwmedia_app/pages/settings/settings_controller.dart';
 import 'package:uwmedia_app/pages/shared/tank_names.dart';
 import 'package:uwmedia_app/pages/shared/watermarks_section.dart';
 import 'package:uwmedia_app/widgets/section_card.dart';
 
-/// The page's file picker, so that a test can answer for it.
-abstract interface class SettingsDialogs {
-  /// Garmin `.fit` logs, several at once.
-  Future<List<String>> pickLogs();
-}
-
-class SystemSettingsDialogs implements SettingsDialogs {
-  const SystemSettingsDialogs();
-
-  @override
-  Future<List<String>> pickLogs() async => [
-    for (final file in await fs.openFiles()) file.path,
-  ];
-}
-
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
     super.key,
     required this.services,
-    this.dialogs = const SystemSettingsDialogs(),
     this.bundledColorYaml,
   });
 
   final AppServices services;
-  final SettingsDialogs dialogs;
 
   /// The bundled profiles' text; read from the assets when not given.
   final String? bundledColorYaml;
@@ -77,20 +62,17 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
+  // The sensors of the dive logs the app keeps (spec §10.104).
   Future<void> _tankNames() async {
     final c = controller!;
     c.tanks.open();
+    unawaited(c.tanks.readKept(widget.services.logStore.folder.path));
     await showDialog<void>(
       context: context,
       builder: (context) => TankNamesDialog(
         editor: c.tanks,
-        scanLabel: 'Read Garmin Logs…',
-        scanLogs: () async {
-          final paths = await widget.dialogs.pickLogs();
-          if (paths.isNotEmpty) {
-            await c.tanks.scanFiles(paths);
-          }
-        },
+        units: c.units,
+        onSaved: widget.services.tankNamesSaved,
       ),
     );
   }

@@ -12,6 +12,7 @@
 // takes them as JPEG. They hold a frame of the video: they are published
 // only after the owner's review (AGENTS.md).
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -50,8 +51,25 @@ const _out = String.fromEnvironment('OUT');
 // 'photo' for a photo before and after the colour correction instead:
 // PHOTO as shot, corrected, and the two halves side by side in one
 // picture of 2560 x 1600 (the store's size).
+// 'photo-overlays' for PHOTO before and after the colour correction with
+// four overlays on it, one in each corner (the Garmin X50i's sidemount
+// screen, the Perdix 2, the Perdix 3 and the plain depth and temperature
+// box), in one picture of 2560 x 1600. LOG must hold the photo's time.
+// 'store-overlays' for one more of the Mac App Store's screenshots: the
+// Color page on PHOTO, corrected with PROFILE, with seven overlays spread
+// over the picture (LOG must hold the photo's time) and, when LOGO names a
+// picture, that as a watermark.
+// 'iphone-store' for the iPhone App Store's screenshots: five screens of
+// the phone's app at 440 x 956 points and three pixels a point, the 1320 x
+// 2868 the store takes for a 6.9" iPhone. PHOTO is then a photo for the
+// Color page (with PROFILE), and LOGS a folder of more dive logs for the
+// Dive Logs page's list.
 const _part = String.fromEnvironment('PART');
 const _photo = String.fromEnvironment('PHOTO');
+const _logs = String.fromEnvironment('LOGS');
+const _logo = String.fromEnvironment('LOGO');
+// The colour profile of the 'photo' part; the app's default when empty.
+const _profile = String.fromEnvironment('PROFILE');
 
 final _shot = GlobalKey();
 
@@ -60,15 +78,15 @@ Future<void> _png(ui.Image image, String name) async {
   File(p.join(_out, name)).writeAsBytesSync(bytes!.buffer.asUint8List());
 }
 
-// The frame under [_shot] as a PNG, two pixels a point. The texts of
+// The frame under [_shot] as a PNG, two pixels a point (or [ratio]). The texts of
 // [hide] (a tank sensor's serial number) are painted over with the colour
 // beside them.
 Future<void> _screen(
   WidgetTester tester,
   String name, {
   List<String> hide = const [],
+  double ratio = 2.0,
 }) async {
-  const ratio = 2.0;
   final boundary = tester.renderObject<RenderRepaintBoundary>(
     find.byKey(_shot),
   );
@@ -144,6 +162,7 @@ Future<void> _halves(
   String name, {
   int width = 2560,
   int height = 1600,
+  bool labelsByTheLine = false,
 }) async {
   final size = Size(width.toDouble(), height.toDouble());
   final recorder = ui.PictureRecorder();
@@ -192,10 +211,14 @@ Future<void> _halves(
     )..layout();
     const pad = 28.0;
     final box = Size(painter.width + pad * 2, painter.height + pad);
-    final at = Offset(
-      left ? 60 : size.width - 60 - box.width,
-      size.height - 60 - box.height,
-    );
+    // In the lower corners, or beside the line where the corners hold
+    // something (an overlay).
+    final at = labelsByTheLine
+        ? Offset(left ? half - 30 - box.width : half + 30, size.height - 150)
+        : Offset(
+            left ? 60 : size.width - 60 - box.width,
+            size.height - 60 - box.height,
+          );
     canvas.drawRRect(
       RRect.fromRectAndRadius(at & box, const Radius.circular(18)),
       Paint()..color = const Color(0xB3000000),
@@ -297,12 +320,11 @@ void main() {
     // shows the names, not the sensors' serial numbers.
     final serials = <String>{};
     Future<void> nameTanks(AppServices made) async {
-      final names = TankNamesEditor(config: made.config, home: tmp.path)
-        ..open();
-      await names.scanFiles([_log]);
-      for (final (i, (serial, _)) in names.rows.indexed) {
-        names.setName(serial, i == 0 ? 'Left' : 'Right');
-        serials.add(serial);
+      final names = TankNamesEditor(config: made.config)..open();
+      await names.readKept(made.logStore.folder.path);
+      for (final (i, row) in names.rows.indexed) {
+        names.setName(row.serial, i == 0 ? 'Left' : 'Right');
+        serials.add(row.serial);
       }
       expect(names.save(), isNotNull);
       names.dispose();
@@ -538,6 +560,7 @@ void main() {
       await _wait(tester, () => c.previewImage != null);
       await _settle(tester);
       final before = c.originalImage!.clone();
+      if (_profile.isNotEmpty) c.colorProfile = _profile;
       c.colorChecked = true;
       await _wait(tester, () => c.previewImage != null);
       await _settle(tester, seconds: 3);
@@ -549,6 +572,219 @@ void main() {
       before.dispose();
       after.dispose();
       await tester.pumpWidget(const SizedBox());
+    }
+
+    // -- the Mac App Store: the Color page with seven overlays -----------
+    if (_part == 'store-overlays') {
+      final photos = Directory(p.join(tmp.path, 'Dive photos'))..createSync();
+      Link(p.join(photos.path, p.basename(_photo))).createSync(_photo);
+      final mac = services('store-overlays', desktop: true, store: true);
+      final logo = _logo.isEmpty ? null : mac.watermarks.addPicture(_logo);
+      await nameTanks(mac);
+      await show(mac, const Size(1280, 800));
+      final c = await _controller<ColorController>(tester, ColorPage);
+      await c.setSource(photos.path);
+      c.colorChecked = true;
+      if (_profile.isNotEmpty) c.colorProfile = _profile;
+      await _wait(tester, () => c.previewImage != null);
+      await _wait(tester, () => c.matchedDive != null);
+      if (logo != null) {
+        c.setWatermark(logo.name, true);
+        await _settle(tester);
+      }
+      final frame = c.previewImage!;
+      final (w, h) = (frame.width.toDouble(), frame.height.toDouble());
+      if (logo != null) {
+        // The logo from its corner, lower right, to the upper left one.
+        c
+          ..pressAt(w * 0.93, h * 0.9, 1)
+          ..dragTo(w * 0.11, h * 0.17);
+        await c.release().timeout(_patience);
+        await _settle(tester, seconds: 1);
+      }
+      // Each overlay with where its middle goes, as parts of the picture.
+      for (final (brand, computer, page, x, y) in [
+        ('shearwater', 'perdix_2', 'main', 0.5, 0.2),
+        ('garmin', 'x50i', 'main', 0.83, 0.18),
+        ('shearwater', 'peregrine', 'main', 0.15, 0.46),
+        ('shearwater', 'perdix_3', 'main', 0.15, 0.77),
+        ('generic', 'simple', 'box_dark', 0.84, 0.43),
+        ('shearwater', 'petrel', 'main', 0.84, 0.73),
+        ('generic', 'simple', 'row_dark', 0.52, 0.95),
+      ]) {
+        c.picker
+          ..reset()
+          ..selectBrand(brand)
+          ..selectComputer(computer)
+          ..selectPage(page);
+        if (c.picker.variantChoices.values.contains('sidemount')) {
+          c.picker.selectVariant('sidemount');
+        }
+        expect(await c.addPickedOverlay().timeout(_patience), isTrue);
+        await _settle(tester);
+        final (x0, y0, x1, y1) = c.boxOf(c.overlays.last)!;
+        final (cx, cy) = ((x0 + x1) / 2, (y0 + y1) / 2);
+        c
+          ..pressAt(cx, cy, 1)
+          ..dragTo(w * x, h * y);
+        await c.release().timeout(_patience);
+        await _settle(tester, seconds: 1);
+      }
+      // Nothing selected: no frame around an overlay.
+      c.pressAt(-10, -10, 1);
+      await c.release().timeout(_patience);
+      await _settle(tester, seconds: 3);
+      await _screen(tester, 'mac-store-2-overlays.png', hide: [...serials]);
+      await tester.pumpWidget(const SizedBox());
+    }
+
+    // -- a photo before and after, an overlay in each corner -------------
+    if (_part == 'photo-overlays') {
+      final photos = Directory(p.join(tmp.path, 'Dive photos'))..createSync();
+      Link(p.join(photos.path, p.basename(_photo))).createSync(_photo);
+      final mac = services('photo-overlays', desktop: true);
+      await nameTanks(mac);
+      await show(mac, const Size(1280, 800));
+      final c = await _controller<ColorController>(tester, ColorPage);
+      await c.setSource(photos.path);
+      await _wait(tester, () => c.previewImage != null);
+      await _wait(tester, () => c.matchedDive != null);
+      final frame = c.previewImage!;
+      final (w, h) = (frame.width.toDouble(), frame.height.toDouble());
+      // What the picture's shape cuts off the top and the bottom, and a
+      // margin inside that.
+      final cut = math.max(0, (h - w * 1600 / 2560) / 2);
+      final (side, edge) = (w * 0.025, cut + w * 0.025);
+      for (final (brand, computer, page, variant, right, low) in [
+        ('garmin', 'x50i', 'main', 'sidemount', false, false),
+        ('shearwater', 'perdix_2', 'main', null, true, false),
+        ('shearwater', 'perdix_3', 'main', null, false, true),
+        ('generic', 'depth_temp', 'standard', null, true, true),
+      ]) {
+        c.picker
+          ..reset()
+          ..selectBrand(brand)
+          ..selectComputer(computer)
+          ..selectPage(page);
+        if (variant != null) {
+          c.picker.selectVariant(variant);
+        }
+        expect(await c.addPickedOverlay().timeout(_patience), isTrue);
+        await _settle(tester);
+        // Dragged into its corner, as a person does it.
+        final (x0, y0, x1, y1) = c.boxOf(c.overlays.last)!;
+        final (cx, cy) = ((x0 + x1) / 2, (y0 + y1) / 2);
+        c
+          ..pressAt(cx, cy, 1)
+          ..dragTo(
+            cx + (right ? w - side - x1 : side - x0),
+            cy + (low ? h - edge - y1 : edge - y0),
+          );
+        await c.release().timeout(_patience);
+        await _settle(tester, seconds: 1);
+      }
+      // Nothing selected: no frame around an overlay.
+      c.pressAt(-10, -10, 1);
+      await c.release().timeout(_patience);
+      await _settle(tester);
+      final before = c.previewImage!.clone();
+      c.colorChecked = true;
+      if (_profile.isNotEmpty) c.colorProfile = _profile;
+      await _wait(tester, () => c.previewImage != null);
+      await _settle(tester, seconds: 3);
+      final after = c.previewImage!.clone();
+      await _halves(
+        before,
+        after,
+        'photo-overlays-before-after.png',
+        labelsByTheLine: true,
+      );
+      before.dispose();
+      after.dispose();
+      await tester.pumpWidget(const SizedBox());
+    }
+
+    // -- the iPhone App Store: five screenshots --------------------------
+    if (_part == 'iphone-store') {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        Future<void> shot(String name) =>
+            _screen(tester, name, ratio: 3, hide: [...serials]);
+        Future<void> toPreview() async {
+          await Scrollable.ensureVisible(
+            tester.element(find.text('Live preview')),
+          );
+          await _settle(tester, seconds: 1);
+        }
+
+        final phone = services('iphone-store', desktop: false);
+        await nameTanks(phone);
+        await show(
+          phone,
+          const Size(440, 956),
+          insets: const EdgeInsets.only(top: 62, bottom: 34),
+        );
+        final c = await color(tester);
+        c.colorChecked = true;
+        await _wait(tester, () => c.previewImage != null);
+        await _settle(tester);
+        await overlay(c, 'garmin', 'x50i');
+        await toPreview();
+        await shot('iphone-store-1-color-overlay.png');
+
+        // The same cut to a portrait picture, the window on the diver.
+        c
+          ..pictureShape = ShareShape.portraitCropped
+          ..setCrop(at: 0.28);
+        await _settle(tester);
+        await toPreview();
+        await shot('iphone-store-2-portrait.png');
+        c.pictureShape = ShareShape.values.first;
+        await c.removeOverlayAt(0);
+        await _settle(tester, seconds: 1);
+
+        // A photo, corrected.
+        if (_photo.isNotEmpty) {
+          final photos = Directory(p.join(tmp.path, 'Dive photos'))
+            ..createSync();
+          Link(p.join(photos.path, p.basename(_photo))).createSync(_photo);
+          await c.setSource(photos.path);
+          if (_profile.isNotEmpty) c.colorProfile = _profile;
+          await _wait(tester, () => c.previewImage != null);
+          await _settle(tester, seconds: 3);
+          await toPreview();
+          await shot('iphone-store-3-photo.png');
+        }
+
+        // The Dive Logs page, with more logs than the one.
+        if (_logs.isNotEmpty) {
+          for (final file in Directory(_logs).listSync().whereType<File>()) {
+            if (p.extension(file.path).toLowerCase() == '.fit') {
+              file.copySync(
+                p.join(phone.logStore.folder.path, p.basename(file.path)),
+              );
+            }
+          }
+        }
+        phone.pageAsked.value = diveLogsTitle;
+        await _settle(tester, seconds: 8);
+        await shot('iphone-store-4-dive-logs.png');
+
+        phone.pageAsked.value = 'Resize';
+        final resize = await _controller<ConvertionController>(
+          tester,
+          ConvertionPage,
+        );
+        await resize.chooseSource(video).timeout(_patience);
+        resize
+          ..setChecked(resize.resolutionNames.first, true)
+          ..setShareChecked(shareKeys.first, true);
+        await _settle(tester);
+        await shot('iphone-store-5-resize.png');
+        await tester.pumpWidget(const SizedBox());
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     }
 
     // -- the phones -----------------------------------------------------

@@ -1,0 +1,31 @@
+{
+  "manufacturer": "Tusa",
+  "model": "DC Solar Link",
+  "pages": [
+    {
+      "id": "main",
+      "name": "Basic Display"
+    }
+  ],
+  "notes": {
+    "verified": [
+      "Basic display with the NDL in the centre (DC Solar Link / IQ1204 manual p.28 figure, p.87 'NDL'): the dive time in minutes top left under DIVE TIME, the depth top right, the NDL large in the centre with its NDL mark, the maximum depth bottom left, the water temperature bottom right, the nitrogen bar of ten steps along the bottom",
+      "Safety stop (p.29): the countdown takes the depth's place top right and the depth the centre; 3 minutes from 6 m after a dive past 10 m, counted between 1.6 and 6 m",
+      "Deco (p.30-32): DECO at the top, the stop depth with its arrow top right, the depth in the centre, the total ascent time bottom left",
+      "From a picture of the computer (the skin): dark segments on a grey screen with two green fields, the three rows' places and sizes, the nitrogen bar at the screen's lower left over the printed N2 scale"
+    ],
+    "assumed": [
+      "The skin is a picture of the DC Solar Link with the gold bezel, its screen emptied (it showed the time of day); the dive display's places follow the manual's small figures on that screen",
+      "The case 51 mm (not in the manual)",
+      "The countdown goes on above 6 m after it started (the computer holds it between 6.1 and 9.9 m)",
+      "A deco stop counts as reached within 1 m of its depth (the computer: from 0.5 m above to 1 m below)"
+    ],
+    "not_shown": [
+      "The other basic displays (the depth in the centre, 'DEP'; alternating, 'ALT'), the compass and the stopwatch",
+      "The time of day and FO2 that take turns with the maximum depth and the temperature; the oxygen bar",
+      "STOP alternating with the depth and '↑OK' after a safety stop; SLO, DOWN and the blinking of the warnings",
+      "The battery level, the mode letters and the solar cell's look"
+    ],
+    "_about": "What this template reproduces of the real screen and what it does not; the pages are the manual's PDF pages"
+  }
+}

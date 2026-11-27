@@ -1,0 +1,374 @@
+{
+  "manufacturer": "Tusa",
+  "model": "TC1",
+  "design_width": 1920,
+  "design_height": 1080,
+  "rules": {
+    "deco_stop": {
+      "approach_m": 3.0,
+      "at_stop_m": 1.0,
+      "violation_above_m": 0.5
+    },
+    "ndl": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "ndl_zero": "#33354A",
+    "ascent_rate": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "tissue_load": [
+      {
+        "min": 0,
+        "color": "#33354A"
+      }
+    ],
+    "ceiling_broken": null,
+    "safety_stop": {
+      "text": "STOP",
+      "color": "#33354A",
+      "duration_sec": 180,
+      "trigger_max_depth": 10.0,
+      "stop_depth": 5.0,
+      "start_window": 1.0,
+      "pause_above": 4.0,
+      "min_depth": 0.5
+    },
+    "badge_states": {
+      "safety_stop": {
+        "label": "",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "timer_format": "m:ss",
+        "show_depth": false
+      },
+      "deco": {
+        "label": "",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "violation_color": "#33354A",
+        "timer_format": "m:ss",
+        "show_depth": false
+      },
+      "clear": {
+        "label": "",
+        "color": "#33354A",
+        "value_color": "#33354A",
+        "clear_value_text": "CLEAR",
+        "show_depth": false
+      }
+    },
+    "_source": "TC1 (IQ1301) manual p.20-23: a monochrome screen, so one colour for every value; the safety stop counts 3 minutes from 5 m (p.20). Assumed: armed past 10 m, counting up to 1 m, nothing of the look: the skin is a picture of this display"
+  },
+  "hud_skin": {
+    "type": "image",
+    "anchor": "BOTTOM_LEFT",
+    "ref_offset_x": 16.0,
+    "ref_offset_y": -16.0,
+    "opacity": 1.0,
+    "path": "normal.png",
+    "scale": 0.5,
+    "screen": {
+      "x0": 0.2233,
+      "y0": 0.2357,
+      "x1": 0.7712,
+      "y1": 0.7552,
+      "shape": "ellipse"
+    },
+    "linked_elements": [
+      {
+        "id": "dive_time",
+        "field": "dive_time",
+        "rel_x": 0.49725,
+        "rel_y": 0.30933,
+        "color": "#33354A",
+        "font_size": 70,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "top",
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "depth",
+        "field": "depth",
+        "rel_x": 0.46737,
+        "rel_y": 0.45809,
+        "color": "#33354A",
+        "font_size": 110,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "middle",
+        "small_suffix": "decimals",
+        "small_suffix_scale": 0.6,
+        "small_suffix_align": "baseline",
+        "unit_suffix": true,
+        "unit_scale": 0.42,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "hide_in_states": [
+          "deco"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_depth",
+        "field": "custom:DEPTH",
+        "rel_x": 0.69365,
+        "rel_y": 0.39906,
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "align": "right",
+        "valign": "top",
+        "hide_in_states": [
+          "deco"
+        ],
+        "font_size": 24,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "scale": 1.0
+      },
+      {
+        "id": "depth_deco",
+        "field": "depth",
+        "rel_x": 0.4059,
+        "rel_y": 0.4519,
+        "color": "#33354A",
+        "font_size": 50,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "middle",
+        "unit_suffix": true,
+        "unit_scale": 0.6,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_depth_deco",
+        "field": "custom:DEPTH",
+        "rel_x": 0.30386,
+        "rel_y": 0.48642,
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "align": "left",
+        "valign": "top",
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "scale": 1.0
+      },
+      {
+        "id": "deco_stop_depth",
+        "field": "deco_stop_depth",
+        "rel_x": 0.61843,
+        "rel_y": 0.46692,
+        "color": "#33354A",
+        "font_size": 66,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "middle",
+        "value_format": "integer",
+        "unit_suffix": true,
+        "unit_scale": 0.6,
+        "unit_color": "#33354A",
+        "align_unit": true,
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "label_ceiling",
+        "field": "custom:CEILG",
+        "rel_x": 0.69365,
+        "rel_y": 0.39906,
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "align": "right",
+        "valign": "top",
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "font_size": 24,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "scale": 1.0
+      },
+      {
+        "id": "side_safety",
+        "field": "custom:SFTY",
+        "rel_x": 0.27273,
+        "rel_y": 0.45691,
+        "color": "#33354A",
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "orientation": "stacked",
+        "align": "center",
+        "valign": "middle",
+        "hide_in_states": [
+          "normal",
+          "deco",
+          "clear"
+        ],
+        "scale": 1.0
+      },
+      {
+        "id": "side_deco",
+        "field": "custom:DECO",
+        "rel_x": 0.27273,
+        "rel_y": 0.45691,
+        "color": "#33354A",
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "orientation": "stacked",
+        "align": "center",
+        "valign": "middle",
+        "hide_in_states": [
+          "normal",
+          "safety_stop",
+          "clear"
+        ],
+        "scale": 1.0
+      },
+      {
+        "id": "side_stop",
+        "field": "custom:STOP",
+        "rel_x": 0.72354,
+        "rel_y": 0.45691,
+        "color": "#33354A",
+        "font_size": 22,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "orientation": "stacked",
+        "align": "center",
+        "valign": "middle",
+        "hide_in_states": [
+          "normal",
+          "clear"
+        ],
+        "scale": 1.0
+      },
+      {
+        "id": "label_ndl",
+        "field": "custom:NDL",
+        "rel_x": 0.2939,
+        "rel_y": 0.5242,
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "align": "left",
+        "valign": "top",
+        "hide_in_states": [
+          "safety_stop",
+          "deco",
+          "clear"
+        ],
+        "font_size": 24,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "scale": 1.0
+      },
+      {
+        "id": "ndl",
+        "field": "ndl",
+        "rel_x": 0.50224,
+        "rel_y": 0.68241,
+        "color": "#33354A",
+        "font_size": 116,
+        "font_weight": "regular",
+        "align": "center",
+        "valign": "bottom",
+        "hide_in_states": [
+          "safety_stop",
+          "deco",
+          "clear"
+        ],
+        "font_family": "Roboto",
+        "scale": 1.0
+      },
+      {
+        "id": "state",
+        "field": "state_badge",
+        "rel_x": 0.49725,
+        "rel_y": 0.57851,
+        "type": "badge",
+        "font_size": 24,
+        "value_font_size": 64,
+        "font_weight": "regular",
+        "font_family": "Roboto",
+        "align": "center",
+        "valign": "top",
+        "line_spacing": 1.3,
+        "scale": 1.0
+      },
+      {
+        "id": "n2",
+        "field": "n2_tissue_load",
+        "rel_x": 0.24819,
+        "rel_y": 0.25932,
+        "type": "arc",
+        "width": 400,
+        "height": 400,
+        "thickness": 13,
+        "start_angle": 40,
+        "sweep": 110,
+        "segments": 10,
+        "segment_gap": 7,
+        "range_min": 0,
+        "range_max": 100,
+        "track_color": "#EEEEF4",
+        "color": "#33354A",
+        "font_family": "Roboto",
+        "scale": 1.0,
+        "fill_from": "end"
+      },
+      {
+        "id": "label_count",
+        "field": "custom:COUNT",
+        "color": "#EEEEF4",
+        "box_color": "#33354A",
+        "box_pad": 0.18,
+        "font_size": 24,
+        "font_weight": "bold",
+        "font_family": "Roboto Condensed",
+        "align": "center",
+        "valign": "top",
+        "hide_in_states": [
+          "normal",
+          "clear"
+        ],
+        "scale": 1.0,
+        "rel_x": 0.49725,
+        "rel_y": 0.53365
+      }
+    ]
+  }
+}

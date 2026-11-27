@@ -34,6 +34,14 @@ class RunService : Service() {
         @Volatile
         var percent: (() -> Int?)? = null
 
+        /**
+         * The percent of the file going on as the page shows it (the
+         * whole of its work, not the encode alone), or null; set by the
+         * activity.
+         */
+        @Volatile
+        var filePercent: Int? = null
+
         /** The run's files done and in all, or null; set by the activity. */
         @Volatile
         var files: Pair<Int, Int>? = null
@@ -124,7 +132,9 @@ class RunService : Service() {
             Intent(this, RunService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE,
         )
-        val done = percent?.invoke()
+        // What the page shows; the encode's own percent when the page
+        // has said nothing yet.
+        val done = (filePercent ?: percent?.invoke())?.coerceIn(0, 100)
         val run = files?.takeIf { it.second > 1 }
         // "File 3 of 7 · 40 %": the file being worked on, and how far.
         val text = listOfNotNull(

@@ -547,9 +547,14 @@ class ConvertionController extends ChangeNotifier {
 
   /// The files a run will write, a line each, or a hint while there is
   /// nothing to say.
-  String get outputPreviewText {
+  String get outputPreviewText => _outputText(_dest.trim());
+
+  /// The same as file names alone, for a phone: where they go stands in
+  /// the row above (owner, 2026-11-24).
+  String get outputNamesText => _outputText('');
+
+  String _outputText(String dest) {
     final source = _source.trim();
-    final dest = _dest.trim();
     final selected = _selected;
     final copies = shares;
     if (source.isEmpty || (selected.isEmpty && copies.isEmpty)) {

@@ -15,38 +15,59 @@ import 'package:uwmedia_app/core/parsers/registry.dart';
 /// or held no dives.
 typedef LogRead = ({List<Dive> dives, List<String> warnings});
 
-/// Every dive of the files at [paths], each knowing its file; [tanks]
-/// names the tank sensors.
-LogRead readLogs(List<String> paths, TankConfig tanks) {
+/// What one file gave: its dives (none for a log without dives), `null`
+/// for a file that is no log the app reads, or why it could not be read
+/// ([reason] as a warning says it, [raw] the error as it stands).
+typedef FileDives = ({List<Dive>? dives, String? reason, String? raw});
+
+/// The dives of the log at [path], each knowing its file; [tanks] names
+/// the tank sensors.
+FileDives parseLogFileAt(String path, TankConfig tanks) {
+  final List<Dive>? found;
+  try {
+    found = parseLogFile(path, File(path).readAsBytesSync(), tanks: tanks);
+  } on Object catch (e) {
+    return (dives: null, reason: _reason(e), raw: '$e');
+  }
+  if (found != null) {
+    final name = p.basename(path);
+    for (final dive in found) {
+      if ((dive.logPath ?? '').isEmpty) {
+        dive.logPath = path;
+      }
+      if ((dive.logFilename ?? '').isEmpty) {
+        dive.logFilename = name;
+      }
+    }
+  }
+  return (dives: found, reason: null, raw: null);
+}
+
+/// What the files at [paths] gave, as [readLogs] says it: every dive, and
+/// a warning per file that could not be read or held no dives.
+LogRead logReadOf(List<String> paths, List<FileDives> files) {
   final dives = <Dive>[];
   final warnings = <String>[];
-  for (final path in paths) {
-    final name = p.basename(path);
-    List<Dive>? found;
-    try {
-      found = parseLogFile(path, File(path).readAsBytesSync(), tanks: tanks);
-    } on Object catch (e) {
-      warnings.add('$name: could not be read (${_reason(e)})');
-      continue;
-    }
-    if (found == null) {
+  for (final (i, file) in files.indexed) {
+    final name = p.basename(paths[i]);
+    final found = file.dives;
+    if (file.reason != null) {
+      warnings.add('$name: could not be read (${file.reason})');
+    } else if (found == null) {
       warnings.add('$name: not a dive log UWMedia reads');
     } else if (found.isEmpty) {
       warnings.add('$name: no dives in the file');
     } else {
-      for (final dive in found) {
-        if ((dive.logPath ?? '').isEmpty) {
-          dive.logPath = path;
-        }
-        if ((dive.logFilename ?? '').isEmpty) {
-          dive.logFilename = name;
-        }
-      }
       dives.addAll(found);
     }
   }
   return (dives: dives, warnings: warnings);
 }
+
+/// Every dive of the files at [paths], each knowing its file; [tanks]
+/// names the tank sensors.
+LogRead readLogs(List<String> paths, TankConfig tanks) =>
+    logReadOf(paths, [for (final path in paths) parseLogFileAt(path, tanks)]);
 
 String _reason(Object e) => switch (e) {
   FormatException(:final message) => message,

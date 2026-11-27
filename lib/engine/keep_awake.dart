@@ -8,6 +8,8 @@
 /// not go to sleep in the middle of a run.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 const _channel = MethodChannel('uwmedia/screen');
@@ -40,17 +42,50 @@ Future<T> withScreenOn<T>(
 }
 
 /// Tells the runner how many of the run's files are done, for what it
-/// shows of the run outside the app (Android's notification).
-Future<void> reportRunProgress(int done, int total) async {
+/// shows of the run outside the app (Android's notification). With
+/// [percent], how far the file going on is, as the page shows it: the
+/// whole of its work (the analysis and the overlay's pictures too), where
+/// the runner by itself knows only the writing of the video (owner,
+/// 2026-11-26: the app showed progress, the notification only that it
+/// was running).
+Future<void> reportRunProgress(int done, int total, {int? percent}) async {
   try {
     await _channel.invokeMethod<void>('runProgress', {
       'done': done,
       'total': total,
+      'percent': ?percent,
     });
   } on MissingPluginException {
     // No runner that shows it.
   } on PlatformException {
     // Only not shown.
+  }
+}
+
+/// Passes on a run's files done and the percent of the file going on
+/// ([reportRunProgress]), a whole percent at a time: the pages hear of
+/// progress twice a second, the runner needs it when it changes.
+class RunProgressReporter {
+  int _done = 0;
+  int _total = 0;
+  int? _percent;
+
+  /// [done] of [total] files are finished; the next starts at nothing.
+  void files(int done, int total) {
+    _done = done;
+    _total = total;
+    _percent = null;
+    unawaited(reportRunProgress(done, total));
+  }
+
+  /// The file going on is [percent] done (0 to 100).
+  void file(double percent) {
+    final whole = percent.clamp(0, 100).floor();
+    if (whole == _percent) {
+      return;
+    }
+    _percent = whole;
+    unawaited(reportRunProgress(_done, _total, percent: whole));
   }
 }
 

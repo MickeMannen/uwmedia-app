@@ -42,6 +42,18 @@ import 'template_tree_test.dart' show bundledFolder;
 
 const _assets = 'assets/overlays/templates';
 
+/// Issues accepted on this app's own pages, which the Python app's known
+/// list (read from the fixture, and frozen with it) cannot name. Each with
+/// its reason.
+const _ownKnown = <String, Map<String, String>>{
+  'tusa/tc1/simple': {
+    // The nitrogen level runs along the lower rim of a round screen: the
+    // band itself is inside the screen (radius 195 of 220), the corners
+    // of the box round a wide arc never are.
+    'n2 leaves the round screen': 'an arc along the rim of a round screen',
+  },
+};
+
 /// Px of overlap or overhang that counts as touching, not colliding
 /// (tests/test_template_sweep.py `SLACK`).
 const _slack = 2.0;
@@ -595,6 +607,7 @@ void main() {
         final pageKey = _pageKey(page);
         for (final units in UnitSystem.values) {
           final accepted = {
+            ...?_ownKnown[pageKey],
             ...?known[pageKey] as Map<String, dynamic>?,
             if (units == UnitSystem.imperial)
               ...?known['$pageKey@imperial'] as Map<String, dynamic>?,

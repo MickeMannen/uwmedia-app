@@ -26,6 +26,7 @@ import 'package:uwmedia_app/core/model/dive.dart';
 import 'package:uwmedia_app/core/naming/output_naming.dart';
 import 'package:uwmedia_app/core/units/units.dart';
 import 'package:uwmedia_app/core/util/py_strftime.dart';
+import 'package:uwmedia_app/engine/app_log.dart';
 import 'package:uwmedia_app/engine/desktop/color_batch.dart';
 import 'package:uwmedia_app/engine/desktop/free_space.dart';
 import 'package:uwmedia_app/engine/file_picks.dart' as fs;
@@ -229,10 +230,11 @@ class _RunProgressTap implements ColorBatchListener {
   _RunProgressTap(this.to);
 
   final ColorBatchListener to;
+  final _report = RunProgressReporter();
 
   @override
   void started(int total) {
-    unawaited(reportRunProgress(0, total));
+    _report.files(0, total);
     to.started(total);
   }
 
@@ -241,12 +243,15 @@ class _RunProgressTap implements ColorBatchListener {
 
   @override
   void finished(int done, int total, FileResult result) {
-    unawaited(reportRunProgress(done, total));
+    _report.files(done, total);
     to.finished(done, total, result);
   }
 
   @override
-  void progress(String file, double percent) => to.progress(file, percent);
+  void progress(String file, double percent) {
+    _report.file(percent);
+    to.progress(file, percent);
+  }
 
   @override
   void message(String line) => to.message(line);
@@ -255,7 +260,7 @@ class _RunProgressTap implements ColorBatchListener {
 /// The page on a phone: the phone's engine, a working folder for the
 /// results before they go into the album, and the logs kept in the app.
 Future<ColorController> phoneColorSetup(AppServices services) async {
-  final kit = await HudKit.load();
+  final kit = await services.hudKit();
   final bundled = await bundledTemplateFolder();
   TemplateTree list() => TemplateTree(
     bundled: bundled,
@@ -337,7 +342,7 @@ class SystemColorDialogs implements ColorDialogs {
 typedef ColorPageSetup = Future<ColorController> Function(AppServices);
 
 Future<ColorController> defaultColorSetup(AppServices services) async {
-  final kit = await HudKit.load();
+  final kit = await services.hudKit();
   final bundled = await bundledTemplateFolder();
   TemplateTree list() => TemplateTree(
     bundled: bundled,
@@ -377,6 +382,21 @@ Future<ColorController> defaultColorSetup(AppServices services) async {
 /// The most of the screen's height the preview takes on a phone (owner,
 /// 2026-11-18: a portrait picture took too much).
 const previewHeightShare = 0.42;
+
+/// The same with the phone on its side, where 42 % of the short side left
+/// a picture too small to judge and the controls are a scroll away either
+/// way (owner, 2026-11-24).
+const previewHeightShareLandscape = 0.8;
+
+/// The most height the preview takes on a [screen]: a share of it, on a
+/// phone by which way it is held.
+double previewRoom(Size screen, {required bool phone}) =>
+    screen.height *
+    (!phone
+        ? 0.7
+        : screen.width > screen.height
+        ? previewHeightShareLandscape
+        : previewHeightShare);
 
 class ColorPage extends StatefulWidget {
   const ColorPage({
@@ -546,25 +566,27 @@ class _ColorPageState extends State<ColorPage> {
     widget.services.templatesRevision.addListener(_templatesChanged);
     widget.services.watermarksRevision.addListener(_watermarksChanged);
     widget.services.keptLogsRevision.addListener(_keptLogsChanged);
-    widget
-        .setup(widget.services)
-        .then(
-          (made) {
-            if (!mounted) {
-              made.dispose();
-              return;
-            }
-            setState(() => controller = made);
-            made
-              ..addListener(_runWatch)
-              ..refreshPreview();
-          },
-          onError: (Object e) {
-            if (mounted) {
-              setState(() => failed = e);
-            }
-          },
-        );
+    AppLog.timed(
+      'Color',
+      'Setting up the Color page',
+      () => widget.setup(widget.services),
+    ).then(
+      (made) {
+        if (!mounted) {
+          made.dispose();
+          return;
+        }
+        setState(() => controller = made);
+        made
+          ..addListener(_runWatch)
+          ..refreshPreview();
+      },
+      onError: (Object e) {
+        if (mounted) {
+          setState(() => failed = e);
+        }
+      },
+    );
   }
 
   // A page saved in the Overlay Designer is offered at once.
@@ -721,9 +743,7 @@ class _ColorPageState extends State<ColorPage> {
     var height = width * c.viewHeight / c.viewWidth;
     // An upright picture as wide as the page would fill the screen and
     // push the controls off it: no higher than a share of the screen.
-    final room =
-        MediaQuery.sizeOf(context).height *
-        (widget.phone ? previewHeightShare : 0.7);
+    final room = previewRoom(MediaQuery.sizeOf(context), phone: widget.phone);
     if (height > room) {
       height = room;
       width = height * c.viewWidth / c.viewHeight;
@@ -1254,13 +1274,14 @@ class _ColorPageState extends State<ColorPage> {
               ),
             ),
             if (c.watermarkStore != null) ...[
-              // Several can be on at once (owner, 2026-11-16).
+              // Several can be on at once (owner, 2026-11-16). The label
+              // on a line of its own, so the first one starts under it
+              // like the rest (owner, 2026-11-24).
+              const Text('Watermarks'),
               Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  const Text('Watermarks'),
                   for (final name in c.watermarkList)
                     FilterChip(
                       label: Text(name),

@@ -34,10 +34,7 @@ class SettingsController extends ChangeNotifier {
   /// Told when the unit system changes, for the open pages to follow.
   final VoidCallback onUnitsChanged;
 
-  late final TankNamesEditor tanks = TankNamesEditor(
-    config: config,
-    home: home,
-  );
+  late final TankNamesEditor tanks = TankNamesEditor(config: config);
 
   String statusText = '';
   bool _disposed = false;

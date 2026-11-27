@@ -43,12 +43,15 @@ class MainActivity : FlutterActivity() {
                         call.argument<Int>("done") ?: 0,
                         call.argument<Int>("total") ?: 0,
                     )
+                    // How far the file going on is, as the page shows it.
+                    RunService.filePercent = call.argument<Int>("percent")
                     result.success(null)
                 } else if (call.method == "keepAwake") {
                     // The screen stays on during a run, and the run goes on
                     // when the user looks at another app (RunService).
                     if (call.arguments == true) {
                         RunService.files = null
+                        RunService.filePercent = null
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                         askForNotifications()
                         try {

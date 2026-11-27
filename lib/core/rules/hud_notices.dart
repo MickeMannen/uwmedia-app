@@ -226,7 +226,10 @@ class _NoticeEngine {
             entry.value.pressureBar,
           ) ==
           'critical') {
-        return entry.key;
+        // Its name where it has one, as the tank fields show it (the name
+        // in sidemount, spec §10.104); else its key, as Python.
+        final name = entry.value.name;
+        return name == null || name.isEmpty ? entry.key : name;
       }
     }
     return null;

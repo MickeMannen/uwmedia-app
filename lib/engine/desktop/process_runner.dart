@@ -8,7 +8,16 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:path/path.dart' as p;
 import 'package:uwmedia_app/core/engine/progress.dart';
+import 'package:uwmedia_app/engine/app_log.dart';
+
+/// What the log calls a run of [executable]: the tool's name and the
+/// start of its arguments.
+String runName(String executable, List<String> args) {
+  final text = [p.basenameWithoutExtension(executable), ...args].join(' ');
+  return text.length <= 100 ? text : '${text.substring(0, 100)}…';
+}
 
 /// What a finished run left.
 typedef RunResult = ({int exitCode, String stdout, String stderr});
@@ -16,6 +25,17 @@ typedef RunResult = ({int exitCode, String stdout, String stderr});
 /// Runs [executable] to its end. `null` when it could not be started or
 /// took longer than [timeout], in which case it is stopped.
 Future<RunResult?> runCapture(
+  String executable,
+  List<String> args, {
+  Duration? timeout,
+}) => AppLog.timed(
+  'Tools',
+  runName(executable, args),
+  () => _runCapture(executable, args, timeout: timeout),
+  slowMs: 2000,
+);
+
+Future<RunResult?> _runCapture(
   String executable,
   List<String> args, {
   Duration? timeout,
@@ -44,7 +64,15 @@ Future<RunResult?> runCapture(
 /// Runs [executable] to its end and gives what it wrote on standard
 /// output as bytes (a picture, say); `null` when it could not be started
 /// or ended with an error.
-Future<Uint8List?> runForBytes(String executable, List<String> args) async {
+Future<Uint8List?> runForBytes(String executable, List<String> args) =>
+    AppLog.timed(
+      'Tools',
+      runName(executable, args),
+      () => _runForBytes(executable, args),
+      slowMs: 2000,
+    );
+
+Future<Uint8List?> _runForBytes(String executable, List<String> args) async {
   final Process process;
   try {
     process = await Process.start(executable, args);
@@ -114,6 +142,15 @@ class ToolRun {
   /// started.
   static Future<ToolRun> start(String executable, List<String> args) async {
     final process = await Process.start(executable, args);
+    // Under way until it ends; the pages write what a long run did.
+    unawaited(
+      AppLog.timed(
+        'Tools',
+        runName(executable, args),
+        () => process.exitCode,
+        slowMs: null,
+      ),
+    );
     unawaited(process.stdin.close().catchError((Object _) {}));
     // Standard output is not read: what the tools write there in a long
     // run is nothing the app shows, and an unread pipe would stall them.

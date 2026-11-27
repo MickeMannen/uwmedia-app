@@ -285,11 +285,18 @@ Map<String, Map<String, Object?>> _profiles(String? text) => {
       },
 };
 
-/// The bundled profiles with the user's own layered on top: a user profile
-/// replaces the bundled one of the same name as a whole. Each argument is
-/// the text of a `color.yaml`, or `null` when there is no such file; a
-/// file that cannot be read counts as empty. With no profile at all there
-/// is still an empty `default`.
+/// The names of the bundled profiles ([bundled] is the text of the app's
+/// `color.yaml`): those a user's profile cannot change or take the place
+/// of (spec §10.103).
+Set<String> bundledProfileNames(String? bundled) =>
+    _profiles(bundled).keys.toSet();
+
+/// The bundled profiles and the user's own beside them. A bundled profile
+/// is always as it was shipped: a user profile with a bundled one's name
+/// is left out (spec §10.103; Python lets it take the bundled one's
+/// place). Each argument is the text of a `color.yaml`, or `null` when
+/// there is no such file; a file that cannot be read counts as empty.
+/// With no profile at all there is still an empty `default`.
 ///
 /// An entry that is not a set of parameters (`note: text`) is left out;
 /// Python passes it on as a profile.
@@ -297,14 +304,20 @@ Map<String, Map<String, Object?>> mergedColorProfiles(
   String? bundled,
   String? user,
 ) {
-  final merged = {..._profiles(bundled), ..._profiles(user)};
+  final shipped = _profiles(bundled);
+  final merged = {
+    ...shipped,
+    for (final MapEntry(:key, :value) in _profiles(user).entries)
+      if (!shipped.containsKey(key)) key: value,
+  };
   return merged.isEmpty ? {'default': {}} : merged;
 }
 
 /// The text of the user's `color.yaml` ([userText], `null` when there is
 /// none yet) with the profile [name] set to [values]; every other profile
-/// in the file stays as it is. Saving a profile named like a bundled one
-/// makes a user profile that takes its place.
+/// in the file stays as it is. A name of a bundled profile is the
+/// caller's to refuse ([bundledProfileNames]): such a profile would be
+/// written and never used.
 String withUserProfile(
   String? userText,
   String name,

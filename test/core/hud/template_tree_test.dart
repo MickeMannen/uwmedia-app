@@ -15,8 +15,12 @@ import '../../helpers/renderer_reference.dart';
 const _assets = 'assets/overlays/templates';
 
 /// The overlays this app bundles that the Python app does not have (spec
-/// §10.48: the simple overlays of user story U9.5).
-const _ownTemplates = 'generic/simple/';
+/// §10.48: the simple overlays of user story U9.5; §10.107: the TUSA
+/// computers).
+const ownTemplates = ['generic/simple/', 'tusa/'];
+
+/// Whether [path], from the templates' folder on, is one of them.
+bool isOwnTemplate(String path) => ownTemplates.any(path.startsWith);
 
 /// The bundled templates as the fixture names them: root "bundled".
 /// [asPython] leaves out the app's own and puts Python's values back
@@ -28,7 +32,7 @@ TemplateFolder bundledFolder({bool asPython = false}) {
       _assets,
     ).listSync(recursive: true).whereType<File>())
       file.path.substring(_assets.length + 1).replaceAll(r'\', '/'),
-  ].where((file) => !asPython || !file.startsWith(_ownTemplates)).toList();
+  ].where((file) => !asPython || !isOwnTemplate(file)).toList();
   return ListedTemplateFolder('bundled', files, (path) {
     final text = File('$_assets/$path').readAsStringSync();
     return asPython ? asPythonText('$_assets/$path', text) : text;
@@ -235,9 +239,10 @@ void main() {
           }
         });
       });
-      // The Python app's 115 and the simple overlays of this app: two
-      // boxes, and six pages for one tank and for a sidemount pair.
-      expect(loaded, 115 + 2 + 6 * 2);
+      // The Python app's 115 and this app's own: the simple overlays (two
+      // boxes, and six pages for one tank and for a sidemount pair) and
+      // the three TUSA pages.
+      expect(loaded, 115 + 2 + 6 * 2 + 3);
     });
 
     test('a manifest that is not one is passed over', () {

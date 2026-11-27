@@ -6,7 +6,6 @@
 library;
 
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -19,9 +18,11 @@ import 'package:uwmedia_app/core/parsers/fit_merge.dart';
 import 'package:uwmedia_app/core/parsers/fit_time.dart';
 import 'package:uwmedia_app/core/units/units.dart';
 import 'package:uwmedia_app/core/util/py_strftime.dart';
+import 'package:uwmedia_app/engine/dive_cache.dart';
 import 'package:uwmedia_app/engine/log_files.dart';
 
-/// Reads the logs at the paths; by default on another isolate.
+/// Reads the logs at the paths; by default through the app's cache, on
+/// other isolates.
 typedef LogReader = Future<LogRead> Function(
   List<String> paths,
   TankConfig tanks,
@@ -31,14 +32,16 @@ typedef LogReader = Future<LogRead> Function(
 /// cancelled.
 typedef SaveDialog = Future<String?> Function(String suggested, String title);
 
-Future<LogRead> _readOnIsolate(List<String> paths, TankConfig tanks) =>
-    Isolate.run(() => readLogs(paths, tanks));
+// Through the app's cache: a log another page has read, or this one
+// before, is not parsed again (spec §10.106).
+Future<LogRead> _readCached(List<String> paths, TankConfig tanks) =>
+    diveCache.read(paths, tanks);
 
 class LogViewerController extends ChangeNotifier {
   LogViewerController({
     required this.config,
     required this.home,
-    this.reader = _readOnIsolate,
+    this.reader = _readCached,
   });
 
   final ConfigStore config;

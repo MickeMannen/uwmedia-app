@@ -67,8 +67,8 @@ void main() {
     // 15 % of 1920 design pixels from a picture 600 wide.
     expect(skin['scale'], closeTo(0.48, 1e-9));
     expect(skin['anchor'], 'BOTTOM_RIGHT');
-    expect(skin['ref_offset_x'], closeTo(-38.4, 1e-9));
-    expect(skin['ref_offset_y'], closeTo(-38.4, 1e-9));
+    expect(skin['ref_offset_x'], closeTo(-9.6, 1e-9));
+    expect(skin['ref_offset_y'], closeTo(-9.6, 1e-9));
     expect(skin['opacity'], 0.6);
 
     final top =
@@ -82,7 +82,7 @@ void main() {
             )!['hud_skin']
             as Map<String, dynamic>;
     expect(top['ref_offset_x'], 0.0);
-    expect(top['ref_offset_y'], closeTo(38.4, 1e-9));
+    expect(top['ref_offset_y'], closeTo(9.6, 1e-9));
 
     expect(
       watermarkLayout(const Watermark(name: 'Logo', picture: 'logo.png')),
@@ -151,7 +151,7 @@ void main() {
     expect(skinOn(3840, 2160)['anchor'], 'TOP_RIGHT');
     expect(skinOn(1080, 1920)['anchor'], 'BOTTOM_CENTER');
     expect(skinOn(1080, 1920)['ref_offset_x'], 0.0);
-    expect(skinOn(1080, 1920)['ref_offset_y'], closeTo(-38.4, 1e-9));
+    expect(skinOn(1080, 1920)['ref_offset_y'], closeTo(-9.6, 1e-9));
 
     // Values out of the frame are brought in; what is no pair is none.
     final odd = Watermark.fromJson({
@@ -187,7 +187,7 @@ void main() {
       place: (x: 0.25, y: 0.75),
       placePortrait: (x: 1, y: 0.4),
     );
-    // On 1920 x 1080 design pixels: 480 x 240 with a margin of 38.4.
+    // On 1920 x 1080 design pixels: 480 x 240 with a margin of 9.6.
     final skin =
         watermarkLayout(mark, pictureSize: (600, 300))!['hud_skin']
             as Map<String, dynamic>;
@@ -195,11 +195,11 @@ void main() {
     expect(skin['scale'], closeTo(0.8, 1e-9));
     expect(
       skin['ref_offset_x'],
-      closeTo(38.4 + 0.25 * (1920 - 76.8 - 480), 1e-9),
+      closeTo(9.6 + 0.25 * (1920 - 19.2 - 480), 1e-9),
     );
     expect(
       skin['ref_offset_y'],
-      closeTo(38.4 + 0.75 * (1080 - 76.8 - 240), 1e-9),
+      closeTo(9.6 + 0.75 * (1080 - 19.2 - 240), 1e-9),
     );
 
     // A portrait frame: its own place, on a frame 1920 x 3413.3 design
@@ -212,10 +212,10 @@ void main() {
               frameH: 1920,
             )!['hud_skin']
             as Map<String, dynamic>;
-    expect(upright['ref_offset_x'], closeTo(1920 - 38.4 - 480, 1e-9));
+    expect(upright['ref_offset_x'], closeTo(1920 - 9.6 - 480, 1e-9));
     expect(
       upright['ref_offset_y'],
-      closeTo(38.4 + 0.4 * (1920 * 1920 / 1080 - 76.8 - 240), 1e-9),
+      closeTo(9.6 + 0.4 * (1920 * 1920 / 1080 - 19.2 - 240), 1e-9),
     );
     // The same share of the way on a frame of another shape.
     final wide =
@@ -228,7 +228,7 @@ void main() {
             as Map<String, dynamic>;
     expect(
       wide['ref_offset_y'],
-      closeTo(38.4 + 0.75 * (960 - 76.8 - 240), 1e-9),
+      closeTo(9.6 + 0.75 * (960 - 19.2 - 240), 1e-9),
     );
   });
 
@@ -254,11 +254,11 @@ void main() {
     expect(skin['height'], closeTo(43.2, 1e-9));
     expect(
       skin['ref_offset_x'],
-      closeTo(38.4 + 0.3 * (1920 - 76.8 - 230.4), 1e-9),
+      closeTo(9.6 + 0.3 * (1920 - 19.2 - 230.4), 1e-9),
     );
     expect(
       skin['ref_offset_y'],
-      closeTo(38.4 + 0.6 * (1080 - 76.8 - 43.2), 1e-9),
+      closeTo(9.6 + 0.6 * (1080 - 19.2 - 43.2), 1e-9),
     );
     final element = (skin['linked_elements'] as List).single as Map;
     expect((element['align'], element['valign']), ('center', 'middle'));
@@ -269,7 +269,7 @@ void main() {
         watermarkLayout(measured.copyWith(place: (x: 1, y: 1)))!['hud_skin']
             as Map<String, dynamic>;
     expect(corner['anchor'], 'TOP_LEFT');
-    expect(corner['ref_offset_x'], closeTo(1920 - 38.4 - 230.4, 1e-9));
+    expect(corner['ref_offset_x'], closeTo(1920 - 9.6 - 230.4, 1e-9));
 
     // Kept and read back; other words are not measured yet.
     final back = Watermark.fromJson(measured.toJson())!;
@@ -309,5 +309,71 @@ void main() {
       const Watermark(name: 'a', text: 'b').toJson(),
       isNot(contains('frames')),
     );
+  });
+
+  test('a size of its own on portrait frames (spec §10.105)', () {
+    // Until it has one, the portrait size is the landscape one.
+    const one = Watermark(name: 'Logo', picture: 'logo.png', size: 0.2);
+    expect(one.sizePortrait, 0.2);
+    expect(one.toJson().containsKey('size_portrait'), isFalse);
+    expect(identical(one.shaped(portrait: true), one), isTrue);
+    expect(one.copyWith(size: 0.3).sizePortrait, 0.3, reason: 'it follows');
+
+    final two = one.copyWith(sizePortrait: 0.4);
+    expect(two.size, 0.2);
+    expect(two.sizeOn(1920, 1080), 0.2);
+    expect(two.sizeOn(1080, 1080), 0.2, reason: 'a square is landscape');
+    expect(two.sizeOn(1080, 1920), 0.4);
+    expect(two.copyWith(size: 0.3).sizePortrait, 0.4, reason: 'its own now');
+    expect(two.shaped(portrait: true).size, 0.4);
+    expect(identical(two.shaped(portrait: false), two), isTrue);
+
+    // Kept and read back; out of range is brought in; an old entry has
+    // the one size for both.
+    final json = two.toJson();
+    expect(json['size_portrait'], 0.4);
+    final back = Watermark.fromJson(json)!;
+    expect((back.size, back.sizePortrait), (0.2, 0.4));
+    expect(
+      Watermark.fromJson({...json, 'size_portrait': 9})!.sizePortrait,
+      watermarkMaxSize,
+    );
+    expect(
+      Watermark.fromJson({...json}..remove('size_portrait'))!.sizePortrait,
+      0.2,
+    );
+
+    // Drawn: a picture 600 wide is 0.2 x 1920 / 600 on a landscape frame
+    // and 0.4 x 1920 / 600 on a portrait one, each at its own place.
+    Map<String, dynamic> skin(int w, int h) =>
+        watermarkLayout(
+              two,
+              pictureSize: (600, 300),
+              frameW: w,
+              frameH: h,
+            )!['hud_skin']
+            as Map<String, dynamic>;
+    expect(skin(1920, 1080)['scale'], closeTo(0.64, 1e-9));
+    expect(skin(1080, 1920)['scale'], closeTo(1.28, 1e-9));
+    expect(
+      watermarkShare(two.shaped(portrait: true), pictureSize: (600, 300)),
+      (0.4, 0.2),
+    );
+
+    // A text: its letters.
+    final text = const Watermark(
+      name: 'Name',
+      text: '© Diver',
+      size: 0.03,
+    ).copyWith(sizePortrait: 0.06);
+    double letters(int w, int h) =>
+        (((watermarkLayout(text, frameW: w, frameH: h)!['hud_skin']
+                            as Map<String, dynamic>)['linked_elements']
+                        as List<dynamic>)
+                    .single
+                as Map<String, dynamic>)['font_size']
+            as double;
+    expect(letters(1920, 1080), closeTo(0.03 * 1920, 1e-9));
+    expect(letters(1080, 1920), closeTo(0.06 * 1920, 1e-9));
   });
 }

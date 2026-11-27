@@ -30,6 +30,10 @@ class HudKit {
 
   static Future<HudKit>? _loading;
 
+  /// The kit when it is loaded or being loaded; `null` before the first
+  /// [load].
+  static Future<HudKit>? get loading => _loading;
+
   /// The kit, loaded on the first call (the fonts registered with Flutter
   /// once).
   static Future<HudKit> load([AssetBundle? bundle]) =>
